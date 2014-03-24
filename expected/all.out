@@ -1,0 +1,71 @@
+\echo ###### Prepare for the test
+###### Prepare for the test
+\set QUIET
+SET client_min_messages = 'error';
+CREATE EXTENSION IF NOT EXISTS pg_store_plans;
+DROP TABLE IF EXISTS plans;
+CREATE TABLE plans (id int, title text, lplan text, splan text);
+SET client_min_messages = 'notice';
+\set ECHO none
+###### insert original JSON plans
+###### set shortened JSON
+UPDATE plans SET splan = pg_store_plans_shorten(lplan);
+###### JSON properties round-trip test
+SELECT id FROM plans
+	where pg_store_plans_jsonplan(splan) <> lplan;
+ id 
+----
+(0 rows)
+
+###### format conversion tests
+SELECT '### '||'yaml-short       '||title||E'\n'||
+  pg_store_plans_yamlplan(splan)
+  FROM plans WHERE id BETWEEN 1 AND 3 or id = 1 ORDER BY id;
+##################
+SELECT '### '||'xml-short        '||title||E'\n'||
+  pg_store_plans_xmlplan(splan)
+  FROM plans WHERE id BETWEEN 4 AND 6 or id = 1 ORDER BY id;
+###### text format output test
+SELECT '### '||'TEXT-short       '||title||E'\n'||
+  pg_store_plans_textplan(splan)
+  FROM plans ORDER BY id;
+### TEXT-short       ###### Plan 0: all properties
+
+###### long-json-as-a-source test
+SELECT '### '||'yaml-long JSON   '||title||E'\n'||
+  pg_store_plans_yamlplan(lplan)
+  FROM plans WHERE id = 1 ORDER BY id;
+##################
+SELECT '### '||'xml-long JSON    '||title||E'\n'||
+  pg_store_plans_xmlplan(lplan)
+  FROM plans WHERE id = 1 ORDER BY id;
+##################
+SELECT '### '||'text-long JSON   '||title||E'\n'||
+  pg_store_plans_xmlplan(lplan)
+  FROM plans WHERE id = 1 ORDER BY id;
+###### chopped-source test
+SELECT '### '||'inflate-chopped  '||title||E'\n'||
+  pg_store_plans_jsonplan(substring(splan from 1 for char_length(splan) / 3))
+  FROM plans WHERE id BETWEEN 16 AND 18 ORDER BY id;
+##################
+SELECT '### '||'yaml-chopped     '||title||E'\n'||
+  pg_store_plans_yamlplan(substring(splan from 1 for char_length(splan) / 3))
+  FROM plans WHERE id BETWEEN 19 AND 21 ORDER BY id;
+##################
+SELECT '### '||'xml-chopped      '||title||E'\n'||
+  pg_store_plans_xmlplan(substring(splan from 1 for char_length(splan) / 3))
+  FROM plans WHERE id BETWEEN 22 AND 24 ORDER BY id;
+##################
+SELECT '### '||'text-chopped     '||title||E'\n'||
+  pg_store_plans_textplan(substring(splan from 1 for char_length(splan) / 3))
+  FROM plans WHERE id BETWEEN 25 AND 27 ORDER BY id;
+###### shorten test
+SELECT '### '||'shorten          '||title||E'\n'||
+  pg_store_plans_shorten(lplan)
+  FROM plans WHERE id = 0 ORDER BY id;
+### shorten          ###### Plan 0: all properties
+{"p":0,"l":0,"t":"a","t":"b","t":"c","t":"d","t":"e","t":"f","t":"g","t":"h","t":"i","t":"j","t":"k","t":"l","t":"m","t":"n","t":"o","t":"p","t":"q","t":"r","t":"s","t":"t","t":"u","t":"v","t":"w","t":"x","t":"y","t":"z","t":"0","t":"1","t":"2","t":"3","t":"4","t":"5","h":"o","h":"i","h":"s","h":"m","h":"I","h":"S","d":"b","d":"n","d":"f","i":0,"n":0,"f":0,"c":0,"s":0,"a":0,"o":"[]","m":"a","g":"p","g":"s","g":"h","j":"i","j":"l","j":"f","j":"r","j":"s","j":"a","b":"i","b":"I","b":"e","b":"E","e":"h","e":"q","e":"e","e":"E","e":"s","k":"a","5":"a","6":"a","7":"a","8":"a","9":"a","0":"a","!":"i","!":"d","!":"u","q":"a","r":0,"u":0,"v":0,"w":0,"x":0,"y":0,"1":0,"2":0,"3":0,"4":0,"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"J":0,"K":0,"L":0,"M":0,"N":0,"O":0,"P":0,"Q":0,"R":0,"S":"d","S":"m","T":0,"U":0,"V":0,"W":0,"X":0,"Y":0,"Z":0,"z":0}
+###### normalize test
+SELECT '### '||'normalize        '||title||E'\n'||
+  pg_store_plans_normalize(lplan)
+  FROM plans WHERE id BETWEEN 1 AND 3 ORDER BY id;
