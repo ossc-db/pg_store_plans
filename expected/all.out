@@ -21,44 +21,1793 @@ SELECT id FROM plans
 SELECT '### '||'yaml-short       '||title||E'\n'||
   pg_store_plans_yamlplan(splan)
   FROM plans WHERE id BETWEEN 1 AND 3 or id = 1 ORDER BY id;
+### yaml-short       ###### Plan 1: Insert, Trigger
+- Plan:
+    Node Type: "ModifyTable"
+    Operation: "Insert"
+    Relation Name: "tt1"
+    Schema: "public"
+    Alias: "tt1"
+    Startup Cost: 0.00
+    Total Cost: 10.00
+    Plan Rows: 1000
+    Plan Width: 4
+    Actual Startup Time: 256.149
+    Actual Total Time: 256.149
+    Actual Rows: 0
+    Actual Loops: 1
+    Shared Hit Blocks: 29735
+    Shared Read Blocks: 87
+    Shared Dirtied Blocks: 85
+    Shared Written Blocks: 0
+    Local Hit Blocks: 0
+    Local Read Blocks: 0
+    Local Dirtied Blocks: 0
+    Local Written Blocks: 0
+    Temp Read Blocks: 0
+    Temp Written Blocks: 0
+    I/O Read Time: 0.000
+    I/O Write Time: 0.000
+    Plans:
+      - Node Type: "Function Scan"
+        Parent Relationship: "Member"
+        Function Name: "generate_series"
+        Schema: "pg_catalog"
+        Alias: "a"
+        Startup Cost: 0.00
+        Total Cost: 10.00
+        Plan Rows: 1000
+        Plan Width: 4
+        Actual Startup Time: 3.459
+        Actual Total Time: 9.184
+        Actual Rows: 10001
+        Actual Loops: 1
+        Output:
+          - "a.a"
+          - "NULL::integer"
+          - "NULL::text"
+        Function Call: "generate_series(0, 10000)"
+        Shared Hit Blocks: 0
+        Shared Read Blocks: 0
+        Shared Dirtied Blocks: 0
+        Shared Written Blocks: 0
+        Local Hit Blocks: 0
+        Local Read Blocks: 0
+        Local Dirtied Blocks: 0
+        Local Written Blocks: 0
+        Temp Read Blocks: 0
+        Temp Written Blocks: 0
+        I/O Read Time: 0.000
+        I/O Write Time: 0.000
+  Planning Time: 0.072
+  Triggers:
+    - Trigger Name: "tt1_trig_1"
+      Relation: "tt1"
+      Time: 90.331
+      Calls: 10001
+    - Trigger Name: "tt1_trig_2"
+      Relation: "tt1"
+      Time: 81.847
+      Calls: 10001
+
+=======
+### yaml-short       ###### Plan 2: Update, Trigger
+- Plan:
+    Node Type: "ModifyTable"
+    Operation: "Update"
+    Relation Name: "tt1"
+    Schema: "public"
+    Alias: "tt1"
+    Startup Cost: 0.00
+    Total Cost: 134.75
+    Plan Rows: 6380
+    Plan Width: 46
+    Actual Startup Time: 313.811
+    Actual Total Time: 313.811
+    Actual Rows: 0
+    Actual Loops: 1
+    Shared Hit Blocks: 50276
+    Shared Read Blocks: 108
+    Shared Dirtied Blocks: 108
+    Shared Written Blocks: 0
+    Local Hit Blocks: 0
+    Local Read Blocks: 0
+    Local Dirtied Blocks: 0
+    Local Written Blocks: 0
+    Temp Read Blocks: 0
+    Temp Written Blocks: 0
+    I/O Read Time: 0.000
+    I/O Write Time: 0.000
+    Plans:
+      - Node Type: "Seq Scan"
+        Parent Relationship: "Member"
+        Relation Name: "tt1"
+        Schema: "public"
+        Alias: "tt1"
+        Startup Cost: 0.00
+        Total Cost: 134.75
+        Plan Rows: 6380
+        Plan Width: 46
+        Actual Startup Time: 0.040
+        Actual Total Time: 10.405
+        Actual Rows: 10001
+        Actual Loops: 1
+        Output:
+          - "(a + 1)"
+          - "b"
+          - "c"
+          - "ctid"
+        Shared Hit Blocks: 55
+        Shared Read Blocks: 0
+        Shared Dirtied Blocks: 0
+        Shared Written Blocks: 0
+        Local Hit Blocks: 0
+        Local Read Blocks: 0
+        Local Dirtied Blocks: 0
+        Local Written Blocks: 0
+        Temp Read Blocks: 0
+        Temp Written Blocks: 0
+        I/O Read Time: 0.000
+        I/O Write Time: 0.000
+  Planning Time: 30.245
+  Triggers:
+    - Trigger Name: "tt1_trig_1"
+      Relation: "tt1"
+      Time: 96.546
+      Calls: 10001
+    - Trigger Name: "tt1_trig_2"
+      Relation: "tt1"
+      Time: 83.609
+      Calls: 10001
+
+=======
+### yaml-short       ###### Plan 3: Delete
+- Plan:
+    Node Type: "ModifyTable"
+    Operation: "Delete"
+    Relation Name: "tt1"
+    Schema: "public"
+    Alias: "tt1"
+    Startup Cost: 0.00
+    Total Cost: 298.66
+    Plan Rows: 63
+    Plan Width: 6
+    Actual Startup Time: 12.324
+    Actual Total Time: 12.324
+    Actual Rows: 0
+    Actual Loops: 1
+    Shared Hit Blocks: 1109
+    Shared Read Blocks: 0
+    Shared Dirtied Blocks: 0
+    Shared Written Blocks: 0
+    Local Hit Blocks: 0
+    Local Read Blocks: 0
+    Local Dirtied Blocks: 0
+    Local Written Blocks: 0
+    Temp Read Blocks: 0
+    Temp Written Blocks: 0
+    I/O Read Time: 0.000
+    I/O Write Time: 0.000
+    Plans:
+      - Node Type: "Seq Scan"
+        Parent Relationship: "Member"
+        Relation Name: "tt1"
+        Schema: "public"
+        Alias: "tt1"
+        Startup Cost: 0.00
+        Total Cost: 298.66
+        Plan Rows: 63
+        Plan Width: 6
+        Actual Startup Time: 3.454
+        Actual Total Time: 9.822
+        Actual Rows: 1000
+        Actual Loops: 1
+        Output:
+          - "ctid"
+        Filter: "((tt1.a % 10) = 0)"
+        Rows Removed by Filter: 9001
+        Shared Hit Blocks: 109
+        Shared Read Blocks: 0
+        Shared Dirtied Blocks: 0
+        Shared Written Blocks: 0
+        Local Hit Blocks: 0
+        Local Read Blocks: 0
+        Local Dirtied Blocks: 0
+        Local Written Blocks: 0
+        Temp Read Blocks: 0
+        Temp Written Blocks: 0
+        I/O Read Time: 0.000
+        I/O Write Time: 0.000
+  Planning Time: 1.091
+  Triggers:
 ##################
 SELECT '### '||'xml-short        '||title||E'\n'||
   pg_store_plans_xmlplan(splan)
   FROM plans WHERE id BETWEEN 4 AND 6 or id = 1 ORDER BY id;
+### xml-short        ###### Plan 1: Insert, Trigger
+<explain xmlns="http://www.postgresql.org/2009/explain">
+  <Query>
+    <Plan>
+      <Node-Type>ModifyTable</Node-Type>
+      <Operation>Insert</Operation>
+      <Relation-Name>tt1</Relation-Name>
+      <Schema>public</Schema>
+      <Alias>tt1</Alias>
+      <Startup-Cost>0.00</Startup-Cost>
+      <Total-Cost>10.00</Total-Cost>
+      <Plan-Rows>1000</Plan-Rows>
+      <Plan-Width>4</Plan-Width>
+      <Actual-Startup-Time>256.149</Actual-Startup-Time>
+      <Actual-Total-Time>256.149</Actual-Total-Time>
+      <Actual-Rows>0</Actual-Rows>
+      <Actual-Loops>1</Actual-Loops>
+      <Shared-Hit-Blocks>29735</Shared-Hit-Blocks>
+      <Shared-Read-Blocks>87</Shared-Read-Blocks>
+      <Shared-Dirtied-Blocks>85</Shared-Dirtied-Blocks>
+      <Shared-Written-Blocks>0</Shared-Written-Blocks>
+      <Local-Hit-Blocks>0</Local-Hit-Blocks>
+      <Local-Read-Blocks>0</Local-Read-Blocks>
+      <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+      <Local-Written-Blocks>0</Local-Written-Blocks>
+      <Temp-Read-Blocks>0</Temp-Read-Blocks>
+      <Temp-Written-Blocks>0</Temp-Written-Blocks>
+      <I/O-Read-Time>0.000</I/O-Read-Time>
+      <I/O-Write-Time>0.000</I/O-Write-Time>
+      <Plans>
+        <Plan>
+          <Node-Type>Function Scan</Node-Type>
+          <Parent-Relationship>Member</Parent-Relationship>
+          <Function-Name>generate_series</Function-Name>
+          <Schema>pg_catalog</Schema>
+          <Alias>a</Alias>
+          <Startup-Cost>0.00</Startup-Cost>
+          <Total-Cost>10.00</Total-Cost>
+          <Plan-Rows>1000</Plan-Rows>
+          <Plan-Width>4</Plan-Width>
+          <Actual-Startup-Time>3.459</Actual-Startup-Time>
+          <Actual-Total-Time>9.184</Actual-Total-Time>
+          <Actual-Rows>10001</Actual-Rows>
+          <Actual-Loops>1</Actual-Loops>
+          <Output>
+            <Item>a.a</Item>
+            <Item>NULL::integer</Item>
+            <Item>NULL::text</Item>
+          </Output>
+          <Function-Call>generate_series(0, 10000)</Function-Call>
+          <Shared-Hit-Blocks>0</Shared-Hit-Blocks>
+          <Shared-Read-Blocks>0</Shared-Read-Blocks>
+          <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+          <Shared-Written-Blocks>0</Shared-Written-Blocks>
+          <Local-Hit-Blocks>0</Local-Hit-Blocks>
+          <Local-Read-Blocks>0</Local-Read-Blocks>
+          <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+          <Local-Written-Blocks>0</Local-Written-Blocks>
+          <Temp-Read-Blocks>0</Temp-Read-Blocks>
+          <Temp-Written-Blocks>0</Temp-Written-Blocks>
+          <I/O-Read-Time>0.000</I/O-Read-Time>
+          <I/O-Write-Time>0.000</I/O-Write-Time>
+        </Plan>
+      </Plans>
+    </Plan>
+    <Planning-Time>0.072</Planning-Time>
+    <Triggers>
+      <Trigger>
+        <Trigger-Name>tt1_trig_1</Trigger-Name>
+        <Relation>tt1</Relation>
+        <Time>90.331</Time>
+        <Calls>10001</Calls>
+      </Trigger>
+      <Trigger>
+        <Trigger-Name>tt1_trig_2</Trigger-Name>
+        <Relation>tt1</Relation>
+        <Time>81.847</Time>
+        <Calls>10001</Calls>
+      </Trigger>
+    </Triggers>
+  </Query>
+</explain>
+
+
+=======
+### xml-short        ###### Plan 4: Result, Append Seq Scan
+<explain xmlns="http://www.postgresql.org/2009/explain">
+  <Query>
+    <Plan>
+      <Node-Type>Result</Node-Type>
+      <Startup-Cost>0.00</Startup-Cost>
+      <Total-Cost>418.02</Total-Cost>
+      <Plan-Rows>20002</Plan-Rows>
+      <Plan-Width>8</Plan-Width>
+      <Actual-Startup-Time>2.455</Actual-Startup-Time>
+      <Actual-Total-Time>17.069</Actual-Total-Time>
+      <Actual-Rows>20002</Actual-Rows>
+      <Actual-Loops>1</Actual-Loops>
+      <Output>
+        <Item>((tt1.a + 1))</Item>
+        <Item>(3)</Item>
+        <Item>1</Item>
+      </Output>
+      <Shared-Hit-Blocks>218</Shared-Hit-Blocks>
+      <Shared-Read-Blocks>0</Shared-Read-Blocks>
+      <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+      <Shared-Written-Blocks>0</Shared-Written-Blocks>
+      <Local-Hit-Blocks>0</Local-Hit-Blocks>
+      <Local-Read-Blocks>0</Local-Read-Blocks>
+      <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+      <Local-Written-Blocks>0</Local-Written-Blocks>
+      <Temp-Read-Blocks>0</Temp-Read-Blocks>
+      <Temp-Written-Blocks>0</Temp-Written-Blocks>
+      <I/O-Read-Time>0.000</I/O-Read-Time>
+      <I/O-Write-Time>0.000</I/O-Write-Time>
+      <Plans>
+        <Plan>
+          <Node-Type>Append</Node-Type>
+          <Parent-Relationship>Outer</Parent-Relationship>
+          <Startup-Cost>0.00</Startup-Cost>
+          <Total-Cost>418.02</Total-Cost>
+          <Plan-Rows>20002</Plan-Rows>
+          <Plan-Width>8</Plan-Width>
+          <Actual-Startup-Time>2.454</Actual-Startup-Time>
+          <Actual-Total-Time>11.990</Actual-Total-Time>
+          <Actual-Rows>20002</Actual-Rows>
+          <Actual-Loops>1</Actual-Loops>
+          <Shared-Hit-Blocks>218</Shared-Hit-Blocks>
+          <Shared-Read-Blocks>0</Shared-Read-Blocks>
+          <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+          <Shared-Written-Blocks>0</Shared-Written-Blocks>
+          <Local-Hit-Blocks>0</Local-Hit-Blocks>
+          <Local-Read-Blocks>0</Local-Read-Blocks>
+          <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+          <Local-Written-Blocks>0</Local-Written-Blocks>
+          <Temp-Read-Blocks>0</Temp-Read-Blocks>
+          <Temp-Written-Blocks>0</Temp-Written-Blocks>
+          <I/O-Read-Time>0.000</I/O-Read-Time>
+          <I/O-Write-Time>0.000</I/O-Write-Time>
+          <Plans>
+            <Plan>
+              <Node-Type>Seq Scan</Node-Type>
+              <Parent-Relationship>Member</Parent-Relationship>
+              <Relation-Name>tt1</Relation-Name>
+              <Schema>public</Schema>
+              <Alias>tt1</Alias>
+              <Startup-Cost>0.00</Startup-Cost>
+              <Total-Cost>263.01</Total-Cost>
+              <Plan-Rows>10001</Plan-Rows>
+              <Plan-Width>8</Plan-Width>
+              <Actual-Startup-Time>2.453</Actual-Startup-Time>
+              <Actual-Total-Time>6.480</Actual-Total-Time>
+              <Actual-Rows>10001</Actual-Rows>
+              <Actual-Loops>1</Actual-Loops>
+              <Output>
+                <Item>(tt1.a + 1)</Item>
+                <Item>3</Item>
+              </Output>
+              <Shared-Hit-Blocks>163</Shared-Hit-Blocks>
+              <Shared-Read-Blocks>0</Shared-Read-Blocks>
+              <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+              <Shared-Written-Blocks>0</Shared-Written-Blocks>
+              <Local-Hit-Blocks>0</Local-Hit-Blocks>
+              <Local-Read-Blocks>0</Local-Read-Blocks>
+              <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+              <Local-Written-Blocks>0</Local-Written-Blocks>
+              <Temp-Read-Blocks>0</Temp-Read-Blocks>
+              <Temp-Written-Blocks>0</Temp-Written-Blocks>
+              <I/O-Read-Time>0.000</I/O-Read-Time>
+              <I/O-Write-Time>0.000</I/O-Write-Time>
+            </Plan>
+            <Plan>
+              <Node-Type>Seq Scan</Node-Type>
+              <Parent-Relationship>Member</Parent-Relationship>
+              <Relation-Name>tt2</Relation-Name>
+              <Schema>public</Schema>
+              <Alias>tt2</Alias>
+              <Startup-Cost>0.00</Startup-Cost>
+              <Total-Cost>155.01</Total-Cost>
+              <Plan-Rows>10001</Plan-Rows>
+              <Plan-Width>8</Plan-Width>
+              <Actual-Startup-Time>0.007</Actual-Startup-Time>
+              <Actual-Total-Time>2.465</Actual-Total-Time>
+              <Actual-Rows>10001</Actual-Rows>
+              <Actual-Loops>1</Actual-Loops>
+              <Output>
+                <Item>tt2.a</Item>
+                <Item>4</Item>
+              </Output>
+              <Shared-Hit-Blocks>55</Shared-Hit-Blocks>
+              <Shared-Read-Blocks>0</Shared-Read-Blocks>
+              <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+              <Shared-Written-Blocks>0</Shared-Written-Blocks>
+              <Local-Hit-Blocks>0</Local-Hit-Blocks>
+              <Local-Read-Blocks>0</Local-Read-Blocks>
+              <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+              <Local-Written-Blocks>0</Local-Written-Blocks>
+              <Temp-Read-Blocks>0</Temp-Read-Blocks>
+              <Temp-Written-Blocks>0</Temp-Written-Blocks>
+              <I/O-Read-Time>0.000</I/O-Read-Time>
+              <I/O-Write-Time>0.000</I/O-Write-Time>
+            </Plan>
+          </Plans>
+        </Plan>
+      </Plans>
+    </Plan>
+    <Planning-Time>0.437</Planning-Time>
+    <Triggers>
+    </Triggers>
+  </Query>
+</explain>
+
+
+=======
+### xml-short        ###### Plan 5: Index scan (forward) ANY, array in expr, escape
+<explain xmlns="http://www.postgresql.org/2009/explain">
+  <Query>
+    <Plan>
+      <Node-Type>Index Scan</Node-Type>
+      <Scan-Direction>Forward</Scan-Direction>
+      <Index-Name>i_tt1</Index-Name>
+      <Relation-Name>tt1</Relation-Name>
+      <Schema>public</Schema>
+      <Alias>x"y</Alias>
+      <Startup-Cost>0.29</Startup-Cost>
+      <Total-Cost>21.21</Total-Cost>
+      <Plan-Rows>4</Plan-Rows>
+      <Plan-Width>12</Plan-Width>
+      <Actual-Startup-Time>0.005</Actual-Startup-Time>
+      <Actual-Total-Time>0.023</Actual-Total-Time>
+      <Actual-Rows>4</Actual-Rows>
+      <Actual-Loops>1</Actual-Loops>
+      <Output>
+        <Item>a</Item>
+        <Item>b</Item>
+        <Item>c</Item>
+      </Output>
+      <Index-Cond>("x""y".a = ANY ('{50,120,300,500}'::integer[]))</Index-Cond>
+      <Rows-Removed-by-Index-Recheck>0</Rows-Removed-by-Index-Recheck>
+      <Shared-Hit-Blocks>20</Shared-Hit-Blocks>
+      <Shared-Read-Blocks>0</Shared-Read-Blocks>
+      <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+      <Shared-Written-Blocks>0</Shared-Written-Blocks>
+      <Local-Hit-Blocks>0</Local-Hit-Blocks>
+      <Local-Read-Blocks>0</Local-Read-Blocks>
+      <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+      <Local-Written-Blocks>0</Local-Written-Blocks>
+      <Temp-Read-Blocks>0</Temp-Read-Blocks>
+      <Temp-Written-Blocks>0</Temp-Written-Blocks>
+      <I/O-Read-Time>0.000</I/O-Read-Time>
+      <I/O-Write-Time>0.000</I/O-Write-Time>
+    </Plan>
+    <Planning-Time>0.084</Planning-Time>
+    <Triggers>
+    </Triggers>
+  </Query>
+</explain>
+
+
+=======
+### xml-short        ###### Plan 6: Index scan (backward), MergeJoin, Sort, quichsort, alias
+<explain xmlns="http://www.postgresql.org/2009/explain">
+  <Query>
+    <Plan>
+      <Node-Type>Limit</Node-Type>
+      <Startup-Cost>819.75</Startup-Cost>
+      <Total-Cost>820.79</Total-Cost>
+      <Plan-Rows>10</Plan-Rows>
+      <Plan-Width>12</Plan-Width>
+      <Actual-Startup-Time>12.045</Actual-Startup-Time>
+      <Actual-Total-Time>12.045</Actual-Total-Time>
+      <Actual-Rows>0</Actual-Rows>
+      <Actual-Loops>1</Actual-Loops>
+      <Output>
+        <Item>x.b</Item>
+        <Item>x.c</Item>
+        <Item>x.a</Item>
+      </Output>
+      <Shared-Hit-Blocks>61</Shared-Hit-Blocks>
+      <Shared-Read-Blocks>0</Shared-Read-Blocks>
+      <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+      <Shared-Written-Blocks>0</Shared-Written-Blocks>
+      <Local-Hit-Blocks>0</Local-Hit-Blocks>
+      <Local-Read-Blocks>0</Local-Read-Blocks>
+      <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+      <Local-Written-Blocks>0</Local-Written-Blocks>
+      <Temp-Read-Blocks>0</Temp-Read-Blocks>
+      <Temp-Written-Blocks>0</Temp-Written-Blocks>
+      <I/O-Read-Time>0.000</I/O-Read-Time>
+      <I/O-Write-Time>0.000</I/O-Write-Time>
+      <Plans>
+        <Plan>
+          <Node-Type>Merge Join</Node-Type>
+          <Parent-Relationship>Outer</Parent-Relationship>
+          <Join-Type>Inner</Join-Type>
+          <Startup-Cost>819.75</Startup-Cost>
+          <Total-Cost>1854.80</Total-Cost>
+          <Plan-Rows>10001</Plan-Rows>
+          <Plan-Width>12</Plan-Width>
+          <Actual-Startup-Time>12.043</Actual-Startup-Time>
+          <Actual-Total-Time>12.043</Actual-Total-Time>
+          <Actual-Rows>0</Actual-Rows>
+          <Actual-Loops>1</Actual-Loops>
+          <Output>
+            <Item>x.b</Item>
+            <Item>x.c</Item>
+            <Item>x.a</Item>
+          </Output>
+          <Merge-Cond>(x.a = (((- y.b) * 3)))</Merge-Cond>
+          <Shared-Hit-Blocks>61</Shared-Hit-Blocks>
+          <Shared-Read-Blocks>0</Shared-Read-Blocks>
+          <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+          <Shared-Written-Blocks>0</Shared-Written-Blocks>
+          <Local-Hit-Blocks>0</Local-Hit-Blocks>
+          <Local-Read-Blocks>0</Local-Read-Blocks>
+          <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+          <Local-Written-Blocks>0</Local-Written-Blocks>
+          <Temp-Read-Blocks>0</Temp-Read-Blocks>
+          <Temp-Written-Blocks>0</Temp-Written-Blocks>
+          <I/O-Read-Time>0.000</I/O-Read-Time>
+          <I/O-Write-Time>0.000</I/O-Write-Time>
+          <Plans>
+            <Plan>
+              <Node-Type>Index Scan</Node-Type>
+              <Parent-Relationship>Outer</Parent-Relationship>
+              <Scan-Direction>Backward</Scan-Direction>
+              <Index-Name>i_tt1</Index-Name>
+              <Relation-Name>tt1</Relation-Name>
+              <Schema>public</Schema>
+              <Alias>x</Alias>
+              <Startup-Cost>0.29</Startup-Cost>
+              <Total-Cost>760.30</Total-Cost>
+              <Plan-Rows>10001</Plan-Rows>
+              <Plan-Width>12</Plan-Width>
+              <Actual-Startup-Time>0.030</Actual-Startup-Time>
+              <Actual-Total-Time>0.030</Actual-Total-Time>
+              <Actual-Rows>1</Actual-Rows>
+              <Actual-Loops>1</Actual-Loops>
+              <Output>
+                <Item>x.a</Item>
+                <Item>x.b</Item>
+                <Item>x.c</Item>
+              </Output>
+              <Shared-Hit-Blocks>6</Shared-Hit-Blocks>
+              <Shared-Read-Blocks>0</Shared-Read-Blocks>
+              <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+              <Shared-Written-Blocks>0</Shared-Written-Blocks>
+              <Local-Hit-Blocks>0</Local-Hit-Blocks>
+              <Local-Read-Blocks>0</Local-Read-Blocks>
+              <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+              <Local-Written-Blocks>0</Local-Written-Blocks>
+              <Temp-Read-Blocks>0</Temp-Read-Blocks>
+              <Temp-Written-Blocks>0</Temp-Written-Blocks>
+              <I/O-Read-Time>0.000</I/O-Read-Time>
+              <I/O-Write-Time>0.000</I/O-Write-Time>
+            </Plan>
+            <Plan>
+              <Node-Type>Sort</Node-Type>
+              <Parent-Relationship>Inner</Parent-Relationship>
+              <Startup-Cost>819.47</Startup-Cost>
+              <Total-Cost>844.47</Total-Cost>
+              <Plan-Rows>10001</Plan-Rows>
+              <Plan-Width>4</Plan-Width>
+              <Actual-Startup-Time>9.539</Actual-Startup-Time>
+              <Actual-Total-Time>10.243</Actual-Total-Time>
+              <Actual-Rows>10001</Actual-Rows>
+              <Actual-Loops>1</Actual-Loops>
+              <Output>
+                <Item>y.b</Item>
+                <Item>(((- y.b) * 3))</Item>
+              </Output>
+              <Sort-Key>
+                <Item>(((- y.b) * 3))</Item>
+              </Sort-Key>
+              <Sort-Method>quicksort</Sort-Method>
+              <Sort-Space-Used>855</Sort-Space-Used>
+              <Sort-Space-Type>Memory</Sort-Space-Type>
+              <Shared-Hit-Blocks>55</Shared-Hit-Blocks>
+              <Shared-Read-Blocks>0</Shared-Read-Blocks>
+              <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+              <Shared-Written-Blocks>0</Shared-Written-Blocks>
+              <Local-Hit-Blocks>0</Local-Hit-Blocks>
+              <Local-Read-Blocks>0</Local-Read-Blocks>
+              <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+              <Local-Written-Blocks>0</Local-Written-Blocks>
+              <Temp-Read-Blocks>0</Temp-Read-Blocks>
+              <Temp-Written-Blocks>0</Temp-Written-Blocks>
+              <I/O-Read-Time>0.000</I/O-Read-Time>
+              <I/O-Write-Time>0.000</I/O-Write-Time>
+              <Plans>
+                <Plan>
+                  <Node-Type>Seq Scan</Node-Type>
+                  <Parent-Relationship>Outer</Parent-Relationship>
+                  <Relation-Name>tt2</Relation-Name>
+                  <Schema>public</Schema>
+                  <Alias>y</Alias>
+                  <Startup-Cost>0.00</Startup-Cost>
+                  <Total-Cost>155.01</Total-Cost>
+                  <Plan-Rows>10001</Plan-Rows>
+                  <Plan-Width>4</Plan-Width>
+                  <Actual-Startup-Time>0.009</Actual-Startup-Time>
+                  <Actual-Total-Time>3.954</Actual-Total-Time>
+                  <Actual-Rows>10001</Actual-Rows>
+                  <Actual-Loops>1</Actual-Loops>
+                  <Output>
+                    <Item>y.b</Item>
+                    <Item>((- y.b) * 3)</Item>
+                  </Output>
+                  <Shared-Hit-Blocks>55</Shared-Hit-Blocks>
+                  <Shared-Read-Blocks>0</Shared-Read-Blocks>
+                  <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+                  <Shared-Written-Blocks>0</Shared-Written-Blocks>
+                  <Local-Hit-Blocks>0</Local-Hit-Blocks>
+                  <Local-Read-Blocks>0</Local-Read-Blocks>
+                  <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+                  <Local-Written-Blocks>0</Local-Written-Blocks>
+                  <Temp-Read-Blocks>0</Temp-Read-Blocks>
+                  <Temp-Written-Blocks>0</Temp-Written-Blocks>
+                  <I/O-Read-Time>0.000</I/O-Read-Time>
+                  <I/O-Write-Time>0.000</I/O-Write-Time>
+                </Plan>
+              </Plans>
+            </Plan>
+          </Plans>
+        </Plan>
+      </Plans>
+    </Plan>
+    <Planning-Time>0.211</Planning-Time>
+    <Triggers>
+    </Triggers>
+  </Query>
+</explain>
+
 ###### text format output test
 SELECT '### '||'TEXT-short       '||title||E'\n'||
   pg_store_plans_textplan(splan)
   FROM plans ORDER BY id;
 ### TEXT-short       ###### Plan 0: all properties
 
+
+=======
+### TEXT-short       ###### Plan 1: Insert, Trigger
+Insert on public.tt1  (cost=0.00..10.00 rows=1000 width=4) (actual time=256.149..256.149 rows=0 loops=1)
+  Buffers: shared hit=29735 read=87 dirtied=85
+  ->  Function Scan on pg_catalog.generate_series a  (cost=0.00..10.00 rows=1000 width=4) (actual time=3.459..9.184 rows=10001 loops=1)
+        Output: a.a, NULL::integer, NULL::text
+        Function Call: generate_series(0, 10000)
+Trigger tt1_trig_1: time=90.331 calls=10001
+Trigger tt1_trig_2: time=81.847 calls=10001
+
+=======
+### TEXT-short       ###### Plan 2: Update, Trigger
+Update on public.tt1  (cost=0.00..134.75 rows=6380 width=46) (actual time=313.811..313.811 rows=0 loops=1)
+  Buffers: shared hit=50276 read=108 dirtied=108
+  ->  Seq Scan on public.tt1  (cost=0.00..134.75 rows=6380 width=46) (actual time=0.040..10.405 rows=10001 loops=1)
+        Output: (a + 1), b, c, ctid
+        Buffers: shared hit=55
+Trigger tt1_trig_1: time=96.546 calls=10001
+Trigger tt1_trig_2: time=83.609 calls=10001
+
+=======
+### TEXT-short       ###### Plan 3: Delete
+Delete on public.tt1  (cost=0.00..298.66 rows=63 width=6) (actual time=12.324..12.324 rows=0 loops=1)
+  Buffers: shared hit=1109
+  ->  Seq Scan on public.tt1  (cost=0.00..298.66 rows=63 width=6) (actual time=3.454..9.822 rows=1000 loops=1)
+        Output: ctid
+        Filter: ((tt1.a % 10) = 0)
+        Rows Removed by Filter: 9001
+        Buffers: shared hit=109
+
+=======
+### TEXT-short       ###### Plan 4: Result, Append Seq Scan
+Result  (cost=0.00..418.02 rows=20002 width=8) (actual time=2.455..17.069 rows=20002 loops=1)
+  Output: ((tt1.a + 1)), (3), 1
+  Buffers: shared hit=218
+  ->  Append  (cost=0.00..418.02 rows=20002 width=8) (actual time=2.454..11.990 rows=20002 loops=1)
+        Buffers: shared hit=218
+        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=8) (actual time=2.453..6.480 rows=10001 loops=1)
+              Output: (tt1.a + 1), 3
+              Buffers: shared hit=163
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=8) (actual time=0.007..2.465 rows=10001 loops=1)
+              Output: tt2.a, 4
+              Buffers: shared hit=55
+
+=======
+### TEXT-short       ###### Plan 5: Index scan (forward) ANY, array in expr, escape
+Index Scan using i_tt1 on public.tt1 "x""y"  (cost=0.29..21.21 rows=4 width=12) (actual time=0.005..0.023 rows=4 loops=1)
+  Output: a, b, c
+  Index Cond: ("x""y".a = ANY ('{50,120,300,500}'::integer[]))
+  Buffers: shared hit=20
+
+=======
+### TEXT-short       ###### Plan 6: Index scan (backward), MergeJoin, Sort, quichsort, alias
+Limit  (cost=819.75..820.79 rows=10 width=12) (actual time=12.045..12.045 rows=0 loops=1)
+  Output: x.b, x.c, x.a
+  Buffers: shared hit=61
+  ->  Merge Join  (cost=819.75..1854.80 rows=10001 width=12) (actual time=12.043..12.043 rows=0 loops=1)
+        Output: x.b, x.c, x.a
+        Merge Cond: (x.a = (((- y.b) * 3)))
+        Buffers: shared hit=61
+        ->  Index Scan Backward using i_tt1 on public.tt1 x  (cost=0.29..760.30 rows=10001 width=12) (actual time=0.030..0.030 rows=1 loops=1)
+              Output: x.a, x.b, x.c
+              Buffers: shared hit=6
+        ->  Sort  (cost=819.47..844.47 rows=10001 width=4) (actual time=9.539..10.243 rows=10001 loops=1)
+              Output: y.b, (((- y.b) * 3))
+              Sort Key: (((- y.b) * 3))
+              Sort Method: quicksort  Memory: 855kB
+              Buffers: shared hit=55
+              ->  Seq Scan on public.tt2 y  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.009..3.954 rows=10001 loops=1)
+                    Output: y.b, ((- y.b) * 3)
+                    Buffers: shared hit=55
+
+=======
+### TEXT-short       ###### Plan 7: IndexOnlyScan
+Index Only Scan using i_tt1 on public.tt1  (cost=0.29..8.46 rows=10 width=4) (actual time=0.015..0.032 rows=10 loops=1)
+  Output: a
+  Index Cond: (tt1.a < 10)
+  Heap Fetches: 29
+  Buffers: shared hit=31
+
+=======
+### TEXT-short       ###### Plan 8: Plain Aggregate, CTE, Recursive Union, WorkTable Scan, CTE Scan
+Aggregate  (cost=3.65..3.66 rows=1 width=4) (actual time=0.034..0.034 rows=1 loops=1)
+  Output: sum(cte1.a)
+  CTE cte1
+    ->  Recursive Union  (cost=0.00..2.95 rows=31 width=4) (actual time=0.001..0.023 rows=10 loops=1)
+        ->  Result  (cost=0.00..0.01 rows=1 width=0) (actual time=0.001..0.001 rows=1 loops=1)
+              Output: 1
+        ->  WorkTable Scan  (cost=0.00..0.23 rows=3 width=4) (actual time=0.001..0.001 rows=1 loops=10)
+              Output: (cte1_1.a + 1)
+              Filter: (cte1_1.a < 10)
+  ->  CTE Scan on cte1  (cost=0.00..0.62 rows=31 width=4) (actual time=0.003..0.028 rows=10 loops=1)
+        Output: cte1.a
+
+=======
+### TEXT-short       ###### Plan 9: FunctionScan, Hash/HashJoin, Nested Loop
+Nested Loop  (cost=1.15..2.69 rows=1 width=64) (actual time=0.048..0.050 rows=1 loops=1)
+  Output: d.datname
+  Buffers: shared hit=3
+  ->  Hash Join  (cost=1.02..2.41 rows=1 width=4) (actual time=0.041..0.042 rows=1 loops=1)
+        Output: s.datid
+        Hash Cond: (s.usesysid = u.oid)
+        Buffers: shared hit=1
+        ->  Function Scan on pg_catalog.pg_stat_get_activity s  (cost=0.00..1.00 rows=100 width=8) (actual time=0.026..0.026 rows=1 loops=1)
+              Output: s.datid, s.pid, s.usesysid, s.application_name, s.state, s.query, s.waiting, s.xact_start, s.query_start, s.backend_start, s.state_change, s.client_addr, s.client_hostname, s.client_port, s.backend_xid, s.backend_xmin
+              Function Call: pg_stat_get_activity(NULL::integer)
+        ->  Hash  (cost=1.01..1.01 rows=1 width=4) (actual time=0.006..0.006 rows=1 loops=1)
+              Output: u.oid
+              Buckets: 1024  Batches: 1  Memory Usage: 1kB
+              Buffers: shared hit=1
+              ->  Seq Scan on pg_catalog.pg_authid u  (cost=0.00..1.01 rows=1 width=4) (actual time=0.003..0.004 rows=1 loops=1)
+                    Output: u.oid
+                    Buffers: shared hit=1
+  ->  Index Scan using pg_database_oid_index on pg_catalog.pg_database d  (cost=0.13..0.27 rows=1 width=68) (actual time=0.005..0.006 rows=1 loops=1)
+        Output: d.datname, d.oid
+        Index Cond: (d.oid = s.datid)
+        Buffers: shared hit=2
+
+=======
+### TEXT-short       ###### Plan 10: MergeAppend, Values
+Merge Append  (cost=0.36..985.44 rows=10004 width=4) (actual time=0.021..21.019 rows=10004 loops=1)
+  Sort Key: tt1.a
+  Buffers: shared hit=30069
+  ->  Index Only Scan using i_tt1 on public.tt1  (cost=0.29..760.30 rows=10001 width=4) (actual time=0.012..18.927 rows=10001 loops=1)
+        Output: tt1.a
+        Heap Fetches: 29973
+        Buffers: shared hit=30069
+  ->  Sort  (cost=0.06..0.07 rows=3 width=4) (actual time=0.008..0.009 rows=3 loops=1)
+        Output: "*VALUES*".column1
+        Sort Key: "*VALUES*".column1
+        Sort Method: quicksort  Memory: 25kB
+        ->  Values Scan on "*VALUES*"  (cost=0.00..0.04 rows=3 width=4) (actual time=0.001..0.003 rows=3 loops=1)
+              Output: "*VALUES*".column1
+
+=======
+### TEXT-short       ###### Plan 11: Append, HashAggregate
+HashAggregate  (cost=668.04..868.06 rows=20002 width=4) (actual time=13.884..17.625 rows=20002 loops=1)
+  Output: tt1.a
+  Buffers: shared hit=218
+  ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.097..7.241 rows=20002 loops=1)
+        Buffers: shared hit=218
+        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.097..2.345 rows=10001 loops=1)
+              Output: tt1.a
+              Buffers: shared hit=163
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.305 rows=10001 loops=1)
+              Output: tt2.b
+              Buffers: shared hit=55
+
+=======
+### TEXT-short       ###### Plan 12: GroupAggregate
+GroupAggregate  (cost=1067.47..1242.49 rows=10001 width=8) (actual time=11.028..20.786 rows=10001 loops=1)
+  Output: sum(a), b
+  Buffers: shared hit=163, temp read=33 written=33
+  ->  Sort  (cost=1067.47..1092.47 rows=10001 width=8) (actual time=11.025..14.516 rows=10001 loops=1)
+        Output: b, a
+        Sort Key: tt1.b
+        Sort Method: external merge  Disk: 168kB
+        Buffers: shared hit=163, temp read=33 written=33
+        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=8) (actual time=0.099..2.437 rows=10001 loops=1)
+              Output: b, a
+              Buffers: shared hit=163
+
+=======
+### TEXT-short       ###### Plan 13: Group
+Group  (cost=1067.47..1117.47 rows=10001 width=4) (actual time=10.215..17.715 rows=10001 loops=1)
+  Output: b
+  Buffers: shared hit=163, temp read=25 written=25
+  ->  Sort  (cost=1067.47..1092.47 rows=10001 width=4) (actual time=10.214..13.481 rows=10001 loops=1)
+        Output: b
+        Sort Key: tt1.b
+        Sort Method: external merge  Disk: 120kB
+        Buffers: shared hit=163, temp read=25 written=25
+        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.095..2.275 rows=10001 loops=1)
+              Output: b
+              Buffers: shared hit=163
+
+=======
+### TEXT-short       ###### Plan 14: SetOp intersect, SbuqueryScan
+Sort  (cost=1332.50..1357.51 rows=10001 width=4) (actual time=17.472..17.472 rows=0 loops=1)
+  Output: "*SELECT* 1".a, (0)
+  Sort Key: "*SELECT* 1".a
+  Sort Method: quicksort  Memory: 25kB
+  Buffers: shared hit=218
+  ->  HashSetOp Intersect  (cost=0.00..668.04 rows=10001 width=4) (actual time=17.470..17.470 rows=0 loops=1)
+        Output: "*SELECT* 1".a, (0)
+        Buffers: shared hit=218
+        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.090..11.721 rows=20002 loops=1)
+              Buffers: shared hit=218
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.090..4.551 rows=10001 loops=1)
+                    Output: "*SELECT* 1".a, 0
+                    Buffers: shared hit=163
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.090..2.344 rows=10001 loops=1)
+                          Output: tt1.a
+                          Buffers: shared hit=163
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.007..4.613 rows=10001 loops=1)
+                    Output: "*SELECT* 2".b, 1
+                    Buffers: shared hit=55
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.342 rows=10001 loops=1)
+                          Output: tt2.b
+                          Buffers: shared hit=55
+
+=======
+### TEXT-short       ###### Plan 15: Sorted SetOp, Sort on Disk
+SetOp Intersect  (cost=2323.47..2423.48 rows=10001 width=4) (actual time=44.719..44.719 rows=0 loops=1)
+  Output: "*SELECT* 1".a, (0)
+  Buffers: shared hit=218, temp read=77 written=77
+  ->  Sort  (cost=2323.47..2373.47 rows=20002 width=4) (actual time=32.675..38.534 rows=20002 loops=1)
+        Output: "*SELECT* 1".a, (0)
+        Sort Key: "*SELECT* 1".a
+        Sort Method: external merge  Disk: 352kB
+        Buffers: shared hit=218, temp read=77 written=77
+        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.095..12.658 rows=20002 loops=1)
+              Buffers: shared hit=218
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.095..5.182 rows=10001 loops=1)
+                    Output: "*SELECT* 1".a, 0
+                    Buffers: shared hit=163
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.094..2.669 rows=10001 loops=1)
+                          Output: tt1.a
+                          Buffers: shared hit=163
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.007..4.686 rows=10001 loops=1)
+                    Output: "*SELECT* 2".b, 1
+                    Buffers: shared hit=55
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.006..2.384 rows=10001 loops=1)
+                          Output: tt2.b
+                          Buffers: shared hit=55
+
+=======
+### TEXT-short       ###### Plan 16: HashSetOp intersect All, SubqueryScan
+Sort  (cost=1332.50..1357.51 rows=10001 width=4) (actual time=19.395..19.395 rows=0 loops=1)
+  Output: "*SELECT* 1".a, (0)
+  Sort Key: "*SELECT* 1".a
+  Sort Method: quicksort  Memory: 25kB
+  Buffers: shared hit=218
+  ->  HashSetOp Intersect All  (cost=0.00..668.04 rows=10001 width=4) (actual time=19.391..19.391 rows=0 loops=1)
+        Output: "*SELECT* 1".a, (0)
+        Buffers: shared hit=218
+        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.095..12.956 rows=20002 loops=1)
+              Buffers: shared hit=218
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.095..5.344 rows=10001 loops=1)
+                    Output: "*SELECT* 1".a, 0
+                    Buffers: shared hit=163
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.095..2.711 rows=10001 loops=1)
+                          Output: tt1.a
+                          Buffers: shared hit=163
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.008..4.805 rows=10001 loops=1)
+                    Output: "*SELECT* 2".b, 1
+                    Buffers: shared hit=55
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.008..2.460 rows=10001 loops=1)
+                          Output: tt2.b
+                          Buffers: shared hit=55
+
+=======
+### TEXT-short       ###### Plan 17: HashSetOp except, SubqueryScan
+Sort  (cost=1332.50..1357.51 rows=10001 width=4) (actual time=24.361..25.158 rows=10001 loops=1)
+  Output: "*SELECT* 1".a, (0)
+  Sort Key: "*SELECT* 1".a
+  Sort Method: quicksort  Memory: 855kB
+  Buffers: shared hit=218
+  ->  HashSetOp Except  (cost=0.00..668.04 rows=10001 width=4) (actual time=18.923..19.997 rows=10001 loops=1)
+        Output: "*SELECT* 1".a, (0)
+        Buffers: shared hit=218
+        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.112..12.917 rows=20002 loops=1)
+              Buffers: shared hit=218
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.112..5.518 rows=10001 loops=1)
+                    Output: "*SELECT* 1".a, 0
+                    Buffers: shared hit=163
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.110..2.818 rows=10001 loops=1)
+                          Output: tt1.a
+                          Buffers: shared hit=163
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.007..4.578 rows=10001 loops=1)
+                    Output: "*SELECT* 2".b, 1
+                    Buffers: shared hit=55
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.310 rows=10001 loops=1)
+                          Output: tt2.b
+                          Buffers: shared hit=55
+
+=======
+### TEXT-short       ###### Plan 18: HashSetOp except all, SubqueryScan
+Sort  (cost=1332.50..1357.51 rows=10001 width=4) (actual time=23.742..24.542 rows=10001 loops=1)
+  Output: "*SELECT* 1".a, (0)
+  Sort Key: "*SELECT* 1".a
+  Sort Method: quicksort  Memory: 855kB
+  Buffers: shared hit=218
+  ->  HashSetOp Except All  (cost=0.00..668.04 rows=10001 width=4) (actual time=18.525..19.612 rows=10001 loops=1)
+        Output: "*SELECT* 1".a, (0)
+        Buffers: shared hit=218
+        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.116..12.639 rows=20002 loops=1)
+              Buffers: shared hit=218
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.116..5.303 rows=10001 loops=1)
+                    Output: "*SELECT* 1".a, 0
+                    Buffers: shared hit=163
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.115..2.724 rows=10001 loops=1)
+                          Output: tt1.a
+                          Buffers: shared hit=163
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.007..4.542 rows=10001 loops=1)
+                    Output: "*SELECT* 2".b, 1
+                    Buffers: shared hit=55
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.301 rows=10001 loops=1)
+                          Output: tt2.b
+                          Buffers: shared hit=55
+
+=======
+### TEXT-short       ###### Plan 19: merge LEFT join
+Merge Left Join  (cost=0.58..2434.81 rows=15224 width=4) (actual time=0.028..37.655 rows=30003 loops=1)
+  Output: x.b
+  Merge Cond: (x.a = y.a)
+  Buffers: shared hit=20418
+  ->  Index Scan using i_tt1 on public.tt1 x  (cost=0.29..760.30 rows=10001 width=8) (actual time=0.007..3.875 rows=10001 loops=1)
+        Output: x.a, x.b, x.c
+        Buffers: shared hit=165
+  ->  Index Only Scan using i_tt3_a on public.tt3 y  (cost=0.29..5745.99 rows=120003 width=4) (actual time=0.018..18.091 rows=30004 loops=1)
+        Output: y.a
+        Heap Fetches: 30004
+        Buffers: shared hit=20253
+
+=======
+### TEXT-short       ###### Plan 20: hash FULL join
+Hash Full Join  (cost=280.02..793.06 rows=10001 width=4) (actual time=5.372..12.828 rows=17001 loops=1)
+  Output: x.b
+  Hash Cond: (x.a = y.a)
+  Buffers: shared hit=218
+  ->  Seq Scan on public.tt1 x  (cost=0.00..263.01 rows=10001 width=8) (actual time=0.103..1.570 rows=10001 loops=1)
+        Output: x.a, x.b, x.c
+        Buffers: shared hit=163
+  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=5.264..5.264 rows=10001 loops=1)
+        Output: y.a
+        Buckets: 1024  Batches: 1  Memory Usage: 352kB
+        Buffers: shared hit=55
+        ->  Seq Scan on public.tt2 y  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.009..2.478 rows=10001 loops=1)
+              Output: y.a
+              Buffers: shared hit=55
+
+=======
+### TEXT-short       ###### Plan 21: hash SEMI join
+Hash Semi Join  (cost=280.02..793.06 rows=10001 width=12) (actual time=10.091..10.091 rows=0 loops=1)
+  Output: tt1.a, tt1.b, tt1.c
+  Hash Cond: (tt1.a = tt2.b)
+  Buffers: shared hit=218
+  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=12) (actual time=0.090..1.410 rows=10001 loops=1)
+        Output: tt1.a, tt1.b, tt1.c
+        Buffers: shared hit=163
+  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=5.430..5.430 rows=10001 loops=1)
+        Output: tt2.b
+        Buckets: 1024  Batches: 1  Memory Usage: 352kB
+        Buffers: shared hit=55
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.483 rows=10001 loops=1)
+              Output: tt2.b
+              Buffers: shared hit=55
+
+=======
+### TEXT-short       ###### Plan 22: Hash Anti Join
+Hash Anti Join  (cost=280.02..693.05 rows=1 width=12) (actual time=5.480..11.691 rows=10001 loops=1)
+  Output: tt1.a, tt1.b, tt1.c
+  Hash Cond: (tt1.a = tt2.b)
+  Buffers: shared hit=218
+  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=12) (actual time=0.091..1.520 rows=10001 loops=1)
+        Output: tt1.a, tt1.b, tt1.c
+        Buffers: shared hit=163
+  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=5.384..5.384 rows=10001 loops=1)
+        Output: tt2.b
+        Buckets: 1024  Batches: 1  Memory Usage: 352kB
+        Buffers: shared hit=55
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.563 rows=10001 loops=1)
+              Output: tt2.b
+              Buffers: shared hit=55
+
+=======
+### TEXT-short       ###### Plan 23: WindowAgg
+WindowAgg  (cost=927.47..1127.49 rows=10001 width=4) (actual time=5.598..16.880 rows=10001 loops=1)
+  Output: first_value(a) OVER (?), ((a / 10))
+  Buffers: shared hit=163
+  ->  Sort  (cost=927.47..952.47 rows=10001 width=4) (actual time=5.591..6.471 rows=10001 loops=1)
+        Output: ((a / 10)), a
+        Sort Key: ((tt1.a / 10))
+        Sort Method: quicksort  Memory: 855kB
+        Buffers: shared hit=163
+        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.094..3.052 rows=10001 loops=1)
+              Output: (a / 10), a
+              Buffers: shared hit=163
+
+=======
+### TEXT-short       ###### Plan 24: Unique
+Unique  (cost=0.29..785.30 rows=10001 width=4) (actual time=0.010..7.552 rows=10001 loops=1)
+  Output: a
+  Buffers: shared hit=165
+  ->  Index Only Scan using i_tt1 on public.tt1  (cost=0.29..760.30 rows=10001 width=4) (actual time=0.009..4.040 rows=10001 loops=1)
+        Output: a
+        Heap Fetches: 10001
+        Buffers: shared hit=165
+
+=======
+### TEXT-short       ###### Plan 25: PlainAggregate
+Aggregate  (cost=288.01..288.02 rows=1 width=4) (actual time=3.202..3.202 rows=1 loops=1)
+  Output: sum(a)
+  Buffers: shared hit=163
+  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.100..1.414 rows=10001 loops=1)
+        Output: a, b, c
+        Buffers: shared hit=163
+
+=======
+### TEXT-short       ###### Plan 26: BitmapIndexScan/BitmapHeapScan, BitmapOr
+Bitmap Heap Scan on public.tt3  (cost=208.40..1006.81 rows=9961 width=12) (actual time=1.385..3.464 rows=10003 loops=1)
+  Output: a, b, c
+  Recheck Cond: ((tt3.a = 5000) OR (tt3.b = 50))
+  Buffers: shared hit=97
+  ->  BitmapOr  (cost=208.40..208.40 rows=9961 width=0) (actual time=1.373..1.373 rows=0 loops=1)
+        Buffers: shared hit=40
+        ->  Bitmap Index Scan using i_tt3_a  (cost=0.00..198.99 rows=9960 width=0) (actual time=1.366..1.366 rows=10003 loops=1)
+              Index Cond: (tt3.a = 5000)
+              Buffers: shared hit=37
+        ->  Bitmap Index Scan using i_tt3_b  (cost=0.00..4.43 rows=1 width=0) (actual time=0.006..0.006 rows=1 loops=1)
+              Index Cond: (tt3.b = 50)
+              Buffers: shared hit=3
+
+=======
+### TEXT-short       ###### Plan 27: TidScan
+Tid Scan on public.tt3  (cost=0.00..4.01 rows=1 width=12) (actual time=0.004..0.004 rows=1 loops=1)
+  Output: a, b, c
+  Tid Cond: (tt3.ctid = '(0,28)'::tid)
+  Buffers: shared hit=1
+
+=======
+### TEXT-short       ###### Plan 28: LockRows
+LockRows  (cost=0.00..313.51 rows=50 width=10) (actual time=0.109..4.240 rows=1001 loops=1)
+  Output: a, ctid
+  Buffers: shared hit=1164
+  ->  Seq Scan on public.tt1  (cost=0.00..313.01 rows=50 width=10) (actual time=0.099..3.106 rows=1001 loops=1)
+        Output: a, ctid
+        Filter: ((tt1.a % 10) = 0)
+        Rows Removed by Filter: 9000
+        Buffers: shared hit=163
+
+=======
+### TEXT-short       ###### Plan 29: Materialize
+Seq Scan on public.tt1  (cost=0.00..1150490.52 rows=5000 width=12) (actual time=4.788..4.788 rows=0 loops=1)
+  Output: tt1.a, tt1.b, tt1.c
+  Filter: (SubPlan 1)
+  Rows Removed by Filter: 10001
+  Buffers: shared hit=164
+  SubPlan 1
+    ->  Materialize  (cost=0.00..205.01 rows=10001 width=4) (actual time=0.000..0.000 rows=1 loops=10001)
+          Output: tt2.b
+          Buffers: shared hit=1
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..0.007 rows=1 loops=1)
+              Output: tt2.b
+              Buffers: shared hit=1
 ###### long-json-as-a-source test
 SELECT '### '||'yaml-long JSON   '||title||E'\n'||
   pg_store_plans_yamlplan(lplan)
   FROM plans WHERE id = 1 ORDER BY id;
+### yaml-long JSON   ###### Plan 1: Insert, Trigger
+- Plan:
+    Node Type: "ModifyTable"
+    Operation: "Insert"
+    Relation Name: "tt1"
+    Schema: "public"
+    Alias: "tt1"
+    Startup Cost: 0.00
+    Total Cost: 10.00
+    Plan Rows: 1000
+    Plan Width: 4
+    Actual Startup Time: 256.149
+    Actual Total Time: 256.149
+    Actual Rows: 0
+    Actual Loops: 1
+    Shared Hit Blocks: 29735
+    Shared Read Blocks: 87
+    Shared Dirtied Blocks: 85
+    Shared Written Blocks: 0
+    Local Hit Blocks: 0
+    Local Read Blocks: 0
+    Local Dirtied Blocks: 0
+    Local Written Blocks: 0
+    Temp Read Blocks: 0
+    Temp Written Blocks: 0
+    I/O Read Time: 0.000
+    I/O Write Time: 0.000
+    Plans:
+      - Node Type: "Function Scan"
+        Parent Relationship: "Member"
+        Function Name: "generate_series"
+        Schema: "pg_catalog"
+        Alias: "a"
+        Startup Cost: 0.00
+        Total Cost: 10.00
+        Plan Rows: 1000
+        Plan Width: 4
+        Actual Startup Time: 3.459
+        Actual Total Time: 9.184
+        Actual Rows: 10001
+        Actual Loops: 1
+        Output:
+          - "a.a"
+          - "NULL::integer"
+          - "NULL::text"
+        Function Call: "generate_series(0, 10000)"
+        Shared Hit Blocks: 0
+        Shared Read Blocks: 0
+        Shared Dirtied Blocks: 0
+        Shared Written Blocks: 0
+        Local Hit Blocks: 0
+        Local Read Blocks: 0
+        Local Dirtied Blocks: 0
+        Local Written Blocks: 0
+        Temp Read Blocks: 0
+        Temp Written Blocks: 0
+        I/O Read Time: 0.000
+        I/O Write Time: 0.000
+  Planning Time: 0.072
+  Triggers:
+    - Trigger Name: "tt1_trig_1"
+      Relation: "tt1"
+      Time: 90.331
+      Calls: 10001
+    - Trigger Name: "tt1_trig_2"
+      Relation: "tt1"
+      Time: 81.847
+      Calls: 10001
 ##################
 SELECT '### '||'xml-long JSON    '||title||E'\n'||
   pg_store_plans_xmlplan(lplan)
   FROM plans WHERE id = 1 ORDER BY id;
+### xml-long JSON    ###### Plan 1: Insert, Trigger
+<explain xmlns="http://www.postgresql.org/2009/explain">
+  <Query>
+    <Plan>
+      <Node-Type>ModifyTable</Node-Type>
+      <Operation>Insert</Operation>
+      <Relation-Name>tt1</Relation-Name>
+      <Schema>public</Schema>
+      <Alias>tt1</Alias>
+      <Startup-Cost>0.00</Startup-Cost>
+      <Total-Cost>10.00</Total-Cost>
+      <Plan-Rows>1000</Plan-Rows>
+      <Plan-Width>4</Plan-Width>
+      <Actual-Startup-Time>256.149</Actual-Startup-Time>
+      <Actual-Total-Time>256.149</Actual-Total-Time>
+      <Actual-Rows>0</Actual-Rows>
+      <Actual-Loops>1</Actual-Loops>
+      <Shared-Hit-Blocks>29735</Shared-Hit-Blocks>
+      <Shared-Read-Blocks>87</Shared-Read-Blocks>
+      <Shared-Dirtied-Blocks>85</Shared-Dirtied-Blocks>
+      <Shared-Written-Blocks>0</Shared-Written-Blocks>
+      <Local-Hit-Blocks>0</Local-Hit-Blocks>
+      <Local-Read-Blocks>0</Local-Read-Blocks>
+      <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+      <Local-Written-Blocks>0</Local-Written-Blocks>
+      <Temp-Read-Blocks>0</Temp-Read-Blocks>
+      <Temp-Written-Blocks>0</Temp-Written-Blocks>
+      <I/O-Read-Time>0.000</I/O-Read-Time>
+      <I/O-Write-Time>0.000</I/O-Write-Time>
+      <Plans>
+        <Item>
+          <Node-Type>Function Scan</Node-Type>
+          <Parent-Relationship>Member</Parent-Relationship>
+          <Function-Name>generate_series</Function-Name>
+          <Schema>pg_catalog</Schema>
+          <Alias>a</Alias>
+          <Startup-Cost>0.00</Startup-Cost>
+          <Total-Cost>10.00</Total-Cost>
+          <Plan-Rows>1000</Plan-Rows>
+          <Plan-Width>4</Plan-Width>
+          <Actual-Startup-Time>3.459</Actual-Startup-Time>
+          <Actual-Total-Time>9.184</Actual-Total-Time>
+          <Actual-Rows>10001</Actual-Rows>
+          <Actual-Loops>1</Actual-Loops>
+          <Output>
+            <Item>a.a</Item>
+            <Item>NULL::integer</Item>
+            <Item>NULL::text</Item>
+          </Output>
+          <Function-Call>generate_series(0, 10000)</Function-Call>
+          <Shared-Hit-Blocks>0</Shared-Hit-Blocks>
+          <Shared-Read-Blocks>0</Shared-Read-Blocks>
+          <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+          <Shared-Written-Blocks>0</Shared-Written-Blocks>
+          <Local-Hit-Blocks>0</Local-Hit-Blocks>
+          <Local-Read-Blocks>0</Local-Read-Blocks>
+          <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+          <Local-Written-Blocks>0</Local-Written-Blocks>
+          <Temp-Read-Blocks>0</Temp-Read-Blocks>
+          <Temp-Written-Blocks>0</Temp-Written-Blocks>
+          <I/O-Read-Time>0.000</I/O-Read-Time>
+          <I/O-Write-Time>0.000</I/O-Write-Time>
+        </Item>
+      </Plans>
+    </Plan>
+    <Planning-Time>0.072</Planning-Time>
+    <Triggers>
+      <Item>
+        <Trigger-Name>tt1_trig_1</Trigger-Name>
+        <Relation>tt1</Relation>
+        <Time>90.331</Time>
+        <Calls>10001</Calls>
+      </Item>
+      <Item>
+        <Trigger-Name>tt1_trig_2</Trigger-Name>
+        <Relation>tt1</Relation>
+        <Time>81.847</Time>
+        <Calls>10001</Calls>
+      </Item>
+    </Triggers>
+  </Query>
+</explain>
+
 ##################
 SELECT '### '||'text-long JSON   '||title||E'\n'||
   pg_store_plans_xmlplan(lplan)
   FROM plans WHERE id = 1 ORDER BY id;
+### text-long JSON   ###### Plan 1: Insert, Trigger
+<explain xmlns="http://www.postgresql.org/2009/explain">
+  <Query>
+    <Plan>
+      <Node-Type>ModifyTable</Node-Type>
+      <Operation>Insert</Operation>
+      <Relation-Name>tt1</Relation-Name>
+      <Schema>public</Schema>
+      <Alias>tt1</Alias>
+      <Startup-Cost>0.00</Startup-Cost>
+      <Total-Cost>10.00</Total-Cost>
+      <Plan-Rows>1000</Plan-Rows>
+      <Plan-Width>4</Plan-Width>
+      <Actual-Startup-Time>256.149</Actual-Startup-Time>
+      <Actual-Total-Time>256.149</Actual-Total-Time>
+      <Actual-Rows>0</Actual-Rows>
+      <Actual-Loops>1</Actual-Loops>
+      <Shared-Hit-Blocks>29735</Shared-Hit-Blocks>
+      <Shared-Read-Blocks>87</Shared-Read-Blocks>
+      <Shared-Dirtied-Blocks>85</Shared-Dirtied-Blocks>
+      <Shared-Written-Blocks>0</Shared-Written-Blocks>
+      <Local-Hit-Blocks>0</Local-Hit-Blocks>
+      <Local-Read-Blocks>0</Local-Read-Blocks>
+      <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+      <Local-Written-Blocks>0</Local-Written-Blocks>
+      <Temp-Read-Blocks>0</Temp-Read-Blocks>
+      <Temp-Written-Blocks>0</Temp-Written-Blocks>
+      <I/O-Read-Time>0.000</I/O-Read-Time>
+      <I/O-Write-Time>0.000</I/O-Write-Time>
+      <Plans>
+        <Item>
+          <Node-Type>Function Scan</Node-Type>
+          <Parent-Relationship>Member</Parent-Relationship>
+          <Function-Name>generate_series</Function-Name>
+          <Schema>pg_catalog</Schema>
+          <Alias>a</Alias>
+          <Startup-Cost>0.00</Startup-Cost>
+          <Total-Cost>10.00</Total-Cost>
+          <Plan-Rows>1000</Plan-Rows>
+          <Plan-Width>4</Plan-Width>
+          <Actual-Startup-Time>3.459</Actual-Startup-Time>
+          <Actual-Total-Time>9.184</Actual-Total-Time>
+          <Actual-Rows>10001</Actual-Rows>
+          <Actual-Loops>1</Actual-Loops>
+          <Output>
+            <Item>a.a</Item>
+            <Item>NULL::integer</Item>
+            <Item>NULL::text</Item>
+          </Output>
+          <Function-Call>generate_series(0, 10000)</Function-Call>
+          <Shared-Hit-Blocks>0</Shared-Hit-Blocks>
+          <Shared-Read-Blocks>0</Shared-Read-Blocks>
+          <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+          <Shared-Written-Blocks>0</Shared-Written-Blocks>
+          <Local-Hit-Blocks>0</Local-Hit-Blocks>
+          <Local-Read-Blocks>0</Local-Read-Blocks>
+          <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+          <Local-Written-Blocks>0</Local-Written-Blocks>
+          <Temp-Read-Blocks>0</Temp-Read-Blocks>
+          <Temp-Written-Blocks>0</Temp-Written-Blocks>
+          <I/O-Read-Time>0.000</I/O-Read-Time>
+          <I/O-Write-Time>0.000</I/O-Write-Time>
+        </Item>
+      </Plans>
+    </Plan>
+    <Planning-Time>0.072</Planning-Time>
+    <Triggers>
+      <Item>
+        <Trigger-Name>tt1_trig_1</Trigger-Name>
+        <Relation>tt1</Relation>
+        <Time>90.331</Time>
+        <Calls>10001</Calls>
+      </Item>
+      <Item>
+        <Trigger-Name>tt1_trig_2</Trigger-Name>
+        <Relation>tt1</Relation>
+        <Time>81.847</Time>
+        <Calls>10001</Calls>
+      </Item>
+    </Triggers>
+  </Query>
+</explain>
+
 ###### chopped-source test
 SELECT '### '||'inflate-chopped  '||title||E'\n'||
   pg_store_plans_jsonplan(substring(splan from 1 for char_length(splan) / 3))
   FROM plans WHERE id BETWEEN 16 AND 18 ORDER BY id;
+### inflate-chopped  ###### Plan 16: HashSetOp intersect All, SubqueryScan
+{
+  "Plan": {
+    "Node Type": "Sort",
+    "Startup Cost": 1332.50,
+    "Total Cost": 1357.51,
+    "Plan Rows": 10001,
+    "Plan Width": 4,
+    "Actual Startup Time": 19.395,
+    "Actual Total Time": 19.395,
+    "Actual Rows": 0,
+    "Actual Loops": 1,
+    "Output": ["\"*SELECT* 1\".a", "(0)"],
+    "Sort Key": ["\"*SELECT* 1\".a"],
+    "Sort Method": "quicksort",
+    "Sort Space Used": 25,
+    "Sort Space Type": "Memory",
+    "Shared Hit Blocks": 218,
+    "Shared Read Blocks": 0,
+    "Shared Dirtied Blocks": 0,
+    "Shared Written Blocks": 0,
+    "Local Hit Blocks": 0,
+    "Local Read Blocks": 0,
+    "Local Dirtied Blocks": 0,
+    "Local Written Blocks": 0,
+    "Temp Read Blocks": 0,
+    "Temp Written Blocks": 0,
+    "I/O Read Time": 0.000,
+    "I/O Write Time": 0.000,
+    "Plans": [
+      {
+        "Node Type": "SetOp",
+        "Strategy": "Hashed",
+        "Parent Relationship": "Outer",
+        "Command": "Intersect All",
+        "Startup Cost": 0.00,
+        "Total Cost": 668.04,
+        "Plan Rows": 10001,
+        "Plan Width": 4,
+        "Actual Startup Time": 19.391,
+        "Actual Total Time": 19.391,
+        "Actual Rows": 0,
+        "Actual Loops": 1,
+        "Output": ["\"*SELECT* 1\".a", "(0)"],
+        "Shared Hit Blocks": 218,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "I/O Read Time": 0.000,
+        "I/O Write Time": 0.000,
+        "Plans": [
+          {
+            "Node Type": "Append",
+            "Parent Relationship": "Outer",
+            "Startup Cost": 0.00,
+            "Total Cost": 618.04,
+            "Plan Rows": 20002
+<truncated>
+
+=======
+### inflate-chopped  ###### Plan 17: HashSetOp except, SubqueryScan
+{
+  "Plan": {
+    "Node Type": "Sort",
+    "Startup Cost": 1332.50,
+    "Total Cost": 1357.51,
+    "Plan Rows": 10001,
+    "Plan Width": 4,
+    "Actual Startup Time": 24.361,
+    "Actual Total Time": 25.158,
+    "Actual Rows": 10001,
+    "Actual Loops": 1,
+    "Output": ["\"*SELECT* 1\".a", "(0)"],
+    "Sort Key": ["\"*SELECT* 1\".a"],
+    "Sort Method": "quicksort",
+    "Sort Space Used": 855,
+    "Sort Space Type": "Memory",
+    "Shared Hit Blocks": 218,
+    "Shared Read Blocks": 0,
+    "Shared Dirtied Blocks": 0,
+    "Shared Written Blocks": 0,
+    "Local Hit Blocks": 0,
+    "Local Read Blocks": 0,
+    "Local Dirtied Blocks": 0,
+    "Local Written Blocks": 0,
+    "Temp Read Blocks": 0,
+    "Temp Written Blocks": 0,
+    "I/O Read Time": 0.000,
+    "I/O Write Time": 0.000,
+    "Plans": [
+      {
+        "Node Type": "SetOp",
+        "Strategy": "Hashed",
+        "Parent Relationship": "Outer",
+        "Command": "Except",
+        "Startup Cost": 0.00,
+        "Total Cost": 668.04,
+        "Plan Rows": 10001,
+        "Plan Width": 4,
+        "Actual Startup Time": 18.923,
+        "Actual Total Time": 19.997,
+        "Actual Rows": 10001,
+        "Actual Loops": 1,
+        "Output": ["\"*SELECT* 1\".a", "(0)"],
+        "Shared Hit Blocks": 218,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "I/O Read Time": 0.000,
+        "I/O Write Time": 0.000,
+        "Plans": [
+          {
+            "Node Type": "Append",
+            "Parent Relationship": "Outer",
+            "Startup Cost": 0.00,
+            "Total Cost": 618.04,
+            "Plan Rows": 2
+<truncated>
+
+=======
+### inflate-chopped  ###### Plan 18: HashSetOp except all, SubqueryScan
+{
+  "Plan": {
+    "Node Type": "Sort",
+    "Startup Cost": 1332.50,
+    "Total Cost": 1357.51,
+    "Plan Rows": 10001,
+    "Plan Width": 4,
+    "Actual Startup Time": 23.742,
+    "Actual Total Time": 24.542,
+    "Actual Rows": 10001,
+    "Actual Loops": 1,
+    "Output": ["\"*SELECT* 1\".a", "(0)"],
+    "Sort Key": ["\"*SELECT* 1\".a"],
+    "Sort Method": "quicksort",
+    "Sort Space Used": 855,
+    "Sort Space Type": "Memory",
+    "Shared Hit Blocks": 218,
+    "Shared Read Blocks": 0,
+    "Shared Dirtied Blocks": 0,
+    "Shared Written Blocks": 0,
+    "Local Hit Blocks": 0,
+    "Local Read Blocks": 0,
+    "Local Dirtied Blocks": 0,
+    "Local Written Blocks": 0,
+    "Temp Read Blocks": 0,
+    "Temp Written Blocks": 0,
+    "I/O Read Time": 0.000,
+    "I/O Write Time": 0.000,
+    "Plans": [
+      {
+        "Node Type": "SetOp",
+        "Strategy": "Hashed",
+        "Parent Relationship": "Outer",
+        "Command": "Except All",
+        "Startup Cost": 0.00,
+        "Total Cost": 668.04,
+        "Plan Rows": 10001,
+        "Plan Width": 4,
+        "Actual Startup Time": 18.525,
+        "Actual Total Time": 19.612,
+        "Actual Rows": 10001,
+        "Actual Loops": 1,
+        "Output": ["\"*SELECT* 1\".a", "(0)"],
+        "Shared Hit Blocks": 218,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "I/O Read Time": 0.000,
+        "I/O Write Time": 0.000,
+        "Plans": [
+          {
+            "Node Type": "Append",
+            "Parent Relationship": "Outer",
+            "Startup Cost": 0.00,
+            "Total Cost": 618.04,
+            "Plan Rows": 2
+<truncated>
 ##################
 SELECT '### '||'yaml-chopped     '||title||E'\n'||
   pg_store_plans_yamlplan(substring(splan from 1 for char_length(splan) / 3))
   FROM plans WHERE id BETWEEN 19 AND 21 ORDER BY id;
+### yaml-chopped     ###### Plan 19: merge LEFT join
+- Plan:
+    Node Type: "Merge Join"
+    Join Type: "Left"
+    Startup Cost: 0.58
+    Total Cost: 2434.81
+    Plan Rows: 15224
+    Plan Width: 4
+    Actual Startup Time: 0.028
+    Actual Total Time: 37.655
+    Actual Rows: 30003
+    Actual Loops: 1
+    Output:
+      - "x.b"
+    Merge Cond: "(x.a = y.a)"
+    Shared Hit Blocks: 20418
+    Shared Read Blocks: 0
+    Shared Dirtied Blocks: 0
+    Shared Written Blocks: 0
+    Local Hit Blocks: 0
+    Local Read Blocks: 0
+    Local Dirtied Blocks: 0
+    Local Written Blocks: 0
+    Temp Read Blocks: 0
+    Temp Written Blocks: 0
+    I/O Read Time: 0.000
+    I/O Write Time: 0.000
+    Plans:
+      - Node Type: "Index Scan"
+        Parent Relationship: "Outer"
+        Scan Direction: "Forward"
+<truncated>
+
+=======
+### yaml-chopped     ###### Plan 20: hash FULL join
+- Plan:
+    Node Type: "Hash Join"
+    Join Type: "Full"
+    Startup Cost: 280.02
+    Total Cost: 793.06
+    Plan Rows: 10001
+    Plan Width: 4
+    Actual Startup Time: 5.372
+    Actual Total Time: 12.828
+    Actual Rows: 17001
+    Actual Loops: 1
+    Output:
+      - "x.b"
+    Hash Cond: "(x.a = y.a)"
+    Shared Hit Blocks: 218
+    Shared Read Blocks: 0
+    Shared Dirtied Blocks: 0
+    Shared Written Blocks: 0
+    Local Hit Blocks: 0
+    Local Read Blocks: 0
+    Local Dirtied Blocks: 0
+    Local Written Blocks: 0
+    Temp Read Blocks: 0
+    Temp Written Blocks: 0
+    I/O Read Time: 0.000
+    I/O Write Time: 0.000
+    Plans:
+      - Node Type: "Seq Scan"
+        Parent Relationship: "Outer"
+        Relation Name: "tt1"
+        Schema: "public"
+        Alias: "x"
+        Startup Cost: 0.00
+        Total Cost: 263.01
+        Plan Rows: 10001
+        Plan Width: 8
+        
+<truncated>
+
+=======
+### yaml-chopped     ###### Plan 21: hash SEMI join
+- Plan:
+    Node Type: "Hash Join"
+    Join Type: "Semi"
+    Startup Cost: 280.02
+    Total Cost: 793.06
+    Plan Rows: 10001
+    Plan Width: 12
+    Actual Startup Time: 10.091
+    Actual Total Time: 10.091
+    Actual Rows: 0
+    Actual Loops: 1
+    Output:
+      - "tt1.a"
+      - "tt1.b"
+      - "tt1.c"
+    Hash Cond: "(tt1.a = tt2.b)"
+    Shared Hit Blocks: 218
+    Shared Read Blocks: 0
+    Shared Dirtied Blocks: 0
+    Shared Written Blocks: 0
+    Local Hit Blocks: 0
+    Local Read Blocks: 0
+    Local Dirtied Blocks: 0
+    Local Written Blocks: 0
+    Temp Read Blocks: 0
+    Temp Written Blocks: 0
+    I/O Read Time: 0.000
+    I/O Write Time: 0.000
+    Plans:
+      - Node Type: "Seq Scan"
+        Parent Relationship: "Outer"
+        Relation Name: "tt1"
+        Schema: "public"
+        Alias: "tt1"
+        Startup Cost: 0.00
+        Total Cost: 263.01
+        Plan Rows: 10001
+<truncated>
 ##################
 SELECT '### '||'xml-chopped      '||title||E'\n'||
   pg_store_plans_xmlplan(substring(splan from 1 for char_length(splan) / 3))
   FROM plans WHERE id BETWEEN 22 AND 24 ORDER BY id;
+### xml-chopped      ###### Plan 22: Hash Anti Join
+<explain xmlns="http://www.postgresql.org/2009/explain">
+  <Query>
+    <Plan>
+      <Node-Type>Hash Join</Node-Type>
+      <Join-Type>Anti</Join-Type>
+      <Startup-Cost>280.02</Startup-Cost>
+      <Total-Cost>693.05</Total-Cost>
+      <Plan-Rows>1</Plan-Rows>
+      <Plan-Width>12</Plan-Width>
+      <Actual-Startup-Time>5.480</Actual-Startup-Time>
+      <Actual-Total-Time>11.691</Actual-Total-Time>
+      <Actual-Rows>10001</Actual-Rows>
+      <Actual-Loops>1</Actual-Loops>
+      <Output>
+        <Item>tt1.a</Item>
+        <Item>tt1.b</Item>
+        <Item>tt1.c</Item>
+      </Output>
+      <Hash-Cond>(tt1.a = tt2.b)</Hash-Cond>
+      <Shared-Hit-Blocks>218</Shared-Hit-Blocks>
+      <Shared-Read-Blocks>0</Shared-Read-Blocks>
+      <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+      <Shared-Written-Blocks>0</Shared-Written-Blocks>
+      <Local-Hit-Blocks>0</Local-Hit-Blocks>
+      <Local-Read-Blocks>0</Local-Read-Blocks>
+      <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+      <Local-Written-Blocks>0</Local-Written-Blocks>
+      <Temp-Read-Blocks>0</Temp-Read-Blocks>
+      <Temp-Written-Blocks>0</Temp-Written-Blocks>
+      <I/O-Read-Time>0.000</I/O-Read-Time>
+      <I/O-Write-Time>0.000</I/O-Write-Time>
+      <Plans>
+        <Plan>
+          <Node-Type>Seq Scan</Node-Type>
+          <Parent-Relationship>Outer</Parent-Relationship>
+          <Relation-Name>tt1</Relation-Name>
+          <Schema>public</Schema>
+          <Alias>tt1</Alias>
+          <Startup-Cost>0.00</Startup-Cost>
+          <Total-Cost>263.01</Total-Cost>
+          <Plan-Rows>10001</Plan-Rows>
+<truncated>
+
+=======
+### xml-chopped      ###### Plan 23: WindowAgg
+<explain xmlns="http://www.postgresql.org/2009/explain">
+  <Query>
+    <Plan>
+      <Node-Type>WindowAgg</Node-Type>
+      <Startup-Cost>927.47</Startup-Cost>
+      <Total-Cost>1127.49</Total-Cost>
+      <Plan-Rows>10001</Plan-Rows>
+      <Plan-Width>4</Plan-Width>
+      <Actual-Startup-Time>5.598</Actual-Startup-Time>
+      <Actual-Total-Time>16.880</Actual-Total-Time>
+      <Actual-Rows>10001</Actual-Rows>
+      <Actual-Loops>1</Actual-Loops>
+      <Output>
+        <Item>first_value(a) OVER (?)</Item>
+        <Item>((a / 10))</Item>
+      </Output>
+      <Shared-Hit-Blocks>163</Shared-Hit-Blocks>
+      <Shared-Read-Blocks>0</Shared-Read-Blocks>
+      <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+      <Shared-Written-Blocks>0</Shared-Written-Blocks>
+      <Local-Hit-Blocks>0</Local-Hit-Blocks>
+      <Local-Read-Blocks>0</Local-Read-Blocks>
+      <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+      <Local-Written-Blocks>0</Local-Written-Blocks>
+      <Temp-Read-Blocks>0</Temp-Read-Blocks>
+      <Temp-Written-Blocks>0</Temp-Written-Blocks>
+      <I/O-Read-Time>0.000</I/O-Read-Time>
+      <I/O-Write-Time>0.000</I/O-Write-Time>
+      <Plans>
+        <Plan>
+          <Node-Type>Sort</Node-Type>
+          <Parent-Relationship>Outer</Parent-Relationship>
+          <Startup-Cost>
+<truncated>
+
+=======
+### xml-chopped      ###### Plan 24: Unique
+<explain xmlns="http://www.postgresql.org/2009/explain">
+  <Query>
+    <Plan>
+      <Node-Type>Unique</Node-Type>
+      <Startup-Cost>0.29</Startup-Cost>
+      <Total-Cost>785.30</Total-Cost>
+      <Plan-Rows>10001</Plan-Rows>
+      <Plan-Width>4</Plan-Width>
+      <Actual-Startup-Time>0.010</Actual-Startup-Time>
+      <Actual-Total-Time>7.552</Actual-Total-Time>
+      <Actual-Rows>10001</Actual-Rows>
+      <Actual-Loops>1</Actual-Loops>
+      <Output>
+        <Item>a</Item>
+      </Output>
+      <Shared-Hit-Blocks>165</Shared-Hit-Blocks>
+      <Shared-Read-Blocks>0</Shared-Read-Blocks>
+      <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
+      <Shared-Written-Blocks>0</Shared-Written-Blocks>
+      <Local-Hit-Blocks>0</Local-Hit-Blocks>
+      <Local-Read-Blocks>0</Local-Read-Blocks>
+      <Local-Dirtied-Blocks>0</Local-Dirtied-Blocks>
+      <Local-Written-Blocks>0</Local-Written-Blocks>
+      <Temp-Read-Blocks>0</Temp-Read-Blocks>
+<truncated>
 ##################
 SELECT '### '||'text-chopped     '||title||E'\n'||
   pg_store_plans_textplan(substring(splan from 1 for char_length(splan) / 3))
   FROM plans WHERE id BETWEEN 25 AND 27 ORDER BY id;
+### text-chopped     ###### Plan 25: PlainAggregate
+Aggregate  (cost=288.01..288.02 rows=1 width=4) (actual time=3.202..3.202 rows=1 loops=1)
+  Output: sum(a)
+  Buffers: shared hit=163
+<truncated>
+
+=======
+### text-chopped     ###### Plan 26: BitmapIndexScan/BitmapHeapScan, BitmapOr
+Bitmap Heap Scan on public.tt3  (cost=208.40..1006.81 rows=9961 width=12) (actual time=1.385..3.464 rows=10003 loops=1)
+  Output: a, b, c
+  Recheck Cond: ((tt3.a = 5000) OR (tt3.b = 50))
+  Buffers: shared hit=97
+<truncated>
+
+=======
+### text-chopped     ###### Plan 27: TidScan
+Tid Scan on public.tt3  (cost=0.00..4.01 rows=1 width=12)
+<truncated>
 ###### shorten test
 SELECT '### '||'shorten          '||title||E'\n'||
   pg_store_plans_shorten(lplan)
@@ -69,3 +1818,13 @@ SELECT '### '||'shorten          '||title||E'\n'||
 SELECT '### '||'normalize        '||title||E'\n'||
   pg_store_plans_normalize(lplan)
   FROM plans WHERE id BETWEEN 1 AND 3 ORDER BY id;
+### normalize        ###### Plan 1: Insert, Trigger
+{"p":{"t":"b","!":"i","n":"tt1","s":"public","a":"tt1","l":[{"t":"o","h":"m","f":"generate_series","s":"pg_catalog","a":"a","o":["a.a","?::INTEGER","?::TEXT"]}]},"r":[{"v":"tt1_trig_1","w":"tt1"}{"v":"tt1_trig_2","w":"tt1"}]}
+
+=======
+### normalize        ###### Plan 2: Update, Trigger
+{"p":{"t":"b","!":"u","n":"tt1","s":"public","a":"tt1","l":[{"t":"h","h":"m","n":"tt1","s":"public","a":"tt1","o":["(a + ?)","b","c","ctid"]}]},"r":[{"v":"tt1_trig_1","w":"tt1"}{"v":"tt1_trig_2","w":"tt1"}]}
+
+=======
+### normalize        ###### Plan 3: Delete
+{"p":{"t":"b","!":"d","n":"tt1","s":"public","a":"tt1","l":[{"t":"h","h":"m","n":"tt1","s":"public","a":"tt1","o":["ctid"],"5":"((tt1.a % ?) = ?)"}]},"r":[]}
