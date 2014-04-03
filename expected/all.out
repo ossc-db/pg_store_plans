@@ -32,8 +32,8 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
     Total Cost: 10.00
     Plan Rows: 1000
     Plan Width: 4
-    Actual Startup Time: 256.149
-    Actual Total Time: 256.149
+    Actual Startup Time: 259.664
+    Actual Total Time: 259.664
     Actual Rows: 0
     Actual Loops: 1
     Shared Hit Blocks: 29735
@@ -58,8 +58,8 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
         Total Cost: 10.00
         Plan Rows: 1000
         Plan Width: 4
-        Actual Startup Time: 3.459
-        Actual Total Time: 9.184
+        Actual Startup Time: 3.474
+        Actual Total Time: 9.787
         Actual Rows: 10001
         Actual Loops: 1
         Output:
@@ -79,15 +79,15 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
         Temp Written Blocks: 0
         I/O Read Time: 0.000
         I/O Write Time: 0.000
-  Planning Time: 0.072
+  Planning Time: 0.071
   Triggers:
     - Trigger Name: "tt1_trig_1"
       Relation: "tt1"
-      Time: 90.331
+      Time: 92.091
       Calls: 10001
     - Trigger Name: "tt1_trig_2"
       Relation: "tt1"
-      Time: 81.847
+      Time: 83.320
       Calls: 10001
 
 =======
@@ -102,8 +102,8 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
     Total Cost: 134.75
     Plan Rows: 6380
     Plan Width: 46
-    Actual Startup Time: 313.811
-    Actual Total Time: 313.811
+    Actual Startup Time: 319.686
+    Actual Total Time: 319.686
     Actual Rows: 0
     Actual Loops: 1
     Shared Hit Blocks: 50276
@@ -129,7 +129,7 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
         Plan Rows: 6380
         Plan Width: 46
         Actual Startup Time: 0.040
-        Actual Total Time: 10.405
+        Actual Total Time: 10.294
         Actual Rows: 10001
         Actual Loops: 1
         Output:
@@ -149,15 +149,15 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
         Temp Written Blocks: 0
         I/O Read Time: 0.000
         I/O Write Time: 0.000
-  Planning Time: 30.245
+  Planning Time: 0.189
   Triggers:
     - Trigger Name: "tt1_trig_1"
       Relation: "tt1"
-      Time: 96.546
+      Time: 99.372
       Calls: 10001
     - Trigger Name: "tt1_trig_2"
       Relation: "tt1"
-      Time: 83.609
+      Time: 85.554
       Calls: 10001
 
 =======
@@ -172,8 +172,8 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
     Total Cost: 298.66
     Plan Rows: 63
     Plan Width: 6
-    Actual Startup Time: 12.324
-    Actual Total Time: 12.324
+    Actual Startup Time: 13.935
+    Actual Total Time: 13.935
     Actual Rows: 0
     Actual Loops: 1
     Shared Hit Blocks: 1109
@@ -198,8 +198,8 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
         Total Cost: 298.66
         Plan Rows: 63
         Plan Width: 6
-        Actual Startup Time: 3.454
-        Actual Total Time: 9.822
+        Actual Startup Time: 3.462
+        Actual Total Time: 11.007
         Actual Rows: 1000
         Actual Loops: 1
         Output:
@@ -218,7 +218,7 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
         Temp Written Blocks: 0
         I/O Read Time: 0.000
         I/O Write Time: 0.000
-  Planning Time: 1.091
+  Planning Time: 0.149
   Triggers:
 ##################
 SELECT '### '||'xml-short        '||title||E'\n'||
@@ -237,8 +237,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
       <Total-Cost>10.00</Total-Cost>
       <Plan-Rows>1000</Plan-Rows>
       <Plan-Width>4</Plan-Width>
-      <Actual-Startup-Time>256.149</Actual-Startup-Time>
-      <Actual-Total-Time>256.149</Actual-Total-Time>
+      <Actual-Startup-Time>259.664</Actual-Startup-Time>
+      <Actual-Total-Time>259.664</Actual-Total-Time>
       <Actual-Rows>0</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
       <Shared-Hit-Blocks>29735</Shared-Hit-Blocks>
@@ -264,8 +264,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
           <Total-Cost>10.00</Total-Cost>
           <Plan-Rows>1000</Plan-Rows>
           <Plan-Width>4</Plan-Width>
-          <Actual-Startup-Time>3.459</Actual-Startup-Time>
-          <Actual-Total-Time>9.184</Actual-Total-Time>
+          <Actual-Startup-Time>3.474</Actual-Startup-Time>
+          <Actual-Total-Time>9.787</Actual-Total-Time>
           <Actual-Rows>10001</Actual-Rows>
           <Actual-Loops>1</Actual-Loops>
           <Output>
@@ -289,18 +289,18 @@ SELECT '### '||'xml-short        '||title||E'\n'||
         </Plan>
       </Plans>
     </Plan>
-    <Planning-Time>0.072</Planning-Time>
+    <Planning-Time>0.071</Planning-Time>
     <Triggers>
       <Trigger>
         <Trigger-Name>tt1_trig_1</Trigger-Name>
         <Relation>tt1</Relation>
-        <Time>90.331</Time>
+        <Time>92.091</Time>
         <Calls>10001</Calls>
       </Trigger>
       <Trigger>
         <Trigger-Name>tt1_trig_2</Trigger-Name>
         <Relation>tt1</Relation>
-        <Time>81.847</Time>
+        <Time>83.320</Time>
         <Calls>10001</Calls>
       </Trigger>
     </Triggers>
@@ -318,8 +318,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
       <Total-Cost>418.02</Total-Cost>
       <Plan-Rows>20002</Plan-Rows>
       <Plan-Width>8</Plan-Width>
-      <Actual-Startup-Time>2.455</Actual-Startup-Time>
-      <Actual-Total-Time>17.069</Actual-Total-Time>
+      <Actual-Startup-Time>2.871</Actual-Startup-Time>
+      <Actual-Total-Time>16.467</Actual-Total-Time>
       <Actual-Rows>20002</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
       <Output>
@@ -347,8 +347,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
           <Total-Cost>418.02</Total-Cost>
           <Plan-Rows>20002</Plan-Rows>
           <Plan-Width>8</Plan-Width>
-          <Actual-Startup-Time>2.454</Actual-Startup-Time>
-          <Actual-Total-Time>11.990</Actual-Total-Time>
+          <Actual-Startup-Time>2.869</Actual-Startup-Time>
+          <Actual-Total-Time>11.693</Actual-Total-Time>
           <Actual-Rows>20002</Actual-Rows>
           <Actual-Loops>1</Actual-Loops>
           <Shared-Hit-Blocks>218</Shared-Hit-Blocks>
@@ -374,8 +374,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
               <Total-Cost>263.01</Total-Cost>
               <Plan-Rows>10001</Plan-Rows>
               <Plan-Width>8</Plan-Width>
-              <Actual-Startup-Time>2.453</Actual-Startup-Time>
-              <Actual-Total-Time>6.480</Actual-Total-Time>
+              <Actual-Startup-Time>2.868</Actual-Startup-Time>
+              <Actual-Total-Time>6.490</Actual-Total-Time>
               <Actual-Rows>10001</Actual-Rows>
               <Actual-Loops>1</Actual-Loops>
               <Output>
@@ -406,7 +406,7 @@ SELECT '### '||'xml-short        '||title||E'\n'||
               <Plan-Rows>10001</Plan-Rows>
               <Plan-Width>8</Plan-Width>
               <Actual-Startup-Time>0.007</Actual-Startup-Time>
-              <Actual-Total-Time>2.465</Actual-Total-Time>
+              <Actual-Total-Time>2.445</Actual-Total-Time>
               <Actual-Rows>10001</Actual-Rows>
               <Actual-Loops>1</Actual-Loops>
               <Output>
@@ -430,7 +430,7 @@ SELECT '### '||'xml-short        '||title||E'\n'||
         </Plan>
       </Plans>
     </Plan>
-    <Planning-Time>0.437</Planning-Time>
+    <Planning-Time>0.468</Planning-Time>
     <Triggers>
     </Triggers>
   </Query>
@@ -476,7 +476,7 @@ SELECT '### '||'xml-short        '||title||E'\n'||
       <I/O-Read-Time>0.000</I/O-Read-Time>
       <I/O-Write-Time>0.000</I/O-Write-Time>
     </Plan>
-    <Planning-Time>0.084</Planning-Time>
+    <Planning-Time>0.088</Planning-Time>
     <Triggers>
     </Triggers>
   </Query>
@@ -493,8 +493,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
       <Total-Cost>820.79</Total-Cost>
       <Plan-Rows>10</Plan-Rows>
       <Plan-Width>12</Plan-Width>
-      <Actual-Startup-Time>12.045</Actual-Startup-Time>
-      <Actual-Total-Time>12.045</Actual-Total-Time>
+      <Actual-Startup-Time>15.390</Actual-Startup-Time>
+      <Actual-Total-Time>15.390</Actual-Total-Time>
       <Actual-Rows>0</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
       <Output>
@@ -523,8 +523,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
           <Total-Cost>1854.80</Total-Cost>
           <Plan-Rows>10001</Plan-Rows>
           <Plan-Width>12</Plan-Width>
-          <Actual-Startup-Time>12.043</Actual-Startup-Time>
-          <Actual-Total-Time>12.043</Actual-Total-Time>
+          <Actual-Startup-Time>15.387</Actual-Startup-Time>
+          <Actual-Total-Time>15.387</Actual-Total-Time>
           <Actual-Rows>0</Actual-Rows>
           <Actual-Loops>1</Actual-Loops>
           <Output>
@@ -558,8 +558,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
               <Total-Cost>760.30</Total-Cost>
               <Plan-Rows>10001</Plan-Rows>
               <Plan-Width>12</Plan-Width>
-              <Actual-Startup-Time>0.030</Actual-Startup-Time>
-              <Actual-Total-Time>0.030</Actual-Total-Time>
+              <Actual-Startup-Time>0.029</Actual-Startup-Time>
+              <Actual-Total-Time>0.029</Actual-Total-Time>
               <Actual-Rows>1</Actual-Rows>
               <Actual-Loops>1</Actual-Loops>
               <Output>
@@ -587,8 +587,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
               <Total-Cost>844.47</Total-Cost>
               <Plan-Rows>10001</Plan-Rows>
               <Plan-Width>4</Plan-Width>
-              <Actual-Startup-Time>9.539</Actual-Startup-Time>
-              <Actual-Total-Time>10.243</Actual-Total-Time>
+              <Actual-Startup-Time>12.880</Actual-Startup-Time>
+              <Actual-Total-Time>13.558</Actual-Total-Time>
               <Actual-Rows>10001</Actual-Rows>
               <Actual-Loops>1</Actual-Loops>
               <Output>
@@ -624,8 +624,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
                   <Total-Cost>155.01</Total-Cost>
                   <Plan-Rows>10001</Plan-Rows>
                   <Plan-Width>4</Plan-Width>
-                  <Actual-Startup-Time>0.009</Actual-Startup-Time>
-                  <Actual-Total-Time>3.954</Actual-Total-Time>
+                  <Actual-Startup-Time>0.018</Actual-Startup-Time>
+                  <Actual-Total-Time>5.780</Actual-Total-Time>
                   <Actual-Rows>10001</Actual-Rows>
                   <Actual-Loops>1</Actual-Loops>
                   <Output>
@@ -651,7 +651,7 @@ SELECT '### '||'xml-short        '||title||E'\n'||
         </Plan>
       </Plans>
     </Plan>
-    <Planning-Time>0.211</Planning-Time>
+    <Planning-Time>0.409</Planning-Time>
     <Triggers>
     </Triggers>
   </Query>
@@ -666,29 +666,29 @@ SELECT '### '||'TEXT-short       '||title||E'\n'||
 
 =======
 ### TEXT-short       ###### Plan 1: Insert, Trigger
-Insert on public.tt1  (cost=0.00..10.00 rows=1000 width=4) (actual time=256.149..256.149 rows=0 loops=1)
+Insert on public.tt1  (cost=0.00..10.00 rows=1000 width=4) (actual time=259.664..259.664 rows=0 loops=1)
   Buffers: shared hit=29735 read=87 dirtied=85
-  ->  Function Scan on pg_catalog.generate_series a  (cost=0.00..10.00 rows=1000 width=4) (actual time=3.459..9.184 rows=10001 loops=1)
+  ->  Function Scan on pg_catalog.generate_series a  (cost=0.00..10.00 rows=1000 width=4) (actual time=3.474..9.787 rows=10001 loops=1)
         Output: a.a, NULL::integer, NULL::text
         Function Call: generate_series(0, 10000)
-Trigger tt1_trig_1: time=90.331 calls=10001
-Trigger tt1_trig_2: time=81.847 calls=10001
+Trigger tt1_trig_1: time=92.091 calls=10001
+Trigger tt1_trig_2: time=83.320 calls=10001
 
 =======
 ### TEXT-short       ###### Plan 2: Update, Trigger
-Update on public.tt1  (cost=0.00..134.75 rows=6380 width=46) (actual time=313.811..313.811 rows=0 loops=1)
+Update on public.tt1  (cost=0.00..134.75 rows=6380 width=46) (actual time=319.686..319.686 rows=0 loops=1)
   Buffers: shared hit=50276 read=108 dirtied=108
-  ->  Seq Scan on public.tt1  (cost=0.00..134.75 rows=6380 width=46) (actual time=0.040..10.405 rows=10001 loops=1)
+  ->  Seq Scan on public.tt1  (cost=0.00..134.75 rows=6380 width=46) (actual time=0.040..10.294 rows=10001 loops=1)
         Output: (a + 1), b, c, ctid
         Buffers: shared hit=55
-Trigger tt1_trig_1: time=96.546 calls=10001
-Trigger tt1_trig_2: time=83.609 calls=10001
+Trigger tt1_trig_1: time=99.372 calls=10001
+Trigger tt1_trig_2: time=85.554 calls=10001
 
 =======
 ### TEXT-short       ###### Plan 3: Delete
-Delete on public.tt1  (cost=0.00..298.66 rows=63 width=6) (actual time=12.324..12.324 rows=0 loops=1)
+Delete on public.tt1  (cost=0.00..298.66 rows=63 width=6) (actual time=13.935..13.935 rows=0 loops=1)
   Buffers: shared hit=1109
-  ->  Seq Scan on public.tt1  (cost=0.00..298.66 rows=63 width=6) (actual time=3.454..9.822 rows=1000 loops=1)
+  ->  Seq Scan on public.tt1  (cost=0.00..298.66 rows=63 width=6) (actual time=3.462..11.007 rows=1000 loops=1)
         Output: ctid
         Filter: ((tt1.a % 10) = 0)
         Rows Removed by Filter: 9001
@@ -696,15 +696,15 @@ Delete on public.tt1  (cost=0.00..298.66 rows=63 width=6) (actual time=12.324..1
 
 =======
 ### TEXT-short       ###### Plan 4: Result, Append Seq Scan
-Result  (cost=0.00..418.02 rows=20002 width=8) (actual time=2.455..17.069 rows=20002 loops=1)
+Result  (cost=0.00..418.02 rows=20002 width=8) (actual time=2.871..16.467 rows=20002 loops=1)
   Output: ((tt1.a + 1)), (3), 1
   Buffers: shared hit=218
-  ->  Append  (cost=0.00..418.02 rows=20002 width=8) (actual time=2.454..11.990 rows=20002 loops=1)
+  ->  Append  (cost=0.00..418.02 rows=20002 width=8) (actual time=2.869..11.693 rows=20002 loops=1)
         Buffers: shared hit=218
-        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=8) (actual time=2.453..6.480 rows=10001 loops=1)
+        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=8) (actual time=2.868..6.490 rows=10001 loops=1)
               Output: (tt1.a + 1), 3
               Buffers: shared hit=163
-        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=8) (actual time=0.007..2.465 rows=10001 loops=1)
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=8) (actual time=0.007..2.445 rows=10001 loops=1)
               Output: tt2.a, 4
               Buffers: shared hit=55
 
@@ -717,28 +717,28 @@ Index Scan using i_tt1 on public.tt1 "x""y"  (cost=0.29..21.21 rows=4 width=12) 
 
 =======
 ### TEXT-short       ###### Plan 6: Index scan (backward), MergeJoin, Sort, quichsort, alias
-Limit  (cost=819.75..820.79 rows=10 width=12) (actual time=12.045..12.045 rows=0 loops=1)
+Limit  (cost=819.75..820.79 rows=10 width=12) (actual time=15.390..15.390 rows=0 loops=1)
   Output: x.b, x.c, x.a
   Buffers: shared hit=61
-  ->  Merge Join  (cost=819.75..1854.80 rows=10001 width=12) (actual time=12.043..12.043 rows=0 loops=1)
+  ->  Merge Join  (cost=819.75..1854.80 rows=10001 width=12) (actual time=15.387..15.387 rows=0 loops=1)
         Output: x.b, x.c, x.a
         Merge Cond: (x.a = (((- y.b) * 3)))
         Buffers: shared hit=61
-        ->  Index Scan Backward using i_tt1 on public.tt1 x  (cost=0.29..760.30 rows=10001 width=12) (actual time=0.030..0.030 rows=1 loops=1)
+        ->  Index Scan Backward using i_tt1 on public.tt1 x  (cost=0.29..760.30 rows=10001 width=12) (actual time=0.029..0.029 rows=1 loops=1)
               Output: x.a, x.b, x.c
               Buffers: shared hit=6
-        ->  Sort  (cost=819.47..844.47 rows=10001 width=4) (actual time=9.539..10.243 rows=10001 loops=1)
+        ->  Sort  (cost=819.47..844.47 rows=10001 width=4) (actual time=12.880..13.558 rows=10001 loops=1)
               Output: y.b, (((- y.b) * 3))
               Sort Key: (((- y.b) * 3))
               Sort Method: quicksort  Memory: 855kB
               Buffers: shared hit=55
-              ->  Seq Scan on public.tt2 y  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.009..3.954 rows=10001 loops=1)
+              ->  Seq Scan on public.tt2 y  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.018..5.780 rows=10001 loops=1)
                     Output: y.b, ((- y.b) * 3)
                     Buffers: shared hit=55
 
 =======
 ### TEXT-short       ###### Plan 7: IndexOnlyScan
-Index Only Scan using i_tt1 on public.tt1  (cost=0.29..8.46 rows=10 width=4) (actual time=0.015..0.032 rows=10 loops=1)
+Index Only Scan using i_tt1 on public.tt1  (cost=0.29..8.46 rows=10 width=4) (actual time=0.014..0.031 rows=10 loops=1)
   Output: a
   Index Cond: (tt1.a < 10)
   Heap Fetches: 29
@@ -746,351 +746,351 @@ Index Only Scan using i_tt1 on public.tt1  (cost=0.29..8.46 rows=10 width=4) (ac
 
 =======
 ### TEXT-short       ###### Plan 8: Plain Aggregate, CTE, Recursive Union, WorkTable Scan, CTE Scan
-Aggregate  (cost=3.65..3.66 rows=1 width=4) (actual time=0.034..0.034 rows=1 loops=1)
+Aggregate  (cost=3.65..3.66 rows=1 width=4) (actual time=0.038..0.038 rows=1 loops=1)
   Output: sum(cte1.a)
   CTE cte1
-    ->  Recursive Union  (cost=0.00..2.95 rows=31 width=4) (actual time=0.001..0.023 rows=10 loops=1)
+    ->  Recursive Union  (cost=0.00..2.95 rows=31 width=4) (actual time=0.002..0.023 rows=10 loops=1)
         ->  Result  (cost=0.00..0.01 rows=1 width=0) (actual time=0.001..0.001 rows=1 loops=1)
               Output: 1
         ->  WorkTable Scan  (cost=0.00..0.23 rows=3 width=4) (actual time=0.001..0.001 rows=1 loops=10)
               Output: (cte1_1.a + 1)
               Filter: (cte1_1.a < 10)
-  ->  CTE Scan on cte1  (cost=0.00..0.62 rows=31 width=4) (actual time=0.003..0.028 rows=10 loops=1)
+  ->  CTE Scan on cte1  (cost=0.00..0.62 rows=31 width=4) (actual time=0.003..0.031 rows=10 loops=1)
         Output: cte1.a
 
 =======
 ### TEXT-short       ###### Plan 9: FunctionScan, Hash/HashJoin, Nested Loop
-Nested Loop  (cost=1.15..2.69 rows=1 width=64) (actual time=0.048..0.050 rows=1 loops=1)
+Nested Loop  (cost=1.15..2.69 rows=1 width=64) (actual time=0.046..0.048 rows=1 loops=1)
   Output: d.datname
   Buffers: shared hit=3
-  ->  Hash Join  (cost=1.02..2.41 rows=1 width=4) (actual time=0.041..0.042 rows=1 loops=1)
+  ->  Hash Join  (cost=1.02..2.41 rows=1 width=4) (actual time=0.038..0.039 rows=1 loops=1)
         Output: s.datid
         Hash Cond: (s.usesysid = u.oid)
         Buffers: shared hit=1
-        ->  Function Scan on pg_catalog.pg_stat_get_activity s  (cost=0.00..1.00 rows=100 width=8) (actual time=0.026..0.026 rows=1 loops=1)
+        ->  Function Scan on pg_catalog.pg_stat_get_activity s  (cost=0.00..1.00 rows=100 width=8) (actual time=0.025..0.025 rows=1 loops=1)
               Output: s.datid, s.pid, s.usesysid, s.application_name, s.state, s.query, s.waiting, s.xact_start, s.query_start, s.backend_start, s.state_change, s.client_addr, s.client_hostname, s.client_port, s.backend_xid, s.backend_xmin
               Function Call: pg_stat_get_activity(NULL::integer)
-        ->  Hash  (cost=1.01..1.01 rows=1 width=4) (actual time=0.006..0.006 rows=1 loops=1)
+        ->  Hash  (cost=1.01..1.01 rows=1 width=4) (actual time=0.005..0.005 rows=1 loops=1)
               Output: u.oid
               Buckets: 1024  Batches: 1  Memory Usage: 1kB
               Buffers: shared hit=1
-              ->  Seq Scan on pg_catalog.pg_authid u  (cost=0.00..1.01 rows=1 width=4) (actual time=0.003..0.004 rows=1 loops=1)
+              ->  Seq Scan on pg_catalog.pg_authid u  (cost=0.00..1.01 rows=1 width=4) (actual time=0.002..0.002 rows=1 loops=1)
                     Output: u.oid
                     Buffers: shared hit=1
-  ->  Index Scan using pg_database_oid_index on pg_catalog.pg_database d  (cost=0.13..0.27 rows=1 width=68) (actual time=0.005..0.006 rows=1 loops=1)
+  ->  Index Scan using pg_database_oid_index on pg_catalog.pg_database d  (cost=0.13..0.27 rows=1 width=68) (actual time=0.004..0.005 rows=1 loops=1)
         Output: d.datname, d.oid
         Index Cond: (d.oid = s.datid)
         Buffers: shared hit=2
 
 =======
 ### TEXT-short       ###### Plan 10: MergeAppend, Values
-Merge Append  (cost=0.36..985.44 rows=10004 width=4) (actual time=0.021..21.019 rows=10004 loops=1)
+Merge Append  (cost=0.36..985.44 rows=10004 width=4) (actual time=0.035..24.103 rows=10004 loops=1)
   Sort Key: tt1.a
   Buffers: shared hit=30069
-  ->  Index Only Scan using i_tt1 on public.tt1  (cost=0.29..760.30 rows=10001 width=4) (actual time=0.012..18.927 rows=10001 loops=1)
+  ->  Index Only Scan using i_tt1 on public.tt1  (cost=0.29..760.30 rows=10001 width=4) (actual time=0.020..21.640 rows=10001 loops=1)
         Output: tt1.a
         Heap Fetches: 29973
         Buffers: shared hit=30069
-  ->  Sort  (cost=0.06..0.07 rows=3 width=4) (actual time=0.008..0.009 rows=3 loops=1)
+  ->  Sort  (cost=0.06..0.07 rows=3 width=4) (actual time=0.013..0.015 rows=3 loops=1)
         Output: "*VALUES*".column1
         Sort Key: "*VALUES*".column1
         Sort Method: quicksort  Memory: 25kB
-        ->  Values Scan on "*VALUES*"  (cost=0.00..0.04 rows=3 width=4) (actual time=0.001..0.003 rows=3 loops=1)
+        ->  Values Scan on "*VALUES*"  (cost=0.00..0.04 rows=3 width=4) (actual time=0.002..0.005 rows=3 loops=1)
               Output: "*VALUES*".column1
 
 =======
 ### TEXT-short       ###### Plan 11: Append, HashAggregate
-HashAggregate  (cost=668.04..868.06 rows=20002 width=4) (actual time=13.884..17.625 rows=20002 loops=1)
+HashAggregate  (cost=668.04..868.06 rows=20002 width=4) (actual time=14.110..17.847 rows=20002 loops=1)
   Output: tt1.a
   Buffers: shared hit=218
-  ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.097..7.241 rows=20002 loops=1)
+  ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.093..7.210 rows=20002 loops=1)
         Buffers: shared hit=218
-        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.097..2.345 rows=10001 loops=1)
+        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.093..2.267 rows=10001 loops=1)
               Output: tt1.a
               Buffers: shared hit=163
-        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.305 rows=10001 loops=1)
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.349 rows=10001 loops=1)
               Output: tt2.b
               Buffers: shared hit=55
 
 =======
 ### TEXT-short       ###### Plan 12: GroupAggregate
-GroupAggregate  (cost=1067.47..1242.49 rows=10001 width=8) (actual time=11.028..20.786 rows=10001 loops=1)
+GroupAggregate  (cost=1067.47..1242.49 rows=10001 width=8) (actual time=11.262..20.921 rows=10001 loops=1)
   Output: sum(a), b
   Buffers: shared hit=163, temp read=33 written=33
-  ->  Sort  (cost=1067.47..1092.47 rows=10001 width=8) (actual time=11.025..14.516 rows=10001 loops=1)
+  ->  Sort  (cost=1067.47..1092.47 rows=10001 width=8) (actual time=11.258..14.792 rows=10001 loops=1)
         Output: b, a
         Sort Key: tt1.b
         Sort Method: external merge  Disk: 168kB
         Buffers: shared hit=163, temp read=33 written=33
-        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=8) (actual time=0.099..2.437 rows=10001 loops=1)
+        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=8) (actual time=0.107..2.551 rows=10001 loops=1)
               Output: b, a
               Buffers: shared hit=163
 
 =======
 ### TEXT-short       ###### Plan 13: Group
-Group  (cost=1067.47..1117.47 rows=10001 width=4) (actual time=10.215..17.715 rows=10001 loops=1)
+Group  (cost=1067.47..1117.47 rows=10001 width=4) (actual time=10.339..17.991 rows=10001 loops=1)
   Output: b
   Buffers: shared hit=163, temp read=25 written=25
-  ->  Sort  (cost=1067.47..1092.47 rows=10001 width=4) (actual time=10.214..13.481 rows=10001 loops=1)
+  ->  Sort  (cost=1067.47..1092.47 rows=10001 width=4) (actual time=10.338..13.621 rows=10001 loops=1)
         Output: b
         Sort Key: tt1.b
         Sort Method: external merge  Disk: 120kB
         Buffers: shared hit=163, temp read=25 written=25
-        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.095..2.275 rows=10001 loops=1)
+        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.094..2.299 rows=10001 loops=1)
               Output: b
               Buffers: shared hit=163
 
 =======
 ### TEXT-short       ###### Plan 14: SetOp intersect, SbuqueryScan
-Sort  (cost=1332.50..1357.51 rows=10001 width=4) (actual time=17.472..17.472 rows=0 loops=1)
+Sort  (cost=1332.50..1357.51 rows=10001 width=4) (actual time=17.539..17.539 rows=0 loops=1)
   Output: "*SELECT* 1".a, (0)
   Sort Key: "*SELECT* 1".a
   Sort Method: quicksort  Memory: 25kB
   Buffers: shared hit=218
-  ->  HashSetOp Intersect  (cost=0.00..668.04 rows=10001 width=4) (actual time=17.470..17.470 rows=0 loops=1)
+  ->  HashSetOp Intersect  (cost=0.00..668.04 rows=10001 width=4) (actual time=17.535..17.535 rows=0 loops=1)
         Output: "*SELECT* 1".a, (0)
         Buffers: shared hit=218
-        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.090..11.721 rows=20002 loops=1)
+        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.099..11.794 rows=20002 loops=1)
               Buffers: shared hit=218
-              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.090..4.551 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.098..4.665 rows=10001 loops=1)
                     Output: "*SELECT* 1".a, 0
                     Buffers: shared hit=163
-                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.090..2.344 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.098..2.472 rows=10001 loops=1)
                           Output: tt1.a
                           Buffers: shared hit=163
-              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.007..4.613 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.007..4.507 rows=10001 loops=1)
                     Output: "*SELECT* 2".b, 1
                     Buffers: shared hit=55
-                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.342 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.314 rows=10001 loops=1)
                           Output: tt2.b
                           Buffers: shared hit=55
 
 =======
 ### TEXT-short       ###### Plan 15: Sorted SetOp, Sort on Disk
-SetOp Intersect  (cost=2323.47..2423.48 rows=10001 width=4) (actual time=44.719..44.719 rows=0 loops=1)
+SetOp Intersect  (cost=2323.47..2423.48 rows=10001 width=4) (actual time=45.010..45.010 rows=0 loops=1)
   Output: "*SELECT* 1".a, (0)
   Buffers: shared hit=218, temp read=77 written=77
-  ->  Sort  (cost=2323.47..2373.47 rows=20002 width=4) (actual time=32.675..38.534 rows=20002 loops=1)
+  ->  Sort  (cost=2323.47..2373.47 rows=20002 width=4) (actual time=32.929..38.799 rows=20002 loops=1)
         Output: "*SELECT* 1".a, (0)
         Sort Key: "*SELECT* 1".a
         Sort Method: external merge  Disk: 352kB
         Buffers: shared hit=218, temp read=77 written=77
-        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.095..12.658 rows=20002 loops=1)
+        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.118..12.833 rows=20002 loops=1)
               Buffers: shared hit=218
-              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.095..5.182 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.118..5.492 rows=10001 loops=1)
                     Output: "*SELECT* 1".a, 0
                     Buffers: shared hit=163
-                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.094..2.669 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.117..2.860 rows=10001 loops=1)
                           Output: tt1.a
                           Buffers: shared hit=163
-              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.007..4.686 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.007..4.665 rows=10001 loops=1)
                     Output: "*SELECT* 2".b, 1
                     Buffers: shared hit=55
-                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.006..2.384 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.378 rows=10001 loops=1)
                           Output: tt2.b
                           Buffers: shared hit=55
 
 =======
 ### TEXT-short       ###### Plan 16: HashSetOp intersect All, SubqueryScan
-Sort  (cost=1332.50..1357.51 rows=10001 width=4) (actual time=19.395..19.395 rows=0 loops=1)
+Sort  (cost=1332.50..1357.51 rows=10001 width=4) (actual time=19.483..19.483 rows=0 loops=1)
   Output: "*SELECT* 1".a, (0)
   Sort Key: "*SELECT* 1".a
   Sort Method: quicksort  Memory: 25kB
   Buffers: shared hit=218
-  ->  HashSetOp Intersect All  (cost=0.00..668.04 rows=10001 width=4) (actual time=19.391..19.391 rows=0 loops=1)
+  ->  HashSetOp Intersect All  (cost=0.00..668.04 rows=10001 width=4) (actual time=19.480..19.480 rows=0 loops=1)
         Output: "*SELECT* 1".a, (0)
         Buffers: shared hit=218
-        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.095..12.956 rows=20002 loops=1)
+        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.106..13.075 rows=20002 loops=1)
               Buffers: shared hit=218
-              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.095..5.344 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.106..5.676 rows=10001 loops=1)
                     Output: "*SELECT* 1".a, 0
                     Buffers: shared hit=163
-                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.095..2.711 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.099..2.977 rows=10001 loops=1)
                           Output: tt1.a
                           Buffers: shared hit=163
-              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.008..4.805 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.007..4.541 rows=10001 loops=1)
                     Output: "*SELECT* 2".b, 1
                     Buffers: shared hit=55
-                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.008..2.460 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.006..2.350 rows=10001 loops=1)
                           Output: tt2.b
                           Buffers: shared hit=55
 
 =======
 ### TEXT-short       ###### Plan 17: HashSetOp except, SubqueryScan
-Sort  (cost=1332.50..1357.51 rows=10001 width=4) (actual time=24.361..25.158 rows=10001 loops=1)
+Sort  (cost=1332.50..1357.51 rows=10001 width=4) (actual time=23.783..24.519 rows=10001 loops=1)
   Output: "*SELECT* 1".a, (0)
   Sort Key: "*SELECT* 1".a
   Sort Method: quicksort  Memory: 855kB
   Buffers: shared hit=218
-  ->  HashSetOp Except  (cost=0.00..668.04 rows=10001 width=4) (actual time=18.923..19.997 rows=10001 loops=1)
+  ->  HashSetOp Except  (cost=0.00..668.04 rows=10001 width=4) (actual time=18.364..19.479 rows=10001 loops=1)
         Output: "*SELECT* 1".a, (0)
         Buffers: shared hit=218
-        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.112..12.917 rows=20002 loops=1)
+        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.099..12.502 rows=20002 loops=1)
               Buffers: shared hit=218
-              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.112..5.518 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.099..5.266 rows=10001 loops=1)
                     Output: "*SELECT* 1".a, 0
                     Buffers: shared hit=163
-                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.110..2.818 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.098..2.804 rows=10001 loops=1)
                           Output: tt1.a
                           Buffers: shared hit=163
-              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.007..4.578 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.006..4.526 rows=10001 loops=1)
                     Output: "*SELECT* 2".b, 1
                     Buffers: shared hit=55
-                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.310 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.006..2.338 rows=10001 loops=1)
                           Output: tt2.b
                           Buffers: shared hit=55
 
 =======
 ### TEXT-short       ###### Plan 18: HashSetOp except all, SubqueryScan
-Sort  (cost=1332.50..1357.51 rows=10001 width=4) (actual time=23.742..24.542 rows=10001 loops=1)
+Sort  (cost=1332.50..1357.51 rows=10001 width=4) (actual time=23.416..24.178 rows=10001 loops=1)
   Output: "*SELECT* 1".a, (0)
   Sort Key: "*SELECT* 1".a
   Sort Method: quicksort  Memory: 855kB
   Buffers: shared hit=218
-  ->  HashSetOp Except All  (cost=0.00..668.04 rows=10001 width=4) (actual time=18.525..19.612 rows=10001 loops=1)
+  ->  HashSetOp Except All  (cost=0.00..668.04 rows=10001 width=4) (actual time=18.185..19.248 rows=10001 loops=1)
         Output: "*SELECT* 1".a, (0)
         Buffers: shared hit=218
-        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.116..12.639 rows=20002 loops=1)
+        ->  Append  (cost=0.00..618.04 rows=20002 width=4) (actual time=0.126..12.408 rows=20002 loops=1)
               Buffers: shared hit=218
-              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.116..5.303 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=4) (actual time=0.126..5.197 rows=10001 loops=1)
                     Output: "*SELECT* 1".a, 0
                     Buffers: shared hit=163
-                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.115..2.724 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.124..2.657 rows=10001 loops=1)
                           Output: tt1.a
                           Buffers: shared hit=163
-              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.007..4.542 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=4) (actual time=0.007..4.507 rows=10001 loops=1)
                     Output: "*SELECT* 2".b, 1
                     Buffers: shared hit=55
-                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.301 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.347 rows=10001 loops=1)
                           Output: tt2.b
                           Buffers: shared hit=55
 
 =======
 ### TEXT-short       ###### Plan 19: merge LEFT join
-Merge Left Join  (cost=0.58..2434.81 rows=15224 width=4) (actual time=0.028..37.655 rows=30003 loops=1)
+Merge Left Join  (cost=0.58..2409.14 rows=15147 width=4) (actual time=0.031..38.276 rows=30003 loops=1)
   Output: x.b
   Merge Cond: (x.a = y.a)
-  Buffers: shared hit=20418
-  ->  Index Scan using i_tt1 on public.tt1 x  (cost=0.29..760.30 rows=10001 width=8) (actual time=0.007..3.875 rows=10001 loops=1)
+  Buffers: shared hit=20420
+  ->  Index Scan using i_tt1 on public.tt1 x  (cost=0.29..760.30 rows=10001 width=8) (actual time=0.007..3.807 rows=10001 loops=1)
         Output: x.a, x.b, x.c
         Buffers: shared hit=165
-  ->  Index Only Scan using i_tt3_a on public.tt3 y  (cost=0.29..5745.99 rows=120003 width=4) (actual time=0.018..18.091 rows=30004 loops=1)
+  ->  Index Only Scan using i_tt3_a on public.tt3 y  (cost=0.29..5731.87 rows=120003 width=4) (actual time=0.020..18.353 rows=30004 loops=1)
         Output: y.a
         Heap Fetches: 30004
-        Buffers: shared hit=20253
+        Buffers: shared hit=20255
 
 =======
 ### TEXT-short       ###### Plan 20: hash FULL join
-Hash Full Join  (cost=280.02..793.06 rows=10001 width=4) (actual time=5.372..12.828 rows=17001 loops=1)
+Hash Full Join  (cost=280.02..793.06 rows=10001 width=4) (actual time=9.198..16.568 rows=17001 loops=1)
   Output: x.b
   Hash Cond: (x.a = y.a)
   Buffers: shared hit=218
-  ->  Seq Scan on public.tt1 x  (cost=0.00..263.01 rows=10001 width=8) (actual time=0.103..1.570 rows=10001 loops=1)
+  ->  Seq Scan on public.tt1 x  (cost=0.00..263.01 rows=10001 width=8) (actual time=0.106..1.576 rows=10001 loops=1)
         Output: x.a, x.b, x.c
         Buffers: shared hit=163
-  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=5.264..5.264 rows=10001 loops=1)
+  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=9.087..9.087 rows=10001 loops=1)
         Output: y.a
         Buckets: 1024  Batches: 1  Memory Usage: 352kB
         Buffers: shared hit=55
-        ->  Seq Scan on public.tt2 y  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.009..2.478 rows=10001 loops=1)
+        ->  Seq Scan on public.tt2 y  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.009..4.253 rows=10001 loops=1)
               Output: y.a
               Buffers: shared hit=55
 
 =======
 ### TEXT-short       ###### Plan 21: hash SEMI join
-Hash Semi Join  (cost=280.02..793.06 rows=10001 width=12) (actual time=10.091..10.091 rows=0 loops=1)
+Hash Semi Join  (cost=280.02..793.06 rows=10001 width=12) (actual time=10.003..10.003 rows=0 loops=1)
   Output: tt1.a, tt1.b, tt1.c
   Hash Cond: (tt1.a = tt2.b)
   Buffers: shared hit=218
-  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=12) (actual time=0.090..1.410 rows=10001 loops=1)
+  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=12) (actual time=0.092..1.398 rows=10001 loops=1)
         Output: tt1.a, tt1.b, tt1.c
         Buffers: shared hit=163
-  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=5.430..5.430 rows=10001 loops=1)
+  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=5.360..5.360 rows=10001 loops=1)
         Output: tt2.b
         Buckets: 1024  Batches: 1  Memory Usage: 352kB
         Buffers: shared hit=55
-        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.483 rows=10001 loops=1)
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.538 rows=10001 loops=1)
               Output: tt2.b
               Buffers: shared hit=55
 
 =======
 ### TEXT-short       ###### Plan 22: Hash Anti Join
-Hash Anti Join  (cost=280.02..693.05 rows=1 width=12) (actual time=5.480..11.691 rows=10001 loops=1)
+Hash Anti Join  (cost=280.02..693.05 rows=1 width=12) (actual time=5.458..11.753 rows=10001 loops=1)
   Output: tt1.a, tt1.b, tt1.c
   Hash Cond: (tt1.a = tt2.b)
   Buffers: shared hit=218
-  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=12) (actual time=0.091..1.520 rows=10001 loops=1)
+  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=12) (actual time=0.094..1.498 rows=10001 loops=1)
         Output: tt1.a, tt1.b, tt1.c
         Buffers: shared hit=163
-  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=5.384..5.384 rows=10001 loops=1)
+  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=5.359..5.359 rows=10001 loops=1)
         Output: tt2.b
         Buckets: 1024  Batches: 1  Memory Usage: 352kB
         Buffers: shared hit=55
-        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.563 rows=10001 loops=1)
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.007..2.482 rows=10001 loops=1)
               Output: tt2.b
               Buffers: shared hit=55
 
 =======
 ### TEXT-short       ###### Plan 23: WindowAgg
-WindowAgg  (cost=927.47..1127.49 rows=10001 width=4) (actual time=5.598..16.880 rows=10001 loops=1)
+WindowAgg  (cost=927.47..1127.49 rows=10001 width=4) (actual time=5.547..16.947 rows=10001 loops=1)
   Output: first_value(a) OVER (?), ((a / 10))
   Buffers: shared hit=163
-  ->  Sort  (cost=927.47..952.47 rows=10001 width=4) (actual time=5.591..6.471 rows=10001 loops=1)
+  ->  Sort  (cost=927.47..952.47 rows=10001 width=4) (actual time=5.541..6.433 rows=10001 loops=1)
         Output: ((a / 10)), a
         Sort Key: ((tt1.a / 10))
         Sort Method: quicksort  Memory: 855kB
         Buffers: shared hit=163
-        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.094..3.052 rows=10001 loops=1)
+        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.097..2.922 rows=10001 loops=1)
               Output: (a / 10), a
               Buffers: shared hit=163
 
 =======
 ### TEXT-short       ###### Plan 24: Unique
-Unique  (cost=0.29..785.30 rows=10001 width=4) (actual time=0.010..7.552 rows=10001 loops=1)
+Unique  (cost=0.29..785.30 rows=10001 width=4) (actual time=0.010..7.528 rows=10001 loops=1)
   Output: a
   Buffers: shared hit=165
-  ->  Index Only Scan using i_tt1 on public.tt1  (cost=0.29..760.30 rows=10001 width=4) (actual time=0.009..4.040 rows=10001 loops=1)
+  ->  Index Only Scan using i_tt1 on public.tt1  (cost=0.29..760.30 rows=10001 width=4) (actual time=0.009..4.071 rows=10001 loops=1)
         Output: a
         Heap Fetches: 10001
         Buffers: shared hit=165
 
 =======
 ### TEXT-short       ###### Plan 25: PlainAggregate
-Aggregate  (cost=288.01..288.02 rows=1 width=4) (actual time=3.202..3.202 rows=1 loops=1)
+Aggregate  (cost=288.01..288.02 rows=1 width=4) (actual time=3.238..3.239 rows=1 loops=1)
   Output: sum(a)
   Buffers: shared hit=163
-  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.100..1.414 rows=10001 loops=1)
+  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.095..1.427 rows=10001 loops=1)
         Output: a, b, c
         Buffers: shared hit=163
 
 =======
 ### TEXT-short       ###### Plan 26: BitmapIndexScan/BitmapHeapScan, BitmapOr
-Bitmap Heap Scan on public.tt3  (cost=208.40..1006.81 rows=9961 width=12) (actual time=1.385..3.464 rows=10003 loops=1)
+Bitmap Heap Scan on public.tt3  (cost=202.83..998.31 rows=9765 width=12) (actual time=1.498..3.575 rows=10003 loops=1)
   Output: a, b, c
   Recheck Cond: ((tt3.a = 5000) OR (tt3.b = 50))
-  Buffers: shared hit=97
-  ->  BitmapOr  (cost=208.40..208.40 rows=9961 width=0) (actual time=1.373..1.373 rows=0 loops=1)
-        Buffers: shared hit=40
-        ->  Bitmap Index Scan using i_tt3_a  (cost=0.00..198.99 rows=9960 width=0) (actual time=1.366..1.366 rows=10003 loops=1)
+  Buffers: shared hit=96
+  ->  BitmapOr  (cost=202.83..202.83 rows=9765 width=0) (actual time=1.486..1.486 rows=0 loops=1)
+        Buffers: shared hit=39
+        ->  Bitmap Index Scan using i_tt3_a  (cost=0.00..193.52 rows=9764 width=0) (actual time=1.480..1.480 rows=10003 loops=1)
               Index Cond: (tt3.a = 5000)
-              Buffers: shared hit=37
+              Buffers: shared hit=36
         ->  Bitmap Index Scan using i_tt3_b  (cost=0.00..4.43 rows=1 width=0) (actual time=0.006..0.006 rows=1 loops=1)
               Index Cond: (tt3.b = 50)
               Buffers: shared hit=3
 
 =======
 ### TEXT-short       ###### Plan 27: TidScan
-Tid Scan on public.tt3  (cost=0.00..4.01 rows=1 width=12) (actual time=0.004..0.004 rows=1 loops=1)
+Tid Scan on public.tt3  (cost=0.00..4.01 rows=1 width=12) (actual time=0.003..0.003 rows=1 loops=1)
   Output: a, b, c
   Tid Cond: (tt3.ctid = '(0,28)'::tid)
   Buffers: shared hit=1
 
 =======
 ### TEXT-short       ###### Plan 28: LockRows
-LockRows  (cost=0.00..313.51 rows=50 width=10) (actual time=0.109..4.240 rows=1001 loops=1)
+LockRows  (cost=0.00..313.51 rows=50 width=10) (actual time=0.106..6.666 rows=1001 loops=1)
   Output: a, ctid
   Buffers: shared hit=1164
-  ->  Seq Scan on public.tt1  (cost=0.00..313.01 rows=50 width=10) (actual time=0.099..3.106 rows=1001 loops=1)
+  ->  Seq Scan on public.tt1  (cost=0.00..313.01 rows=50 width=10) (actual time=0.096..3.082 rows=1001 loops=1)
         Output: a, ctid
         Filter: ((tt1.a % 10) = 0)
         Rows Removed by Filter: 9000
@@ -1098,7 +1098,7 @@ LockRows  (cost=0.00..313.51 rows=50 width=10) (actual time=0.109..4.240 rows=10
 
 =======
 ### TEXT-short       ###### Plan 29: Materialize
-Seq Scan on public.tt1  (cost=0.00..1150490.52 rows=5000 width=12) (actual time=4.788..4.788 rows=0 loops=1)
+Seq Scan on public.tt1  (cost=0.00..1150490.52 rows=5000 width=12) (actual time=4.884..4.884 rows=0 loops=1)
   Output: tt1.a, tt1.b, tt1.c
   Filter: (SubPlan 1)
   Rows Removed by Filter: 10001
@@ -1125,8 +1125,8 @@ SELECT '### '||'yaml-long JSON   '||title||E'\n'||
     Total Cost: 10.00
     Plan Rows: 1000
     Plan Width: 4
-    Actual Startup Time: 256.149
-    Actual Total Time: 256.149
+    Actual Startup Time: 259.664
+    Actual Total Time: 259.664
     Actual Rows: 0
     Actual Loops: 1
     Shared Hit Blocks: 29735
@@ -1151,8 +1151,8 @@ SELECT '### '||'yaml-long JSON   '||title||E'\n'||
         Total Cost: 10.00
         Plan Rows: 1000
         Plan Width: 4
-        Actual Startup Time: 3.459
-        Actual Total Time: 9.184
+        Actual Startup Time: 3.474
+        Actual Total Time: 9.787
         Actual Rows: 10001
         Actual Loops: 1
         Output:
@@ -1172,15 +1172,15 @@ SELECT '### '||'yaml-long JSON   '||title||E'\n'||
         Temp Written Blocks: 0
         I/O Read Time: 0.000
         I/O Write Time: 0.000
-  Planning Time: 0.072
+  Planning Time: 0.071
   Triggers:
     - Trigger Name: "tt1_trig_1"
       Relation: "tt1"
-      Time: 90.331
+      Time: 92.091
       Calls: 10001
     - Trigger Name: "tt1_trig_2"
       Relation: "tt1"
-      Time: 81.847
+      Time: 83.320
       Calls: 10001
 ##################
 SELECT '### '||'xml-long JSON    '||title||E'\n'||
@@ -1199,8 +1199,8 @@ SELECT '### '||'xml-long JSON    '||title||E'\n'||
       <Total-Cost>10.00</Total-Cost>
       <Plan-Rows>1000</Plan-Rows>
       <Plan-Width>4</Plan-Width>
-      <Actual-Startup-Time>256.149</Actual-Startup-Time>
-      <Actual-Total-Time>256.149</Actual-Total-Time>
+      <Actual-Startup-Time>259.664</Actual-Startup-Time>
+      <Actual-Total-Time>259.664</Actual-Total-Time>
       <Actual-Rows>0</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
       <Shared-Hit-Blocks>29735</Shared-Hit-Blocks>
@@ -1226,8 +1226,8 @@ SELECT '### '||'xml-long JSON    '||title||E'\n'||
           <Total-Cost>10.00</Total-Cost>
           <Plan-Rows>1000</Plan-Rows>
           <Plan-Width>4</Plan-Width>
-          <Actual-Startup-Time>3.459</Actual-Startup-Time>
-          <Actual-Total-Time>9.184</Actual-Total-Time>
+          <Actual-Startup-Time>3.474</Actual-Startup-Time>
+          <Actual-Total-Time>9.787</Actual-Total-Time>
           <Actual-Rows>10001</Actual-Rows>
           <Actual-Loops>1</Actual-Loops>
           <Output>
@@ -1251,18 +1251,18 @@ SELECT '### '||'xml-long JSON    '||title||E'\n'||
         </Item>
       </Plans>
     </Plan>
-    <Planning-Time>0.072</Planning-Time>
+    <Planning-Time>0.071</Planning-Time>
     <Triggers>
       <Item>
         <Trigger-Name>tt1_trig_1</Trigger-Name>
         <Relation>tt1</Relation>
-        <Time>90.331</Time>
+        <Time>92.091</Time>
         <Calls>10001</Calls>
       </Item>
       <Item>
         <Trigger-Name>tt1_trig_2</Trigger-Name>
         <Relation>tt1</Relation>
-        <Time>81.847</Time>
+        <Time>83.320</Time>
         <Calls>10001</Calls>
       </Item>
     </Triggers>
@@ -1286,8 +1286,8 @@ SELECT '### '||'text-long JSON   '||title||E'\n'||
       <Total-Cost>10.00</Total-Cost>
       <Plan-Rows>1000</Plan-Rows>
       <Plan-Width>4</Plan-Width>
-      <Actual-Startup-Time>256.149</Actual-Startup-Time>
-      <Actual-Total-Time>256.149</Actual-Total-Time>
+      <Actual-Startup-Time>259.664</Actual-Startup-Time>
+      <Actual-Total-Time>259.664</Actual-Total-Time>
       <Actual-Rows>0</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
       <Shared-Hit-Blocks>29735</Shared-Hit-Blocks>
@@ -1313,8 +1313,8 @@ SELECT '### '||'text-long JSON   '||title||E'\n'||
           <Total-Cost>10.00</Total-Cost>
           <Plan-Rows>1000</Plan-Rows>
           <Plan-Width>4</Plan-Width>
-          <Actual-Startup-Time>3.459</Actual-Startup-Time>
-          <Actual-Total-Time>9.184</Actual-Total-Time>
+          <Actual-Startup-Time>3.474</Actual-Startup-Time>
+          <Actual-Total-Time>9.787</Actual-Total-Time>
           <Actual-Rows>10001</Actual-Rows>
           <Actual-Loops>1</Actual-Loops>
           <Output>
@@ -1338,18 +1338,18 @@ SELECT '### '||'text-long JSON   '||title||E'\n'||
         </Item>
       </Plans>
     </Plan>
-    <Planning-Time>0.072</Planning-Time>
+    <Planning-Time>0.071</Planning-Time>
     <Triggers>
       <Item>
         <Trigger-Name>tt1_trig_1</Trigger-Name>
         <Relation>tt1</Relation>
-        <Time>90.331</Time>
+        <Time>92.091</Time>
         <Calls>10001</Calls>
       </Item>
       <Item>
         <Trigger-Name>tt1_trig_2</Trigger-Name>
         <Relation>tt1</Relation>
-        <Time>81.847</Time>
+        <Time>83.320</Time>
         <Calls>10001</Calls>
       </Item>
     </Triggers>
@@ -1368,8 +1368,8 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
     "Total Cost": 1357.51,
     "Plan Rows": 10001,
     "Plan Width": 4,
-    "Actual Startup Time": 19.395,
-    "Actual Total Time": 19.395,
+    "Actual Startup Time": 19.483,
+    "Actual Total Time": 19.483,
     "Actual Rows": 0,
     "Actual Loops": 1,
     "Output": ["\"*SELECT* 1\".a", "(0)"],
@@ -1399,8 +1399,8 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
         "Total Cost": 668.04,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 19.391,
-        "Actual Total Time": 19.391,
+        "Actual Startup Time": 19.480,
+        "Actual Total Time": 19.480,
         "Actual Rows": 0,
         "Actual Loops": 1,
         "Output": ["\"*SELECT* 1\".a", "(0)"],
@@ -1434,8 +1434,8 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
     "Total Cost": 1357.51,
     "Plan Rows": 10001,
     "Plan Width": 4,
-    "Actual Startup Time": 24.361,
-    "Actual Total Time": 25.158,
+    "Actual Startup Time": 23.783,
+    "Actual Total Time": 24.519,
     "Actual Rows": 10001,
     "Actual Loops": 1,
     "Output": ["\"*SELECT* 1\".a", "(0)"],
@@ -1465,8 +1465,8 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
         "Total Cost": 668.04,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 18.923,
-        "Actual Total Time": 19.997,
+        "Actual Startup Time": 18.364,
+        "Actual Total Time": 19.479,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["\"*SELECT* 1\".a", "(0)"],
@@ -1500,8 +1500,8 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
     "Total Cost": 1357.51,
     "Plan Rows": 10001,
     "Plan Width": 4,
-    "Actual Startup Time": 23.742,
-    "Actual Total Time": 24.542,
+    "Actual Startup Time": 23.416,
+    "Actual Total Time": 24.178,
     "Actual Rows": 10001,
     "Actual Loops": 1,
     "Output": ["\"*SELECT* 1\".a", "(0)"],
@@ -1531,8 +1531,8 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
         "Total Cost": 668.04,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 18.525,
-        "Actual Total Time": 19.612,
+        "Actual Startup Time": 18.185,
+        "Actual Total Time": 19.248,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["\"*SELECT* 1\".a", "(0)"],
@@ -1565,17 +1565,17 @@ SELECT '### '||'yaml-chopped     '||title||E'\n'||
     Node Type: "Merge Join"
     Join Type: "Left"
     Startup Cost: 0.58
-    Total Cost: 2434.81
-    Plan Rows: 15224
+    Total Cost: 2409.14
+    Plan Rows: 15147
     Plan Width: 4
-    Actual Startup Time: 0.028
-    Actual Total Time: 37.655
+    Actual Startup Time: 0.031
+    Actual Total Time: 38.276
     Actual Rows: 30003
     Actual Loops: 1
     Output:
       - "x.b"
     Merge Cond: "(x.a = y.a)"
-    Shared Hit Blocks: 20418
+    Shared Hit Blocks: 20420
     Shared Read Blocks: 0
     Shared Dirtied Blocks: 0
     Shared Written Blocks: 0
@@ -1602,8 +1602,8 @@ SELECT '### '||'yaml-chopped     '||title||E'\n'||
     Total Cost: 793.06
     Plan Rows: 10001
     Plan Width: 4
-    Actual Startup Time: 5.372
-    Actual Total Time: 12.828
+    Actual Startup Time: 9.198
+    Actual Total Time: 16.568
     Actual Rows: 17001
     Actual Loops: 1
     Output:
@@ -1643,8 +1643,8 @@ SELECT '### '||'yaml-chopped     '||title||E'\n'||
     Total Cost: 793.06
     Plan Rows: 10001
     Plan Width: 12
-    Actual Startup Time: 10.091
-    Actual Total Time: 10.091
+    Actual Startup Time: 10.003
+    Actual Total Time: 10.003
     Actual Rows: 0
     Actual Loops: 1
     Output:
@@ -1688,8 +1688,8 @@ SELECT '### '||'xml-chopped      '||title||E'\n'||
       <Total-Cost>693.05</Total-Cost>
       <Plan-Rows>1</Plan-Rows>
       <Plan-Width>12</Plan-Width>
-      <Actual-Startup-Time>5.480</Actual-Startup-Time>
-      <Actual-Total-Time>11.691</Actual-Total-Time>
+      <Actual-Startup-Time>5.458</Actual-Startup-Time>
+      <Actual-Total-Time>11.753</Actual-Total-Time>
       <Actual-Rows>10001</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
       <Output>
@@ -1732,8 +1732,8 @@ SELECT '### '||'xml-chopped      '||title||E'\n'||
       <Total-Cost>1127.49</Total-Cost>
       <Plan-Rows>10001</Plan-Rows>
       <Plan-Width>4</Plan-Width>
-      <Actual-Startup-Time>5.598</Actual-Startup-Time>
-      <Actual-Total-Time>16.880</Actual-Total-Time>
+      <Actual-Startup-Time>5.547</Actual-Startup-Time>
+      <Actual-Total-Time>16.947</Actual-Total-Time>
       <Actual-Rows>10001</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
       <Output>
@@ -1770,7 +1770,7 @@ SELECT '### '||'xml-chopped      '||title||E'\n'||
       <Plan-Rows>10001</Plan-Rows>
       <Plan-Width>4</Plan-Width>
       <Actual-Startup-Time>0.010</Actual-Startup-Time>
-      <Actual-Total-Time>7.552</Actual-Total-Time>
+      <Actual-Total-Time>7.528</Actual-Total-Time>
       <Actual-Rows>10001</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
       <Output>
@@ -1791,17 +1791,17 @@ SELECT '### '||'text-chopped     '||title||E'\n'||
   pg_store_plans_textplan(substring(splan from 1 for char_length(splan) / 3))
   FROM plans WHERE id BETWEEN 25 AND 27 ORDER BY id;
 ### text-chopped     ###### Plan 25: PlainAggregate
-Aggregate  (cost=288.01..288.02 rows=1 width=4) (actual time=3.202..3.202 rows=1 loops=1)
+Aggregate  (cost=288.01..288.02 rows=1 width=4) (actual time=3.238..3.239 rows=1 loops=1)
   Output: sum(a)
   Buffers: shared hit=163
 <truncated>
 
 =======
 ### text-chopped     ###### Plan 26: BitmapIndexScan/BitmapHeapScan, BitmapOr
-Bitmap Heap Scan on public.tt3  (cost=208.40..1006.81 rows=9961 width=12) (actual time=1.385..3.464 rows=10003 loops=1)
+Bitmap Heap Scan on public.tt3  (cost=202.83..998.31 rows=9765 width=12) (actual time=1.498..3.575 rows=10003 loops=1)
   Output: a, b, c
   Recheck Cond: ((tt3.a = 5000) OR (tt3.b = 50))
-  Buffers: shared hit=97
+  Buffers: shared hit=96
 <truncated>
 
 =======
@@ -1813,7 +1813,7 @@ SELECT '### '||'shorten          '||title||E'\n'||
   pg_store_plans_shorten(lplan)
   FROM plans WHERE id = 0 ORDER BY id;
 ### shorten          ###### Plan 0: all properties
-{"p":0,"l":0,"t":"a","t":"b","t":"c","t":"d","t":"e","t":"f","t":"g","t":"h","t":"i","t":"j","t":"k","t":"l","t":"m","t":"n","t":"o","t":"p","t":"q","t":"r","t":"s","t":"t","t":"u","t":"v","t":"w","t":"x","t":"y","t":"z","t":"0","t":"1","t":"2","t":"3","t":"4","t":"5","h":"o","h":"i","h":"s","h":"m","h":"I","h":"S","d":"b","d":"n","d":"f","i":0,"n":0,"f":0,"c":0,"s":0,"a":0,"o":"[]","m":"a","g":"p","g":"s","g":"h","j":"i","j":"l","j":"f","j":"r","j":"s","j":"a","b":"i","b":"I","b":"e","b":"E","e":"h","e":"q","e":"e","e":"E","e":"s","k":"a","5":"a","6":"a","7":"a","8":"a","9":"a","0":"a","!":"i","!":"d","!":"u","q":"a","r":0,"u":0,"v":0,"w":0,"x":0,"y":0,"1":0,"2":0,"3":0,"4":0,"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"J":0,"K":0,"L":0,"M":0,"N":0,"O":0,"P":0,"Q":0,"R":0,"S":"d","S":"m","T":0,"U":0,"V":0,"W":0,"X":0,"Y":0,"Z":0,"z":0}
+{"p":0,"l":0,"t":"a","t":"b","t":"c","t":"d","t":"e","t":"f","t":"g","t":"h","t":"i","t":"j","t":"k","t":"l","t":"m","t":"n","t":"o","t":"p","t":"q","t":"r","t":"s","t":"t","t":"u","t":"v","t":"w","t":"x","t":"y","t":"z","t":"0","t":"1","t":"2","t":"3","t":"4","t":"5","h":"o","h":"i","h":"s","h":"m","h":"I","h":"S","d":"b","d":"n","d":"f","i":0,"n":0,"f":0,"c":0,"s":0,"a":0,"o":"[]","m":"a","g":"p","g":"s","g":"h","j":"i","j":"l","j":"f","j":"r","j":"s","j":"a","b":"i","b":"I","b":"e","b":"E","e":"h","e":"q","e":"e","e":"E","e":"s","k":"a","5":"a","6":"a","7":"a","8":"a","9":"a","0":"a","!":"i","!":"d","!":"u","q":"a","r":0,"u":0,"v":0,"w":0,"x":0,"y":0,"1":0,"2":0,"3":0,"4":0,"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"J":0,"K":0,"L":0,"M":0,"N":0,"O":0,"P":0,"Q":0,"R":0,"S":"d","S":"m","T":0,"U":0,"V":0,"W":0,"X":0,"Y":0,"Z":0,"z":0,"Unknown Key":"Unknown Value"}
 ###### normalize test
 SELECT '### '||'normalize        '||title||E'\n'||
   pg_store_plans_normalize(lplan)

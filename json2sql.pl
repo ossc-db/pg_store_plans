@@ -255,7 +255,8 @@ sub setplan0 {
   "Rows Removed by Filter": 0,
   "Rows Removed by Index Recheck": 0,
   "Time": 0,
-  "Calls": 0
+  "Calls": 0,
+  "Unknown Key": "Unknown Value"
 }
 EOS
 	chop $plan;
