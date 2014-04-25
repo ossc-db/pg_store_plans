@@ -297,10 +297,10 @@ print_current_node(pgspParserContext *ctx)
 		appendStringInfoString(s, ")");
 	}
 
-	if (HASSTRING(v->actual_startup_time) &&
-		HASSTRING(v->actual_total_time) &&
-		HASSTRING(v->actual_rows) &&
-		HASSTRING(v->actual_loops))
+	if (HASSTRING(v->actual_rows) ||
+		HASSTRING(v->actual_loops) ||
+		HASSTRING(v->actual_startup_time) ||
+		HASSTRING(v->actual_total_time))
 	{
 		if (ISZERO(v->actual_loops))
 		{
@@ -308,11 +308,17 @@ print_current_node(pgspParserContext *ctx)
 		}
 		else
 		{
-			appendStringInfoString(s, " (actual time=");
-			appendStringInfoString(s, v->actual_startup_time);
-			appendStringInfoString(s, "..");
-			appendStringInfoString(s, v->actual_total_time);
-			appendStringInfoString(s, " rows=");
+			appendStringInfoString(s, " (actual ");
+			if (HASSTRING(v->actual_startup_time) ||
+				HASSTRING(v->actual_total_time)) {
+				appendStringInfoString(s, "time=");
+				appendStringInfoString(s, v->actual_startup_time);
+				appendStringInfoString(s, "..");
+				appendStringInfoString(s, v->actual_total_time);
+				appendStringInfoString(s, " ");
+			}
+
+			appendStringInfoString(s, "rows=");
 			appendStringInfoString(s, v->actual_rows);
 			appendStringInfoString(s, " loops=");
 			appendStringInfoString(s, v->actual_loops);
