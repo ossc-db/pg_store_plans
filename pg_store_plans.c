@@ -1048,10 +1048,19 @@ pg_store_plans(PG_FUNCTION_ARGS)
 
 		values[i++] = ObjectIdGetDatum(entry->key.userid);
 		values[i++] = ObjectIdGetDatum(entry->key.dbid);
-		values[i++] = Int64GetDatumFast(queryid);
-		values[i++] = Int64GetDatumFast(planid);
+		if (is_superuser || entry->key.userid == userid)
+		{
+			values[i++] = Int64GetDatumFast(queryid);
+			values[i++] = Int64GetDatumFast(planid);
+			values[i++] = Int64GetDatumFast(queryid_stmt);
+		}
+		else
+		{
+			values[i++] = Int64GetDatumFast(0);
+			values[i++] = Int64GetDatumFast(0);
+			values[i++] = Int64GetDatumFast(0);
+		}
 
-		values[i++] = Int64GetDatumFast(queryid_stmt);
 
 		if (is_superuser || entry->key.userid == userid)
 		{
