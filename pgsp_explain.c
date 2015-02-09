@@ -22,6 +22,13 @@ static void pgspExplainProperty(const char *qlabel, const char *value, bool nume
 							ExplainState *es);
 static void pgspExplainJSONLineEnding(ExplainState *es);
 
+/* ExplainState is modified at 9.4.1 and 9.3.6  */
+#if PG_VERSION_NUM >= 90401 || (PG_VERSION_NUM >= 90306 && PG_VERSION_NUM < 90400)
+#define GROUPING_STACK(es) ((es)->extra->groupingstack)
+#else
+#define GROUPING_STACK(es) ((es)->grouping_stack)
+#endif
+
 void
 pgspExplainTriggers(ExplainState *es, QueryDesc *queryDesc)
 {
@@ -64,7 +71,7 @@ pgspExplainOpenGroup(const char *objtype, const char *labelname,
 	}
 	appendStringInfoChar(es->str, labeled ? '{' : '[');
 	
-	es->grouping_stack = lcons_int(0, es->grouping_stack);
+	GROUPING_STACK(es) = lcons_int(0, GROUPING_STACK(es));
 	es->indent++;
 }
 
@@ -76,7 +83,7 @@ pgspExplainCloseGroup(const char *objtype, const char *labelname,
 	appendStringInfoChar(es->str, '\n');
 	appendStringInfoSpaces(es->str, 2 * es->indent);
 	appendStringInfoChar(es->str, labeled ? '}' : ']');
-	es->grouping_stack = list_delete_first(es->grouping_stack);
+	GROUPING_STACK(es) = list_delete_first(GROUPING_STACK(es));
 }
 
 static void
@@ -158,10 +165,10 @@ static void
 pgspExplainJSONLineEnding(ExplainState *es)
 {
 	Assert(es->format == EXPLAIN_FORMAT_JSON);
-	if (linitial_int(es->grouping_stack) != 0)
+	if (linitial_int(GROUPING_STACK(es)) != 0)
 		appendStringInfoChar(es->str, ',');
 	else
-		linitial_int(es->grouping_stack) = 1;
+		linitial_int(GROUPING_STACK(es)) = 1;
 	appendStringInfoChar(es->str, '\n');
 }
 
