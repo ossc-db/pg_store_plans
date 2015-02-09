@@ -144,7 +144,7 @@ word_table nodetypes[] =
 	{T_FunctionScan,"o" ,"Function Scan",	NULL, false, NULL, NULL},
 	{T_ValuesScan,	"p" ,"Values Scan",	NULL, false, NULL, NULL},
 	{T_CteScan,		"q" ,"CTE Scan",		NULL, false, NULL, NULL},
-	{T_WorkTableScan,"r","Workable Scan",	NULL, false, NULL, NULL},
+	{T_WorkTableScan,"r","WorkTable Scan",	NULL, false, NULL, NULL},
 	{T_ForeignScan,	"s" , "Foreign Scan",	NULL, false, NULL, NULL},
 	{T_Join,		""  ,   "",				NULL, false, NULL, NULL},
 	{T_NestLoop,	"t" ,"Nested Loop",	NULL, false, NULL, NULL},

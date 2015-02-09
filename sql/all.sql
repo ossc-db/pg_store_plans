@@ -30,7 +30,7 @@ INSERT INTO plans (VALUES
   "Node Type": "Function Scan",
   "Node Type": "Values Scan",
   "Node Type": "CTE Scan",
-  "Node Type": "Workable Scan",
+  "Node Type": "WorkTable Scan",
   "Node Type": "Foreign Scan",
   "Node Type": "Nested Loop",
   "Node Type": "Merge Join",
@@ -155,7 +155,7 @@ INSERT INTO plans (VALUES
   "Node Type": "Function Scan",
   "Node Type": "Values Scan",
   "Node Type": "CTE Scan",
-  "Node Type": "Workable Scan",
+  "Node Type": "WorkTable Scan",
   "Node Type": "Foreign Scan",
   "Node Type": "Nested Loop",
   "Node Type": "Merge Join",
@@ -273,8 +273,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 10.00,
     "Plan Rows": 1000,
     "Plan Width": 4,
-    "Actual Startup Time": 278.971,
-    "Actual Total Time": 278.971,
+    "Actual Startup Time": 278.453,
+    "Actual Total Time": 278.453,
     "Actual Rows": 0,
     "Actual Loops": 1,
     "Shared Hit Blocks": 29735,
@@ -300,8 +300,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 10.00,
         "Plan Rows": 1000,
         "Plan Width": 4,
-        "Actual Startup Time": 3.482,
-        "Actual Total Time": 9.608,
+        "Actual Startup Time": 3.470,
+        "Actual Total Time": 9.319,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["a.a", "NULL::integer", "NULL::text"],
@@ -321,22 +321,22 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.073,
+  "Planning Time": 0.072,
   "Triggers": [
     {
       "Trigger Name": "tt1_trig_1",
       "Relation": "tt1",
-      "Time": 99.098,
+      "Time": 100.983,
       "Calls": 10001
     },
     {
       "Trigger Name": "tt1_trig_2",
       "Relation": "tt1",
-      "Time": 87.327,
+      "Time": 85.683,
       "Calls": 10001
     }
   ],
-  "Execution Time": 279.599
+  "Execution Time": 279.083
 }'),
 (2, '###### Plan 2: Update, Trigger',
  '{
@@ -350,8 +350,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 134.75,
     "Plan Rows": 6380,
     "Plan Width": 46,
-    "Actual Startup Time": 341.462,
-    "Actual Total Time": 341.462,
+    "Actual Startup Time": 340.377,
+    "Actual Total Time": 340.377,
     "Actual Rows": 0,
     "Actual Loops": 1,
     "Shared Hit Blocks": 50276,
@@ -377,8 +377,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 134.75,
         "Plan Rows": 6380,
         "Plan Width": 46,
-        "Actual Startup Time": 0.039,
-        "Actual Total Time": 10.562,
+        "Actual Startup Time": 0.022,
+        "Actual Total Time": 10.544,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["(a + 1)", "b", "c", "ctid"],
@@ -397,22 +397,22 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.190,
+  "Planning Time": 0.109,
   "Triggers": [
     {
       "Trigger Name": "tt1_trig_1",
       "Relation": "tt1",
-      "Time": 106.223,
+      "Time": 106.386,
       "Calls": 10001
     },
     {
       "Trigger Name": "tt1_trig_2",
       "Relation": "tt1",
-      "Time": 89.765,
+      "Time": 88.764,
       "Calls": 10001
     }
   ],
-  "Execution Time": 341.510
+  "Execution Time": 340.407
 }'),
 (3, '###### Plan 3: Delete',
  '{
@@ -426,8 +426,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 298.66,
     "Plan Rows": 63,
     "Plan Width": 6,
-    "Actual Startup Time": 16.121,
-    "Actual Total Time": 16.121,
+    "Actual Startup Time": 13.983,
+    "Actual Total Time": 13.983,
     "Actual Rows": 0,
     "Actual Loops": 1,
     "Shared Hit Blocks": 1109,
@@ -453,8 +453,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 298.66,
         "Plan Rows": 63,
         "Plan Width": 6,
-        "Actual Startup Time": 3.838,
-        "Actual Total Time": 9.672,
+        "Actual Startup Time": 3.535,
+        "Actual Total Time": 11.047,
         "Actual Rows": 1000,
         "Actual Loops": 1,
         "Output": ["ctid"],
@@ -475,10 +475,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.151,
+  "Planning Time": 0.147,
   "Triggers": [
   ],
-  "Execution Time": 16.159
+  "Execution Time": 14.024
 }'),
 (4, '###### Plan 4: Result, Append Seq Scan',
  '{
@@ -488,8 +488,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 418.02,
     "Plan Rows": 20002,
     "Plan Width": 8,
-    "Actual Startup Time": 2.456,
-    "Actual Total Time": 18.463,
+    "Actual Startup Time": 2.484,
+    "Actual Total Time": 16.162,
     "Actual Rows": 20002,
     "Actual Loops": 1,
     "Output": ["((tt1.a + 1))", "(3)", "1"],
@@ -513,8 +513,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 418.02,
         "Plan Rows": 20002,
         "Plan Width": 8,
-        "Actual Startup Time": 2.455,
-        "Actual Total Time": 13.035,
+        "Actual Startup Time": 2.483,
+        "Actual Total Time": 11.347,
         "Actual Rows": 20002,
         "Actual Loops": 1,
         "Shared Hit Blocks": 218,
@@ -540,8 +540,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 263.01,
             "Plan Rows": 10001,
             "Plan Width": 8,
-            "Actual Startup Time": 2.454,
-            "Actual Total Time": 7.270,
+            "Actual Startup Time": 2.482,
+            "Actual Total Time": 6.131,
             "Actual Rows": 10001,
             "Actual Loops": 1,
             "Output": ["(tt1.a + 1)", "3"],
@@ -569,7 +569,7 @@ INSERT INTO plans (VALUES
             "Plan Rows": 10001,
             "Plan Width": 8,
             "Actual Startup Time": 0.006,
-            "Actual Total Time": 2.516,
+            "Actual Total Time": 2.478,
             "Actual Rows": 10001,
             "Actual Loops": 1,
             "Output": ["tt2.a", "4"],
@@ -590,10 +590,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.396,
+  "Planning Time": 0.470,
   "Triggers": [
   ],
-  "Execution Time": 20.432
+  "Execution Time": 17.849
 }'),
 (5, '###### Plan 5: Index scan (forward) ANY, array in expr, escape',
  E'{
@@ -608,8 +608,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 21.21,
     "Plan Rows": 4,
     "Plan Width": 12,
-    "Actual Startup Time": 0.010,
-    "Actual Total Time": 0.043,
+    "Actual Startup Time": 0.006,
+    "Actual Total Time": 0.023,
     "Actual Rows": 4,
     "Actual Loops": 1,
     "Output": ["a", "b", "c"],
@@ -628,10 +628,10 @@ INSERT INTO plans (VALUES
     "I/O Read Time": 0.000,
     "I/O Write Time": 0.000
   },
-  "Planning Time": 0.160,
+  "Planning Time": 0.088,
   "Triggers": [
   ],
-  "Execution Time": 0.114
+  "Execution Time": 0.061
 }'),
 (6, '###### Plan 6: Index scan (backward), MergeJoin, Sort, quichsort, alias',
  '{
@@ -641,8 +641,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 820.79,
     "Plan Rows": 10,
     "Plan Width": 12,
-    "Actual Startup Time": 17.722,
-    "Actual Total Time": 17.722,
+    "Actual Startup Time": 10.948,
+    "Actual Total Time": 10.948,
     "Actual Rows": 0,
     "Actual Loops": 1,
     "Output": ["x.b", "x.c", "x.a"],
@@ -667,8 +667,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 1854.80,
         "Plan Rows": 10001,
         "Plan Width": 12,
-        "Actual Startup Time": 17.721,
-        "Actual Total Time": 17.721,
+        "Actual Startup Time": 10.948,
+        "Actual Total Time": 10.948,
         "Actual Rows": 0,
         "Actual Loops": 1,
         "Output": ["x.b", "x.c", "x.a"],
@@ -698,8 +698,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 760.30,
             "Plan Rows": 10001,
             "Plan Width": 12,
-            "Actual Startup Time": 0.030,
-            "Actual Total Time": 0.030,
+            "Actual Startup Time": 0.015,
+            "Actual Total Time": 0.015,
             "Actual Rows": 1,
             "Actual Loops": 1,
             "Output": ["x.a", "x.b", "x.c"],
@@ -723,8 +723,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 844.47,
             "Plan Rows": 10001,
             "Plan Width": 4,
-            "Actual Startup Time": 15.127,
-            "Actual Total Time": 15.873,
+            "Actual Startup Time": 8.449,
+            "Actual Total Time": 9.138,
             "Actual Rows": 10001,
             "Actual Loops": 1,
             "Output": ["y.b", "(((- y.b) * 3))"],
@@ -755,8 +755,8 @@ INSERT INTO plans (VALUES
                 "Total Cost": 155.01,
                 "Plan Rows": 10001,
                 "Plan Width": 4,
-                "Actual Startup Time": 0.017,
-                "Actual Total Time": 7.124,
+                "Actual Startup Time": 0.008,
+                "Actual Total Time": 3.308,
                 "Actual Rows": 10001,
                 "Actual Loops": 1,
                 "Output": ["y.b", "((- y.b) * 3)"],
@@ -779,10 +779,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.422,
+  "Planning Time": 0.214,
   "Triggers": [
   ],
-  "Execution Time": 17.968
+  "Execution Time": 11.162
 }'),
 (7, '###### Plan 7: IndexOnlyScan',
  '{
@@ -797,7 +797,7 @@ INSERT INTO plans (VALUES
     "Total Cost": 8.46,
     "Plan Rows": 10,
     "Plan Width": 4,
-    "Actual Startup Time": 0.015,
+    "Actual Startup Time": 0.016,
     "Actual Total Time": 0.033,
     "Actual Rows": 10,
     "Actual Loops": 1,
@@ -818,10 +818,10 @@ INSERT INTO plans (VALUES
     "I/O Read Time": 0.000,
     "I/O Write Time": 0.000
   },
-  "Planning Time": 0.065,
+  "Planning Time": 0.063,
   "Triggers": [
   ],
-  "Execution Time": 0.049
+  "Execution Time": 0.051
 }'),
 (8, '###### Plan 8: Plain Aggregate, CTE, Recursive Union, WorkTable Scan, CTE Scan',
  '{
@@ -858,8 +858,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 2.95,
         "Plan Rows": 31,
         "Plan Width": 4,
-        "Actual Startup Time": 0.001,
-        "Actual Total Time": 0.022,
+        "Actual Startup Time": 0.002,
+        "Actual Total Time": 0.023,
         "Actual Rows": 10,
         "Actual Loops": 1,
         "Shared Hit Blocks": 0,
@@ -940,8 +940,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 0.62,
         "Plan Rows": 31,
         "Plan Width": 4,
-        "Actual Startup Time": 0.003,
-        "Actual Total Time": 0.027,
+        "Actual Startup Time": 0.002,
+        "Actual Total Time": 0.028,
         "Actual Rows": 10,
         "Actual Loops": 1,
         "Output": ["cte1.a"],
@@ -960,10 +960,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.075,
+  "Planning Time": 0.077,
   "Triggers": [
   ],
-  "Execution Time": 0.072
+  "Execution Time": 0.075
 }'),
 (9, '###### Plan 9: FunctionScan, Hash/HashJoin, Nested Loop',
  '{
@@ -974,12 +974,12 @@ INSERT INTO plans (VALUES
     "Total Cost": 2.69,
     "Plan Rows": 1,
     "Plan Width": 64,
-    "Actual Startup Time": 0.052,
-    "Actual Total Time": 0.054,
-    "Actual Rows": 1,
+    "Actual Startup Time": 0.043,
+    "Actual Total Time": 0.049,
+    "Actual Rows": 2,
     "Actual Loops": 1,
     "Output": ["d.datname"],
-    "Shared Hit Blocks": 3,
+    "Shared Hit Blocks": 5,
     "Shared Read Blocks": 0,
     "Shared Dirtied Blocks": 0,
     "Shared Written Blocks": 0,
@@ -1000,9 +1000,9 @@ INSERT INTO plans (VALUES
         "Total Cost": 2.41,
         "Plan Rows": 1,
         "Plan Width": 4,
-        "Actual Startup Time": 0.043,
-        "Actual Total Time": 0.044,
-        "Actual Rows": 1,
+        "Actual Startup Time": 0.037,
+        "Actual Total Time": 0.038,
+        "Actual Rows": 2,
         "Actual Loops": 1,
         "Output": ["s.datid"],
         "Hash Cond": "(s.usesysid = u.oid)",
@@ -1029,9 +1029,9 @@ INSERT INTO plans (VALUES
             "Total Cost": 1.00,
             "Plan Rows": 100,
             "Plan Width": 8,
-            "Actual Startup Time": 0.029,
-            "Actual Total Time": 0.029,
-            "Actual Rows": 1,
+            "Actual Startup Time": 0.026,
+            "Actual Total Time": 0.026,
+            "Actual Rows": 2,
             "Actual Loops": 1,
             "Output": ["s.datid", "s.pid", "s.usesysid", "s.application_name", "s.state", "s.query", "s.waiting", "s.xact_start", "s.query_start", "s.backend_start", "s.state_change", "s.client_addr", "s.client_hostname", "s.client_port", "s.backend_xid", "s.backend_xmin"],
             "Function Call": "pg_stat_get_activity(NULL::integer)",
@@ -1055,8 +1055,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 1.01,
             "Plan Rows": 1,
             "Plan Width": 4,
-            "Actual Startup Time": 0.005,
-            "Actual Total Time": 0.005,
+            "Actual Startup Time": 0.004,
+            "Actual Total Time": 0.004,
             "Actual Rows": 1,
             "Actual Loops": 1,
             "Output": ["u.oid"],
@@ -1088,7 +1088,7 @@ INSERT INTO plans (VALUES
                 "Plan Rows": 1,
                 "Plan Width": 4,
                 "Actual Startup Time": 0.003,
-                "Actual Total Time": 0.004,
+                "Actual Total Time": 0.003,
                 "Actual Rows": 1,
                 "Actual Loops": 1,
                 "Output": ["u.oid"],
@@ -1121,14 +1121,14 @@ INSERT INTO plans (VALUES
         "Total Cost": 0.27,
         "Plan Rows": 1,
         "Plan Width": 68,
-        "Actual Startup Time": 0.005,
-        "Actual Total Time": 0.006,
+        "Actual Startup Time": 0.004,
+        "Actual Total Time": 0.005,
         "Actual Rows": 1,
-        "Actual Loops": 1,
+        "Actual Loops": 2,
         "Output": ["d.datname", "d.oid"],
         "Index Cond": "(d.oid = s.datid)",
         "Rows Removed by Index Recheck": 0,
-        "Shared Hit Blocks": 2,
+        "Shared Hit Blocks": 4,
         "Shared Read Blocks": 0,
         "Shared Dirtied Blocks": 0,
         "Shared Written Blocks": 0,
@@ -1143,10 +1143,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.463,
+  "Planning Time": 0.356,
   "Triggers": [
   ],
-  "Execution Time": 0.143
+  "Execution Time": 0.118
 }'),
 (10, '###### Plan 10: MergeAppend, Values',
  E'{
@@ -1156,8 +1156,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 985.44,
     "Plan Rows": 10004,
     "Plan Width": 4,
-    "Actual Startup Time": 0.024,
-    "Actual Total Time": 21.501,
+    "Actual Startup Time": 0.018,
+    "Actual Total Time": 19.887,
     "Actual Rows": 10004,
     "Actual Loops": 1,
     "Sort Key": ["tt1.a"],
@@ -1186,8 +1186,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 760.30,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 0.013,
-        "Actual Total Time": 19.370,
+        "Actual Startup Time": 0.010,
+        "Actual Total Time": 17.933,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["tt1.a"],
@@ -1212,8 +1212,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 0.07,
         "Plan Rows": 3,
         "Plan Width": 4,
-        "Actual Startup Time": 0.009,
-        "Actual Total Time": 0.010,
+        "Actual Startup Time": 0.007,
+        "Actual Total Time": 0.008,
         "Actual Rows": 3,
         "Actual Loops": 1,
         "Output": ["\\"*VALUES*\\".column1"],
@@ -1264,10 +1264,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.113,
+  "Planning Time": 0.087,
   "Triggers": [
   ],
-  "Execution Time": 22.775
+  "Execution Time": 20.999
 }'),
 (11, '###### Plan 11: Append, HashAggregate',
  '{
@@ -1278,8 +1278,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 868.06,
     "Plan Rows": 20002,
     "Plan Width": 4,
-    "Actual Startup Time": 14.818,
-    "Actual Total Time": 18.534,
+    "Actual Startup Time": 14.097,
+    "Actual Total Time": 18.092,
     "Actual Rows": 20002,
     "Actual Loops": 1,
     "Output": ["tt1.a"],
@@ -1305,7 +1305,7 @@ INSERT INTO plans (VALUES
         "Plan Rows": 20002,
         "Plan Width": 4,
         "Actual Startup Time": 0.093,
-        "Actual Total Time": 7.837,
+        "Actual Total Time": 7.382,
         "Actual Rows": 20002,
         "Actual Loops": 1,
         "Shared Hit Blocks": 218,
@@ -1332,7 +1332,7 @@ INSERT INTO plans (VALUES
             "Plan Rows": 10001,
             "Plan Width": 4,
             "Actual Startup Time": 0.092,
-            "Actual Total Time": 2.656,
+            "Actual Total Time": 2.370,
             "Actual Rows": 10001,
             "Actual Loops": 1,
             "Output": ["tt1.a"],
@@ -1359,8 +1359,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 155.01,
             "Plan Rows": 10001,
             "Plan Width": 4,
-            "Actual Startup Time": 0.007,
-            "Actual Total Time": 2.497,
+            "Actual Startup Time": 0.006,
+            "Actual Total Time": 2.367,
             "Actual Rows": 10001,
             "Actual Loops": 1,
             "Output": ["tt2.b"],
@@ -1384,7 +1384,7 @@ INSERT INTO plans (VALUES
   "Planning Time": 0.055,
   "Triggers": [
   ],
-  "Execution Time": 20.497
+  "Execution Time": 20.063
 }'),
 (12, '###### Plan 12: GroupAggregate',
  '{
@@ -1395,8 +1395,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 1242.49,
     "Plan Rows": 10001,
     "Plan Width": 8,
-    "Actual Startup Time": 11.010,
-    "Actual Total Time": 20.888,
+    "Actual Startup Time": 10.889,
+    "Actual Total Time": 20.301,
     "Actual Rows": 10001,
     "Actual Loops": 1,
     "Output": ["sum(a)", "b"],
@@ -1421,8 +1421,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 1092.47,
         "Plan Rows": 10001,
         "Plan Width": 8,
-        "Actual Startup Time": 11.006,
-        "Actual Total Time": 14.448,
+        "Actual Startup Time": 10.886,
+        "Actual Total Time": 14.220,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["b", "a"],
@@ -1453,8 +1453,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 263.01,
             "Plan Rows": 10001,
             "Plan Width": 8,
-            "Actual Startup Time": 0.101,
-            "Actual Total Time": 2.406,
+            "Actual Startup Time": 0.114,
+            "Actual Total Time": 2.441,
             "Actual Rows": 10001,
             "Actual Loops": 1,
             "Output": ["b", "a"],
@@ -1475,10 +1475,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.043,
+  "Planning Time": 0.041,
   "Triggers": [
   ],
-  "Execution Time": 22.187
+  "Execution Time": 21.797
 }'),
 (13, '###### Plan 13: Group',
  '{
@@ -1488,8 +1488,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 1117.47,
     "Plan Rows": 10001,
     "Plan Width": 4,
-    "Actual Startup Time": 10.899,
-    "Actual Total Time": 18.359,
+    "Actual Startup Time": 10.358,
+    "Actual Total Time": 17.790,
     "Actual Rows": 10001,
     "Actual Loops": 1,
     "Output": ["b"],
@@ -1514,8 +1514,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 1092.47,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 10.898,
-        "Actual Total Time": 14.260,
+        "Actual Startup Time": 10.356,
+        "Actual Total Time": 13.699,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["b"],
@@ -1547,7 +1547,7 @@ INSERT INTO plans (VALUES
             "Plan Rows": 10001,
             "Plan Width": 4,
             "Actual Startup Time": 0.092,
-            "Actual Total Time": 2.408,
+            "Actual Total Time": 2.298,
             "Actual Rows": 10001,
             "Actual Loops": 1,
             "Output": ["b"],
@@ -1571,7 +1571,7 @@ INSERT INTO plans (VALUES
   "Planning Time": 0.032,
   "Triggers": [
   ],
-  "Execution Time": 19.300
+  "Execution Time": 18.628
 }'),
 (14, '###### Plan 14: SetOp intersect, SbuqueryScan',
  E'{
@@ -1581,8 +1581,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 1357.51,
     "Plan Rows": 10001,
     "Plan Width": 4,
-    "Actual Startup Time": 18.443,
-    "Actual Total Time": 18.443,
+    "Actual Startup Time": 17.468,
+    "Actual Total Time": 17.468,
     "Actual Rows": 0,
     "Actual Loops": 1,
     "Output": ["\\"*SELECT* 1\\".a", "(0)"],
@@ -1612,8 +1612,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 668.04,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 18.440,
-        "Actual Total Time": 18.440,
+        "Actual Startup Time": 17.465,
+        "Actual Total Time": 17.465,
         "Actual Rows": 0,
         "Actual Loops": 1,
         "Output": ["\\"*SELECT* 1\\".a", "(0)"],
@@ -1637,8 +1637,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 618.04,
             "Plan Rows": 20002,
             "Plan Width": 4,
-            "Actual Startup Time": 0.096,
-            "Actual Total Time": 12.268,
+            "Actual Startup Time": 0.095,
+            "Actual Total Time": 11.726,
             "Actual Rows": 20002,
             "Actual Loops": 1,
             "Shared Hit Blocks": 218,
@@ -1662,8 +1662,8 @@ INSERT INTO plans (VALUES
                 "Total Cost": 363.02,
                 "Plan Rows": 10001,
                 "Plan Width": 4,
-                "Actual Startup Time": 0.096,
-                "Actual Total Time": 4.961,
+                "Actual Startup Time": 0.095,
+                "Actual Total Time": 4.614,
                 "Actual Rows": 10001,
                 "Actual Loops": 1,
                 "Output": ["\\"*SELECT* 1\\".a", "0"],
@@ -1690,8 +1690,8 @@ INSERT INTO plans (VALUES
                     "Total Cost": 263.01,
                     "Plan Rows": 10001,
                     "Plan Width": 4,
-                    "Actual Startup Time": 0.095,
-                    "Actual Total Time": 2.556,
+                    "Actual Startup Time": 0.094,
+                    "Actual Total Time": 2.368,
                     "Actual Rows": 10001,
                     "Actual Loops": 1,
                     "Output": ["tt1.a"],
@@ -1719,7 +1719,7 @@ INSERT INTO plans (VALUES
                 "Plan Rows": 10001,
                 "Plan Width": 4,
                 "Actual Startup Time": 0.007,
-                "Actual Total Time": 4.645,
+                "Actual Total Time": 4.576,
                 "Actual Rows": 10001,
                 "Actual Loops": 1,
                 "Output": ["\\"*SELECT* 2\\".b", "1"],
@@ -1746,8 +1746,8 @@ INSERT INTO plans (VALUES
                     "Total Cost": 155.01,
                     "Plan Rows": 10001,
                     "Plan Width": 4,
-                    "Actual Startup Time": 0.007,
-                    "Actual Total Time": 2.398,
+                    "Actual Startup Time": 0.006,
+                    "Actual Total Time": 2.340,
                     "Actual Rows": 10001,
                     "Actual Loops": 1,
                     "Output": ["tt2.b"],
@@ -1772,10 +1772,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.066,
+  "Planning Time": 0.061,
   "Triggers": [
   ],
-  "Execution Time": 18.676
+  "Execution Time": 17.700
 }'),
 (15, '###### Plan 15: Sorted SetOp, Sort on Disk',
  E'{
@@ -1787,8 +1787,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 2423.48,
     "Plan Rows": 10001,
     "Plan Width": 4,
-    "Actual Startup Time": 46.670,
-    "Actual Total Time": 46.670,
+    "Actual Startup Time": 44.652,
+    "Actual Total Time": 44.652,
     "Actual Rows": 0,
     "Actual Loops": 1,
     "Output": ["\\"*SELECT* 1\\".a", "(0)"],
@@ -1812,8 +1812,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 2373.47,
         "Plan Rows": 20002,
         "Plan Width": 4,
-        "Actual Startup Time": 34.600,
-        "Actual Total Time": 40.460,
+        "Actual Startup Time": 32.559,
+        "Actual Total Time": 38.440,
         "Actual Rows": 20002,
         "Actual Loops": 1,
         "Output": ["\\"*SELECT* 1\\".a", "(0)"],
@@ -1841,8 +1841,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 618.04,
             "Plan Rows": 20002,
             "Plan Width": 4,
-            "Actual Startup Time": 0.103,
-            "Actual Total Time": 13.633,
+            "Actual Startup Time": 0.095,
+            "Actual Total Time": 12.510,
             "Actual Rows": 20002,
             "Actual Loops": 1,
             "Shared Hit Blocks": 218,
@@ -1866,8 +1866,8 @@ INSERT INTO plans (VALUES
                 "Total Cost": 363.02,
                 "Plan Rows": 10001,
                 "Plan Width": 4,
-                "Actual Startup Time": 0.103,
-                "Actual Total Time": 5.850,
+                "Actual Startup Time": 0.095,
+                "Actual Total Time": 5.112,
                 "Actual Rows": 10001,
                 "Actual Loops": 1,
                 "Output": ["\\"*SELECT* 1\\".a", "0"],
@@ -1894,8 +1894,8 @@ INSERT INTO plans (VALUES
                     "Total Cost": 263.01,
                     "Plan Rows": 10001,
                     "Plan Width": 4,
-                    "Actual Startup Time": 0.102,
-                    "Actual Total Time": 3.004,
+                    "Actual Startup Time": 0.095,
+                    "Actual Total Time": 2.550,
                     "Actual Rows": 10001,
                     "Actual Loops": 1,
                     "Output": ["tt1.a"],
@@ -1922,8 +1922,8 @@ INSERT INTO plans (VALUES
                 "Total Cost": 255.02,
                 "Plan Rows": 10001,
                 "Plan Width": 4,
-                "Actual Startup Time": 0.007,
-                "Actual Total Time": 4.912,
+                "Actual Startup Time": 0.006,
+                "Actual Total Time": 4.729,
                 "Actual Rows": 10001,
                 "Actual Loops": 1,
                 "Output": ["\\"*SELECT* 2\\".b", "1"],
@@ -1950,8 +1950,8 @@ INSERT INTO plans (VALUES
                     "Total Cost": 155.01,
                     "Plan Rows": 10001,
                     "Plan Width": 4,
-                    "Actual Startup Time": 0.007,
-                    "Actual Total Time": 2.538,
+                    "Actual Startup Time": 0.006,
+                    "Actual Total Time": 2.414,
                     "Actual Rows": 10001,
                     "Actual Loops": 1,
                     "Output": ["tt2.b"],
@@ -1976,10 +1976,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.073,
+  "Planning Time": 0.062,
   "Triggers": [
   ],
-  "Execution Time": 46.811
+  "Execution Time": 44.785
 }'),
 (16, '###### Plan 16: HashSetOp intersect All, SubqueryScan',
  E'{
@@ -1989,8 +1989,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 1357.51,
     "Plan Rows": 10001,
     "Plan Width": 4,
-    "Actual Startup Time": 18.707,
-    "Actual Total Time": 18.707,
+    "Actual Startup Time": 18.390,
+    "Actual Total Time": 18.390,
     "Actual Rows": 0,
     "Actual Loops": 1,
     "Output": ["\\"*SELECT* 1\\".a", "(0)"],
@@ -2020,8 +2020,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 668.04,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 18.704,
-        "Actual Total Time": 18.704,
+        "Actual Startup Time": 18.387,
+        "Actual Total Time": 18.387,
         "Actual Rows": 0,
         "Actual Loops": 1,
         "Output": ["\\"*SELECT* 1\\".a", "(0)"],
@@ -2045,8 +2045,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 618.04,
             "Plan Rows": 20002,
             "Plan Width": 4,
-            "Actual Startup Time": 0.106,
-            "Actual Total Time": 12.494,
+            "Actual Startup Time": 0.096,
+            "Actual Total Time": 12.322,
             "Actual Rows": 20002,
             "Actual Loops": 1,
             "Shared Hit Blocks": 218,
@@ -2070,8 +2070,8 @@ INSERT INTO plans (VALUES
                 "Total Cost": 363.02,
                 "Plan Rows": 10001,
                 "Plan Width": 4,
-                "Actual Startup Time": 0.106,
-                "Actual Total Time": 5.120,
+                "Actual Startup Time": 0.095,
+                "Actual Total Time": 4.829,
                 "Actual Rows": 10001,
                 "Actual Loops": 1,
                 "Output": ["\\"*SELECT* 1\\".a", "0"],
@@ -2098,8 +2098,8 @@ INSERT INTO plans (VALUES
                     "Total Cost": 263.01,
                     "Plan Rows": 10001,
                     "Plan Width": 4,
-                    "Actual Startup Time": 0.105,
-                    "Actual Total Time": 2.438,
+                    "Actual Startup Time": 0.095,
+                    "Actual Total Time": 2.460,
                     "Actual Rows": 10001,
                     "Actual Loops": 1,
                     "Output": ["tt1.a"],
@@ -2126,8 +2126,8 @@ INSERT INTO plans (VALUES
                 "Total Cost": 255.02,
                 "Plan Rows": 10001,
                 "Plan Width": 4,
-                "Actual Startup Time": 0.008,
-                "Actual Total Time": 4.613,
+                "Actual Startup Time": 0.007,
+                "Actual Total Time": 4.660,
                 "Actual Rows": 10001,
                 "Actual Loops": 1,
                 "Output": ["\\"*SELECT* 2\\".b", "1"],
@@ -2155,7 +2155,7 @@ INSERT INTO plans (VALUES
                     "Plan Rows": 10001,
                     "Plan Width": 4,
                     "Actual Startup Time": 0.007,
-                    "Actual Total Time": 2.387,
+                    "Actual Total Time": 2.402,
                     "Actual Rows": 10001,
                     "Actual Loops": 1,
                     "Output": ["tt2.b"],
@@ -2180,10 +2180,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.077,
+  "Planning Time": 0.061,
   "Triggers": [
   ],
-  "Execution Time": 18.940
+  "Execution Time": 18.626
 }'),
 (17, '###### Plan 17: HashSetOp except, SubqueryScan',
  E'{
@@ -2193,8 +2193,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 1357.51,
     "Plan Rows": 10001,
     "Plan Width": 4,
-    "Actual Startup Time": 24.004,
-    "Actual Total Time": 24.864,
+    "Actual Startup Time": 24.448,
+    "Actual Total Time": 25.233,
     "Actual Rows": 10001,
     "Actual Loops": 1,
     "Output": ["\\"*SELECT* 1\\".a", "(0)"],
@@ -2224,8 +2224,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 668.04,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 18.469,
-        "Actual Total Time": 19.564,
+        "Actual Startup Time": 18.989,
+        "Actual Total Time": 20.104,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["\\"*SELECT* 1\\".a", "(0)"],
@@ -2249,8 +2249,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 618.04,
             "Plan Rows": 20002,
             "Plan Width": 4,
-            "Actual Startup Time": 0.108,
-            "Actual Total Time": 12.635,
+            "Actual Startup Time": 0.095,
+            "Actual Total Time": 12.996,
             "Actual Rows": 20002,
             "Actual Loops": 1,
             "Shared Hit Blocks": 218,
@@ -2274,8 +2274,8 @@ INSERT INTO plans (VALUES
                 "Total Cost": 363.02,
                 "Plan Rows": 10001,
                 "Plan Width": 4,
-                "Actual Startup Time": 0.108,
-                "Actual Total Time": 5.319,
+                "Actual Startup Time": 0.094,
+                "Actual Total Time": 5.579,
                 "Actual Rows": 10001,
                 "Actual Loops": 1,
                 "Output": ["\\"*SELECT* 1\\".a", "0"],
@@ -2302,8 +2302,8 @@ INSERT INTO plans (VALUES
                     "Total Cost": 263.01,
                     "Plan Rows": 10001,
                     "Plan Width": 4,
-                    "Actual Startup Time": 0.107,
-                    "Actual Total Time": 2.706,
+                    "Actual Startup Time": 0.093,
+                    "Actual Total Time": 2.839,
                     "Actual Rows": 10001,
                     "Actual Loops": 1,
                     "Output": ["tt1.a"],
@@ -2330,8 +2330,8 @@ INSERT INTO plans (VALUES
                 "Total Cost": 255.02,
                 "Plan Rows": 10001,
                 "Plan Width": 4,
-                "Actual Startup Time": 0.006,
-                "Actual Total Time": 4.610,
+                "Actual Startup Time": 0.007,
+                "Actual Total Time": 4.559,
                 "Actual Rows": 10001,
                 "Actual Loops": 1,
                 "Output": ["\\"*SELECT* 2\\".b", "1"],
@@ -2359,7 +2359,7 @@ INSERT INTO plans (VALUES
                     "Plan Rows": 10001,
                     "Plan Width": 4,
                     "Actual Startup Time": 0.006,
-                    "Actual Total Time": 2.359,
+                    "Actual Total Time": 2.353,
                     "Actual Rows": 10001,
                     "Actual Loops": 1,
                     "Output": ["tt2.b"],
@@ -2384,10 +2384,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.067,
+  "Planning Time": 0.060,
   "Triggers": [
   ],
-  "Execution Time": 26.764
+  "Execution Time": 27.190
 }'),
 (18, '###### Plan 18: HashSetOp except all, SubqueryScan',
  E'{
@@ -2397,8 +2397,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 1357.51,
     "Plan Rows": 10001,
     "Plan Width": 4,
-    "Actual Startup Time": 23.660,
-    "Actual Total Time": 24.524,
+    "Actual Startup Time": 24.246,
+    "Actual Total Time": 25.047,
     "Actual Rows": 10001,
     "Actual Loops": 1,
     "Output": ["\\"*SELECT* 1\\".a", "(0)"],
@@ -2428,8 +2428,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 668.04,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 18.396,
-        "Actual Total Time": 19.526,
+        "Actual Startup Time": 18.981,
+        "Actual Total Time": 20.120,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["\\"*SELECT* 1\\".a", "(0)"],
@@ -2453,8 +2453,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 618.04,
             "Plan Rows": 20002,
             "Plan Width": 4,
-            "Actual Startup Time": 0.149,
-            "Actual Total Time": 12.539,
+            "Actual Startup Time": 0.117,
+            "Actual Total Time": 12.994,
             "Actual Rows": 20002,
             "Actual Loops": 1,
             "Shared Hit Blocks": 218,
@@ -2478,8 +2478,8 @@ INSERT INTO plans (VALUES
                 "Total Cost": 363.02,
                 "Plan Rows": 10001,
                 "Plan Width": 4,
-                "Actual Startup Time": 0.148,
-                "Actual Total Time": 5.230,
+                "Actual Startup Time": 0.117,
+                "Actual Total Time": 5.606,
                 "Actual Rows": 10001,
                 "Actual Loops": 1,
                 "Output": ["\\"*SELECT* 1\\".a", "0"],
@@ -2506,8 +2506,8 @@ INSERT INTO plans (VALUES
                     "Total Cost": 263.01,
                     "Plan Rows": 10001,
                     "Plan Width": 4,
-                    "Actual Startup Time": 0.148,
-                    "Actual Total Time": 2.618,
+                    "Actual Startup Time": 0.116,
+                    "Actual Total Time": 2.894,
                     "Actual Rows": 10001,
                     "Actual Loops": 1,
                     "Output": ["tt1.a"],
@@ -2535,7 +2535,7 @@ INSERT INTO plans (VALUES
                 "Plan Rows": 10001,
                 "Plan Width": 4,
                 "Actual Startup Time": 0.007,
-                "Actual Total Time": 4.628,
+                "Actual Total Time": 4.520,
                 "Actual Rows": 10001,
                 "Actual Loops": 1,
                 "Output": ["\\"*SELECT* 2\\".b", "1"],
@@ -2562,8 +2562,8 @@ INSERT INTO plans (VALUES
                     "Total Cost": 155.01,
                     "Plan Rows": 10001,
                     "Plan Width": 4,
-                    "Actual Startup Time": 0.007,
-                    "Actual Total Time": 2.358,
+                    "Actual Startup Time": 0.006,
+                    "Actual Total Time": 2.336,
                     "Actual Rows": 10001,
                     "Actual Loops": 1,
                     "Output": ["tt2.b"],
@@ -2588,10 +2588,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.066,
+  "Planning Time": 0.079,
   "Triggers": [
   ],
-  "Execution Time": 26.439
+  "Execution Time": 26.975
 }'),
 (19, '###### Plan 19: merge LEFT join',
  '{
@@ -2599,16 +2599,16 @@ INSERT INTO plans (VALUES
     "Node Type": "Merge Join",
     "Join Type": "Left",
     "Startup Cost": 0.71,
-    "Total Cost": 4271.17,
-    "Plan Rows": 33467,
+    "Total Cost": 4245.45,
+    "Plan Rows": 33453,
     "Plan Width": 4,
-    "Actual Startup Time": 0.033,
-    "Actual Total Time": 57.646,
+    "Actual Startup Time": 0.034,
+    "Actual Total Time": 56.948,
     "Actual Rows": 60003,
     "Actual Loops": 1,
     "Output": ["x.b"],
     "Merge Cond": "(x.a = y.a)",
-    "Shared Hit Blocks": 20942,
+    "Shared Hit Blocks": 20930,
     "Shared Read Blocks": 0,
     "Shared Dirtied Blocks": 0,
     "Shared Written Blocks": 0,
@@ -2633,8 +2633,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 760.30,
         "Plan Rows": 10001,
         "Plan Width": 8,
-        "Actual Startup Time": 0.007,
-        "Actual Total Time": 4.046,
+        "Actual Startup Time": 0.008,
+        "Actual Total Time": 4.032,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["x.a", "x.b", "x.c"],
@@ -2660,16 +2660,16 @@ INSERT INTO plans (VALUES
         "Schema": "public",
         "Alias": "y",
         "Startup Cost": 0.42,
-        "Total Cost": 9037.06,
+        "Total Cost": 9034.11,
         "Plan Rows": 180003,
         "Plan Width": 4,
-        "Actual Startup Time": 0.021,
-        "Actual Total Time": 30.164,
+        "Actual Startup Time": 0.022,
+        "Actual Total Time": 29.832,
         "Actual Rows": 60004,
         "Actual Loops": 1,
         "Output": ["y.a"],
         "Heap Fetches": 60004,
-        "Shared Hit Blocks": 20777,
+        "Shared Hit Blocks": 20765,
         "Shared Read Blocks": 0,
         "Shared Dirtied Blocks": 0,
         "Shared Written Blocks": 0,
@@ -2684,10 +2684,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.392,
+  "Planning Time": 0.390,
   "Triggers": [
   ],
-  "Execution Time": 62.836
+  "Execution Time": 62.450
 }'),
 (20, '###### Plan 20: hash FULL join',
  '{
@@ -2698,8 +2698,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 793.06,
     "Plan Rows": 10001,
     "Plan Width": 4,
-    "Actual Startup Time": 12.175,
-    "Actual Total Time": 21.075,
+    "Actual Startup Time": 11.957,
+    "Actual Total Time": 21.814,
     "Actual Rows": 17001,
     "Actual Loops": 1,
     "Output": ["x.b"],
@@ -2728,7 +2728,7 @@ INSERT INTO plans (VALUES
         "Plan Rows": 10001,
         "Plan Width": 8,
         "Actual Startup Time": 0.205,
-        "Actual Total Time": 2.002,
+        "Actual Total Time": 2.212,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["x.a", "x.b", "x.c"],
@@ -2752,8 +2752,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 155.01,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 11.960,
-        "Actual Total Time": 11.960,
+        "Actual Startup Time": 11.741,
+        "Actual Total Time": 11.741,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["y.a"],
@@ -2784,8 +2784,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 155.01,
             "Plan Rows": 10001,
             "Plan Width": 4,
-            "Actual Startup Time": 0.019,
-            "Actual Total Time": 5.607,
+            "Actual Startup Time": 0.018,
+            "Actual Total Time": 5.489,
             "Actual Rows": 10001,
             "Actual Loops": 1,
             "Output": ["y.a"],
@@ -2806,10 +2806,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.189,
+  "Planning Time": 0.194,
   "Triggers": [
   ],
-  "Execution Time": 22.756
+  "Execution Time": 23.606
 }'),
 (21, '###### Plan 21: hash SEMI join',
  '{
@@ -2820,8 +2820,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 793.06,
     "Plan Rows": 10001,
     "Plan Width": 12,
-    "Actual Startup Time": 10.101,
-    "Actual Total Time": 10.101,
+    "Actual Startup Time": 10.770,
+    "Actual Total Time": 10.770,
     "Actual Rows": 0,
     "Actual Loops": 1,
     "Output": ["tt1.a", "tt1.b", "tt1.c"],
@@ -2849,8 +2849,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 263.01,
         "Plan Rows": 10001,
         "Plan Width": 12,
-        "Actual Startup Time": 0.090,
-        "Actual Total Time": 1.342,
+        "Actual Startup Time": 0.091,
+        "Actual Total Time": 1.495,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["tt1.a", "tt1.b", "tt1.c"],
@@ -2874,8 +2874,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 155.01,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 5.481,
-        "Actual Total Time": 5.481,
+        "Actual Startup Time": 5.798,
+        "Actual Total Time": 5.798,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["tt2.b"],
@@ -2907,7 +2907,7 @@ INSERT INTO plans (VALUES
             "Plan Rows": 10001,
             "Plan Width": 4,
             "Actual Startup Time": 0.007,
-            "Actual Total Time": 2.619,
+            "Actual Total Time": 2.812,
             "Actual Rows": 10001,
             "Actual Loops": 1,
             "Output": ["tt2.b"],
@@ -2928,10 +2928,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.184,
+  "Planning Time": 0.182,
   "Triggers": [
   ],
-  "Execution Time": 10.305
+  "Execution Time": 10.988
 }'),
 (22, '###### Plan 22: Hash Anti Join',
  '{
@@ -2942,8 +2942,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 693.05,
     "Plan Rows": 1,
     "Plan Width": 12,
-    "Actual Startup Time": 5.601,
-    "Actual Total Time": 11.876,
+    "Actual Startup Time": 5.985,
+    "Actual Total Time": 12.403,
     "Actual Rows": 10001,
     "Actual Loops": 1,
     "Output": ["tt1.a", "tt1.b", "tt1.c"],
@@ -2971,8 +2971,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 263.01,
         "Plan Rows": 10001,
         "Plan Width": 12,
-        "Actual Startup Time": 0.091,
-        "Actual Total Time": 1.500,
+        "Actual Startup Time": 0.095,
+        "Actual Total Time": 1.543,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["tt1.a", "tt1.b", "tt1.c"],
@@ -2996,8 +2996,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 155.01,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 5.505,
-        "Actual Total Time": 5.505,
+        "Actual Startup Time": 5.884,
+        "Actual Total Time": 5.884,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["tt2.b"],
@@ -3028,8 +3028,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 155.01,
             "Plan Rows": 10001,
             "Plan Width": 4,
-            "Actual Startup Time": 0.006,
-            "Actual Total Time": 2.610,
+            "Actual Startup Time": 0.007,
+            "Actual Total Time": 2.808,
             "Actual Rows": 10001,
             "Actual Loops": 1,
             "Output": ["tt2.b"],
@@ -3050,10 +3050,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.138,
+  "Planning Time": 0.133,
   "Triggers": [
   ],
-  "Execution Time": 12.814
+  "Execution Time": 13.415
 }'),
 (23, '###### Plan 23: WindowAgg',
  '{
@@ -3063,8 +3063,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 1127.49,
     "Plan Rows": 10001,
     "Plan Width": 4,
-    "Actual Startup Time": 5.695,
-    "Actual Total Time": 16.316,
+    "Actual Startup Time": 5.593,
+    "Actual Total Time": 16.541,
     "Actual Rows": 10001,
     "Actual Loops": 1,
     "Output": ["first_value(a) OVER (?)", "((a / 10))"],
@@ -3088,8 +3088,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 952.47,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 5.688,
-        "Actual Total Time": 6.679,
+        "Actual Startup Time": 5.585,
+        "Actual Total Time": 6.517,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["((a / 10))", "a"],
@@ -3120,8 +3120,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 263.01,
             "Plan Rows": 10001,
             "Plan Width": 4,
-            "Actual Startup Time": 0.094,
-            "Actual Total Time": 3.070,
+            "Actual Startup Time": 0.096,
+            "Actual Total Time": 2.997,
             "Actual Rows": 10001,
             "Actual Loops": 1,
             "Output": ["(a / 10)", "a"],
@@ -3142,10 +3142,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.052,
+  "Planning Time": 0.051,
   "Triggers": [
   ],
-  "Execution Time": 17.627
+  "Execution Time": 17.892
 }'),
 (24, '###### Plan 24: Unique',
  '{
@@ -3156,7 +3156,7 @@ INSERT INTO plans (VALUES
     "Plan Rows": 10001,
     "Plan Width": 4,
     "Actual Startup Time": 0.010,
-    "Actual Total Time": 7.693,
+    "Actual Total Time": 7.878,
     "Actual Rows": 10001,
     "Actual Loops": 1,
     "Output": ["a"],
@@ -3185,8 +3185,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 760.30,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 0.009,
-        "Actual Total Time": 4.050,
+        "Actual Startup Time": 0.010,
+        "Actual Total Time": 4.020,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["a"],
@@ -3206,10 +3206,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.057,
+  "Planning Time": 0.044,
   "Triggers": [
   ],
-  "Execution Time": 8.567
+  "Execution Time": 8.769
 }'),
 (25, '###### Plan 25: PlainAggregate',
  '{
@@ -3220,8 +3220,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 288.02,
     "Plan Rows": 1,
     "Plan Width": 4,
-    "Actual Startup Time": 3.302,
-    "Actual Total Time": 3.302,
+    "Actual Startup Time": 3.283,
+    "Actual Total Time": 3.283,
     "Actual Rows": 1,
     "Actual Loops": 1,
     "Output": ["sum(a)"],
@@ -3248,8 +3248,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 263.01,
         "Plan Rows": 10001,
         "Plan Width": 4,
-        "Actual Startup Time": 0.094,
-        "Actual Total Time": 1.500,
+        "Actual Startup Time": 0.095,
+        "Actual Total Time": 1.442,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["a", "b", "c"],
@@ -3268,10 +3268,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.033,
+  "Planning Time": 0.031,
   "Triggers": [
   ],
-  "Execution Time": 3.325
+  "Execution Time": 3.307
 }'),
 (26, '###### Plan 26: BitmapIndexScan/BitmapHeapScan, BitmapOr, lossy',
  '{
@@ -3280,12 +3280,12 @@ INSERT INTO plans (VALUES
     "Relation Name": "tt3",
     "Schema": "public",
     "Alias": "tt3",
-    "Startup Cost": 4255.43,
-    "Total Cost": 7478.44,
+    "Startup Cost": 4243.43,
+    "Total Cost": 7466.44,
     "Plan Rows": 180001,
     "Plan Width": 12,
-    "Actual Startup Time": 27.298,
-    "Actual Total Time": 65.241,
+    "Actual Startup Time": 26.161,
+    "Actual Total Time": 65.167,
     "Actual Rows": 180000,
     "Actual Loops": 1,
     "Output": ["a", "b", "c"],
@@ -3293,7 +3293,7 @@ INSERT INTO plans (VALUES
     "Rows Removed by Index Recheck": 3,
     "Exact Heap Blocks": 558,
     "Lossy Heap Blocks": 415,
-    "Shared Hit Blocks": 1686,
+    "Shared Hit Blocks": 1683,
     "Shared Read Blocks": 0,
     "Shared Dirtied Blocks": 0,
     "Shared Written Blocks": 0,
@@ -3311,15 +3311,15 @@ INSERT INTO plans (VALUES
         "Parent Relationship": "Outer",
         "Index Name": "i_tt3_b",
         "Startup Cost": 0.00,
-        "Total Cost": 4210.43,
+        "Total Cost": 4198.43,
         "Plan Rows": 180001,
         "Plan Width": 0,
-        "Actual Startup Time": 27.185,
-        "Actual Total Time": 27.185,
+        "Actual Startup Time": 26.049,
+        "Actual Total Time": 26.049,
         "Actual Rows": 180000,
         "Actual Loops": 1,
         "Index Cond": "(tt3.b > (-99998))",
-        "Shared Hit Blocks": 713,
+        "Shared Hit Blocks": 710,
         "Shared Read Blocks": 0,
         "Shared Dirtied Blocks": 0,
         "Shared Written Blocks": 0,
@@ -3334,10 +3334,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.101,
+  "Planning Time": 0.102,
   "Triggers": [
   ],
-  "Execution Time": 78.996
+  "Execution Time": 79.090
 }'),
 (27, '###### Plan 27: Join Filter',
  '{
@@ -3347,8 +3347,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 21.52,
     "Plan Rows": 100,
     "Plan Width": 12,
-    "Actual Startup Time": 5.307,
-    "Actual Total Time": 5.431,
+    "Actual Startup Time": 5.323,
+    "Actual Total Time": 5.448,
     "Actual Rows": 100,
     "Actual Loops": 1,
     "Output": ["tt2.a", "tt2.b", "tt2.c"],
@@ -3373,8 +3373,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 43048282.11,
         "Plan Rows": 200023334,
         "Plan Width": 12,
-        "Actual Startup Time": 5.306,
-        "Actual Total Time": 5.414,
+        "Actual Startup Time": 5.323,
+        "Actual Total Time": 5.435,
         "Actual Rows": 100,
         "Actual Loops": 1,
         "Output": ["tt2.a", "tt2.b", "tt2.c"],
@@ -3428,8 +3428,8 @@ INSERT INTO plans (VALUES
             "Total Cost": 4377.05,
             "Plan Rows": 180003,
             "Plan Width": 4,
-            "Actual Startup Time": 0.010,
-            "Actual Total Time": 4.185,
+            "Actual Startup Time": 0.009,
+            "Actual Total Time": 4.223,
             "Actual Rows": 7101,
             "Actual Loops": 1,
             "Output": ["tt3.a"],
@@ -3456,8 +3456,8 @@ INSERT INTO plans (VALUES
                 "Total Cost": 2773.03,
                 "Plan Rows": 180003,
                 "Plan Width": 4,
-                "Actual Startup Time": 0.008,
-                "Actual Total Time": 1.689,
+                "Actual Startup Time": 0.007,
+                "Actual Total Time": 1.608,
                 "Actual Rows": 7101,
                 "Actual Loops": 1,
                 "Output": ["tt3.a"],
@@ -3480,10 +3480,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.171,
+  "Planning Time": 0.165,
   "Triggers": [
   ],
-  "Execution Time": 5.538
+  "Execution Time": 5.553
 }'),
 (28, '###### Plan 28: TidScan',
  E'{
@@ -3515,7 +3515,7 @@ INSERT INTO plans (VALUES
     "I/O Read Time": 0.000,
     "I/O Write Time": 0.000
   },
-  "Planning Time": 0.070,
+  "Planning Time": 0.068,
   "Triggers": [
   ],
   "Execution Time": 0.017
@@ -3528,8 +3528,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 313.51,
     "Plan Rows": 50,
     "Plan Width": 10,
-    "Actual Startup Time": 0.153,
-    "Actual Total Time": 5.178,
+    "Actual Startup Time": 0.146,
+    "Actual Total Time": 5.055,
     "Actual Rows": 1001,
     "Actual Loops": 1,
     "Output": ["a", "ctid"],
@@ -3556,8 +3556,8 @@ INSERT INTO plans (VALUES
         "Total Cost": 313.01,
         "Plan Rows": 50,
         "Plan Width": 10,
-        "Actual Startup Time": 0.141,
-        "Actual Total Time": 3.714,
+        "Actual Startup Time": 0.134,
+        "Actual Total Time": 3.621,
         "Actual Rows": 1001,
         "Actual Loops": 1,
         "Output": ["a", "ctid"],
@@ -3581,7 +3581,7 @@ INSERT INTO plans (VALUES
   "Planning Time": 0.041,
   "Triggers": [
   ],
-  "Execution Time": 5.344
+  "Execution Time": 5.217
 }'),
 (30, '###### Plan 30: Materialize',
  '{
@@ -3594,8 +3594,8 @@ INSERT INTO plans (VALUES
     "Total Cost": 1150490.52,
     "Plan Rows": 5000,
     "Plan Width": 12,
-    "Actual Startup Time": 5.697,
-    "Actual Total Time": 5.697,
+    "Actual Startup Time": 5.929,
+    "Actual Total Time": 5.929,
     "Actual Rows": 0,
     "Actual Loops": 1,
     "Output": ["tt1.a", "tt1.b", "tt1.c"],
@@ -3672,10 +3672,10 @@ INSERT INTO plans (VALUES
       }
     ]
   },
-  "Planning Time": 0.060,
+  "Planning Time": 0.102,
   "Triggers": [
   ],
-  "Execution Time": 5.723
+  "Execution Time": 5.957
 }'));
 
 \pset pager
@@ -3741,9 +3741,9 @@ SELECT '### '||'text-chopped     '||title||E'\n'||
 \echo ###### shorten test
 SELECT '### '||'shorten          '||title||E'\n'||
   pg_store_plans_shorten(lplan)
-  FROM plans WHERE id = 0 ORDER BY id;
+  FROM plans WHERE id = -2 ORDER BY id;
 \echo ###### normalize test
 SELECT '### '||'normalize        '||title||E'\n'||
   pg_store_plans_normalize(lplan)
-  FROM plans WHERE id BETWEEN 1 AND 3 ORDER BY id;
+  FROM plans ORDER BY id;
 

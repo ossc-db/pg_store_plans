@@ -140,7 +140,7 @@ SELECT '### '||'shorten          '||title||E'\n'||
 \echo ###### normalize test
 SELECT '### '||'normalize        '||title||E'\n'||
   pg_store_plans_normalize(lplan)
-  FROM plans WHERE id BETWEEN 1 AND 7 ORDER BY id;
+  FROM plans ORDER BY id;
 
 EOS
 
@@ -167,7 +167,7 @@ sub setplan0 {
   "Node Type": "Function Scan",
   "Node Type": "Values Scan",
   "Node Type": "CTE Scan",
-  "Node Type": "Workable Scan",
+  "Node Type": "WorkTable Scan",
   "Node Type": "Foreign Scan",
   "Node Type": "Nested Loop",
   "Node Type": "Merge Join",
