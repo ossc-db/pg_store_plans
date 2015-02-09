@@ -56,7 +56,7 @@ explain (analyze on, buffers on, verbose on, format :format)
 \echo ###### Index scan (forward) ANY, array in expr, escape
 explain (analyze on, buffers on, verbose on, format :format)
    select * from tt1 "x""y" where a in (50, 120, 300, 500);
-\echo ###### Index scan (backward), MergeJoin, Sort, quichsort, alias
+\echo ###### Index scan (backward), MergeJoin, Sort, quicksort, alias
 explain (analyze on, buffers on, verbose on, format :format)
    select x.b, x.c  from tt1 x join tt2 y on (x.a = -y.b * 3)
    order by x.a desc limit 10;
