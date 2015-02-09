@@ -66,7 +66,7 @@ word_table propfields[] =
 	{P_Strategy,		"g" ,"Strategy",			NULL, true,  conv_strategy,		SETTER(strategy)},
 	{P_JoinType,		"j" ,"Join Type",			NULL, true,  conv_jointype,		SETTER(join_type)},
 	{P_SortMethod,		"e" ,"Sort Method",			NULL, true,  conv_sortmethod,	SETTER(sort_method)},
-	{P_SortKey,			"k" ,"Sort Key",			NULL, true,  NULL,				SETTER(sort_key)},
+	{P_SortKey,			"k" ,"Sort Key",			NULL, true,  conv_expression,	SETTER(sort_key)},
 	{P_Filter,			"5" ,"Filter",				NULL, true,  conv_expression,	SETTER(filter)},
 	{P_JoinFilter,		"6" ,"Join Filter",			NULL, true,  conv_expression,	SETTER(join_filter)},
 	{P_HashCond,		"7" ,"Hash Cond",			NULL, true,  conv_expression,	SETTER(hash_cond)},
@@ -83,7 +83,7 @@ word_table propfields[] =
 	{P_Plans,			"l" ,"Plans",				NULL, true,  NULL,				NULL},
 	{P_Plan,			"p" ,"Plan",				NULL, true,  NULL,				NULL},
 														  
-	/* Values of these properties are masked on normalization */
+	/* Values of these properties are ignored on normalization */
 	{P_FunctionCall,	"y" ,"Function Call",		NULL, false, NULL,				SETTER(func_call)},
 	{P_StartupCost,		"1" ,"Startup Cost",		NULL, false, NULL,				SETTER(startup_cost)},
 	{P_TotalCost,		"2" ,"Total Cost",			NULL, false, NULL,				SETTER(total_cost)},
