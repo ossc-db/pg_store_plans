@@ -30,8 +30,8 @@ create trigger tt1_trig_2 before insert or update on tt1
   for each row execute procedure t_tt1_2();
 insert into tt2 (select a, -a, 'tt2' from generate_series(7000, 17000) a);
 insert into tt3 (select a, -a, 'tt3' from generate_series(0, 100000) a);
-insert into tt3 (select 5000,  a, 'tt3' from generate_series(0, 10000) a);
-insert into tt3 (select a,  555, 'tt3' from generate_series(0, 10000) a);
+insert into tt3 (select 5000,  a, 'tt3' from generate_series(0, 40000) a);
+insert into tt3 (select a,  555, 'tt3' from generate_series(0, 40000) a);
 
 \echo ###### Insert, Trigger
 explain (analyze on, buffers on, verbose on, format :format)
@@ -130,9 +130,23 @@ explain (analyze on, buffers on, verbose on, format :format)
 \echo ###### PlainAggregate
 explain (analyze on, buffers on, verbose on, format :format)
    select sum(a) from tt1;
-\echo ###### BitmapIndexScan/BitmapHeapScan, BitmapOr
+\echo ###### BitmapIndexScan/BitmapHeapScan, BitmapOr, lossy
+set enable_seqscan to false;
+set work_mem to '64kB';
 explain (analyze on, buffers on, verbose on, format :format)
-   select * from tt3 where a = 5000 or b = 50;
+   select * from tt3 where b > -99998;
+\echo ###### Join Filter
+set enable_seqscan to true;
+set enable_indexscan to false;
+set enable_bitmapscan to false;
+explain (analyze on, buffers on, verbose on, format :format)
+   SELECT tt2.* from tt2
+   LEFT OUTER JOIN tt3 ON (tt2.a < tt3.a) where tt3.a + tt2.a < 100000
+   LIMIT 100;
+reset enable_seqscan;
+reset enable_indexscan;
+reset enable_bitmapscan;
+reset work_mem;
 \echo ###### TidScan
 explain (analyze on, buffers on, verbose on, format :format)
    select * from tt3 where ctid = '(0,28)';
@@ -145,6 +159,4 @@ rollback;
 explain (analyze on, buffers on, verbose on, format :format)
    select * from tt1 where a = all(select b from tt2);
 
--- BitmapAnd
--- Inner/Right/Semi/Anti
--- ForegnScan, Material
+-- BitmapAnd/Inner/Right/ForegnScan

@@ -83,7 +83,7 @@ word_table propfields[] =
 	{P_Plans,			"l" ,"Plans",				NULL, true,  NULL,				NULL},
 	{P_Plan,			"p" ,"Plan",				NULL, true,  NULL,				NULL},
 														  
-														  
+	/* Values of these properties are masked on normalization */
 	{P_FunctionCall,	"y" ,"Function Call",		NULL, false, NULL,				SETTER(func_call)},
 	{P_StartupCost,		"1" ,"Startup Cost",		NULL, false, NULL,				SETTER(startup_cost)},
 	{P_TotalCost,		"2" ,"Total Cost",			NULL, false, NULL,				SETTER(total_cost)},
@@ -116,6 +116,11 @@ word_table propfields[] =
 	{P_RowsIdxRchkRmvd, "Y" ,"Rows Removed by Index Recheck",NULL,false, NULL,		SETTER(idxrchk_removed)},
 	{P_TrgTime,			"Z" ,"Time",				NULL, false,  NULL,				SETTER(trig_time)},
 	{P_TrgCalls,		"z" ,"Calls",				NULL, false,  NULL,				SETTER(trig_calls)},
+	{P_PlanTime,		"#" ,"Planning Time",		NULL, false,  NULL,				SETTER(plan_time)},
+	{P_ExecTime,		"$" ,"Execution Time",		NULL, false,  NULL,				SETTER(exec_time)},
+	{P_ExactHeapBlks,	"&" ,"Exact Heap Blocks",	NULL, false,  NULL,				SETTER(exact_heap_blks)},
+	{P_LossyHeapBlks,	"(" ,"Lossy Heap Blocks",	NULL, false,  NULL,				SETTER(lossy_heap_blks)},
+	{P_RowsJoinFltRemvd,")" ,"Rows Removed by Join Filter",	NULL, false,  NULL,		SETTER(joinfilt_removed)},
 	{P_Invalid, NULL, NULL, NULL, false, NULL, NULL}
 };
 

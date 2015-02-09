@@ -14,13 +14,19 @@ SET client_min_messages = 'notice';
 INSERT INTO plans (VALUES
 EOS
 
-$plan_no = 0;
+$plan_no = -1;
 $title = "###### Plan $plan_no: all properties";
-setplan0();
+setplan0(0);  # Without "Unknown Key"
 print "($plan_no, \'$title\',\n";
 print " $escape'$plan')";
+$plan_no--;
 
-$plan_no++;
+$title = "###### Plan $plan_no: all properties plus unknown key";
+setplan0(1);  # With "Unknown Key"
+print ",($plan_no, \'$title\',\n";
+print " $escape'$plan')";
+
+$plan_no = 1;
 $state = 0;
 while(<>) {
 	chomp;
@@ -72,6 +78,9 @@ print <<'EOS';
 
 \echo ###### set shortened JSON
 UPDATE plans SET splan = pg_store_plans_shorten(lplan);
+
+\echo ###### tag abbreviation test
+SELECT splan FROM plans WHERE id = -1;
 
 \echo ###### JSON properties round-trip test
 SELECT id FROM plans
@@ -127,15 +136,16 @@ SELECT '### '||'text-chopped     '||title||E'\n'||
 \echo ###### shorten test
 SELECT '### '||'shorten          '||title||E'\n'||
   pg_store_plans_shorten(lplan)
-  FROM plans WHERE id = 0 ORDER BY id;
+  FROM plans WHERE id = -2 ORDER BY id;
 \echo ###### normalize test
 SELECT '### '||'normalize        '||title||E'\n'||
   pg_store_plans_normalize(lplan)
-  FROM plans WHERE id BETWEEN 1 AND 3 ORDER BY id;
+  FROM plans WHERE id BETWEEN 1 AND 7 ORDER BY id;
 
 EOS
 
 sub setplan0 {
+	my($addunknown) = @_;
 	$plan = << 'EOS';
 {
   "Plan": 0,
@@ -256,9 +266,17 @@ sub setplan0 {
   "Rows Removed by Index Recheck": 0,
   "Time": 0,
   "Calls": 0,
-  "Unknown Key": "Unknown Value"
-}
+  "Planning Time": 0,
+  "Execution Time": 0,
+  "Exact Heap Blocks": 0,
+  "Lossy Heap Blocks": 0,
+  "Rows Removed by Join Filter": 0
 EOS
-	chop $plan;
+chop $plan;
+if ($addunknown) {
+	$plan .= ",\n  \"Unknown Key\": \"Unknown Value\"";
+}
+$plan .= "\n}";
+
 }
 

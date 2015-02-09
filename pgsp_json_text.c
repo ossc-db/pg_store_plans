@@ -21,6 +21,7 @@ static void print_prop_if_nz(StringInfo s, char *prepstr,
 static void json_text_objstart(void *state);
 static void json_text_objend(void *state);
 static void json_text_ofstart(void *state, char *fname, bool isnull);
+static void json_text_ofend(void *state, char *fname, bool isnull);
 static void json_text_scalar(void *state, char *token, JsonTokenType tokentype);
 
 /* Parser callbacks for plan textization */
@@ -133,6 +134,11 @@ SQLQUOTE_SETTER(trig_name);
 SQLQUOTE_SETTER(trig_relation);
 DEFAULT_SETTER(trig_time);
 DEFAULT_SETTER(trig_calls);
+DEFAULT_SETTER(plan_time);
+DEFAULT_SETTER(exec_time);
+DEFAULT_SETTER(exact_heap_blks);
+DEFAULT_SETTER(lossy_heap_blks);
+DEFAULT_SETTER(joinfilt_removed);
 
 #define ISZERO(s) (!s || strcmp(s, "0") == 0 || strcmp(s, "0.000") == 0 )
 #define HASSTRING(s) (s && strlen(s) > 0)
@@ -297,33 +303,27 @@ print_current_node(pgspParserContext *ctx)
 		appendStringInfoString(s, ")");
 	}
 
-	if (HASSTRING(v->actual_rows) ||
-		HASSTRING(v->actual_loops) ||
-		HASSTRING(v->actual_startup_time) ||
-		HASSTRING(v->actual_total_time))
+	if (HASSTRING(v->actual_loops) && ISZERO(v->actual_loops))
+		appendStringInfoString(s, " (never executed)");
+	else if (HASSTRING(v->actual_rows) &&
+			 HASSTRING(v->actual_loops) &&
+			 HASSTRING(v->actual_startup_time) &&
+			 HASSTRING(v->actual_total_time))
 	{
-		if (ISZERO(v->actual_loops))
-		{
-			appendStringInfoString(s, " (never executed)");
-		}
-		else
-		{
-			appendStringInfoString(s, " (actual ");
-			if (HASSTRING(v->actual_startup_time) ||
-				HASSTRING(v->actual_total_time)) {
-				appendStringInfoString(s, "time=");
-				appendStringInfoString(s, v->actual_startup_time);
-				appendStringInfoString(s, "..");
-				appendStringInfoString(s, v->actual_total_time);
-				appendStringInfoString(s, " ");
-			}
+		appendStringInfoString(s, " (actual ");
+		appendStringInfoString(s, "time=");
+		appendStringInfoString(s, v->actual_startup_time);
+		appendStringInfoString(s, "..");
+		appendStringInfoString(s, v->actual_total_time);
+		appendStringInfoString(s, " ");
 
-			appendStringInfoString(s, "rows=");
-			appendStringInfoString(s, v->actual_rows);
-			appendStringInfoString(s, " loops=");
-			appendStringInfoString(s, v->actual_loops);
-			appendStringInfoString(s, ")");
-		}
+		appendStringInfoString(s, "rows=");
+		appendStringInfoString(s, v->actual_rows);
+
+		appendStringInfoString(s, " loops=");
+		appendStringInfoString(s, v->actual_loops);
+
+		appendStringInfoString(s, ")");
 	}
 
 	if (v->output)
@@ -365,7 +365,19 @@ print_current_node(pgspParserContext *ctx)
 						 v->filter_removed, level, exind);
 	print_prop_if_nz(s, "Rows Removed by Index Recheck: ",
 						 v->idxrchk_removed, level, exind);
-	
+	print_prop_if_nz(s, "Rows Removed by Join Filter: ",
+						 v->joinfilt_removed, level, exind);
+
+	if (HASSTRING(v->exact_heap_blks) ||
+		HASSTRING(v->lossy_heap_blks))
+	{
+		appendStringInfoString(s, "\n");
+		appendStringInfoSpaces(s, TEXT_INDENT_DETAILS(level, exind));
+		appendStringInfoString(s, "Heap Blocks:");
+		print_prop_if_nz(s, " exact=", v->exact_heap_blks, 0, exind);
+		print_prop_if_nz(s, " lossy=", v->lossy_heap_blks, 0, exind);
+	}
+
 	if (!ISZERO(v->hash_buckets))
 	{
 		appendStringInfoString(s, "\n");
@@ -531,10 +543,17 @@ static void
 json_text_objend(void *state)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
-	if (ctx->processing == P_Plan)
+	switch (ctx->processing)
+	{
+	case P_Plan:
 		print_current_node(ctx);
-	else
+		break;
+	case P_Triggers:
 		print_current_trig_node(ctx);
+		break;
+	default:
+		break;
+	}
 
 	clear_nodeval(ctx->nodevals);
 	ctx->last_elem_is_object = true;
@@ -555,17 +574,47 @@ json_text_ofstart(void *state, char *fname, bool isnull)
 		ereport(DEBUG1,
 				(errmsg("Short JSON parser encoutered unknown field name: \"%s\", skipped.", fname),
 				 errdetail_log("INPUT: \"%s\"", ctx->org_string)));
-	}		
-	if (p && (p->tag == P_Plan || p->tag == P_Plans))
-	{
-		print_current_node(ctx);
-		clear_nodeval(ctx->nodevals);
 	}
+	else
+	{
+		/* Print node immediately if next level of Plan/Plans comes */
+		if (p->tag == P_Plan || p->tag == P_Plans)
+		{
+			print_current_node(ctx);
+			clear_nodeval(ctx->nodevals);
+		}
 
-	if (p && (p->tag == P_Plan || p->tag == P_Triggers))
-		ctx->processing = p->tag;
+		
+		if (p->tag == P_Plan || p->tag == P_Triggers)
+			ctx->processing = p->tag;
+		ctx->setter = p->setter;
+	}
+}
 
-	ctx->setter = (p ? p->setter : NULL);
+static void
+json_text_ofend(void *state, char *fname, bool isnull)
+{
+	pgspParserContext *ctx = (pgspParserContext *)state;
+	node_vals *v = ctx->nodevals;
+
+	/* Planning/Execution time to be appeared at the end of plan */
+	if (HASSTRING(v->plan_time) ||
+		HASSTRING(v->exec_time))
+	{
+		if (HASSTRING(v->plan_time))
+		{
+			appendStringInfoString(ctx->dest, "\nPlanning Time: ");
+			appendStringInfoString(ctx->dest, v->plan_time);
+			appendStringInfoString(ctx->dest, " ms");
+		}
+		else
+		{
+			appendStringInfoString(ctx->dest, "\nExecution Time: ");
+			appendStringInfoString(ctx->dest, v->exec_time);
+			appendStringInfoString(ctx->dest, " ms");
+		}
+		clear_nodeval(v);
+	}
 }
 
 static void
@@ -595,7 +644,7 @@ pgsp_json_textize(char *json)
 	sem.array_start        = NULL;
 	sem.array_end          = NULL;
 	sem.object_field_start = json_text_ofstart;
-	sem.object_field_end   = NULL;
+	sem.object_field_end   = json_text_ofend;
 	sem.array_element_start= NULL;
 	sem.array_element_end  = NULL;
 	sem.scalar             = json_text_scalar;

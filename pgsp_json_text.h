@@ -54,11 +54,15 @@ typedef struct
 	const char *io_write_time;
 	const char *filter_removed;
 	const char *idxrchk_removed;
-
 	const char *trig_name;
 	const char *trig_relation;
 	const char *trig_time;
-	const char * trig_calls;
+	const char *trig_calls;
+	const char *plan_time;
+	const char *exec_time;
+	const char *exact_heap_blks;
+	const char *lossy_heap_blks;
+	const char *joinfilt_removed;
 } node_vals;
 
 #define SETTER(name) pgsp_node_set_##name
@@ -110,7 +114,6 @@ SETTERDECL(org_hash_batches);
 SETTERDECL(peak_memory_usage);
 SETTERDECL(filter_removed);
 SETTERDECL(idxrchk_removed);
-
 SETTERDECL(actual_startup_time);
 SETTERDECL(actual_total_time);
 SETTERDECL(actual_rows);
@@ -132,3 +135,8 @@ SETTERDECL(trig_name);
 SETTERDECL(trig_relation);
 SETTERDECL(trig_time);
 SETTERDECL(trig_calls);
+SETTERDECL(plan_time);
+SETTERDECL(exec_time);
+SETTERDECL(exact_heap_blks);
+SETTERDECL(lossy_heap_blks);
+SETTERDECL(joinfilt_removed);

@@ -19,62 +19,6 @@ typedef enum
 typedef const char *(converter_t)(const char *src, pgsp_parser_mode mode);
 typedef void (setter_t)(node_vals *vals, const char *val);
 
-typedef struct
-{
-	int   tag;
-	char *shortname;
-	char *longname;
-	char *textname;
-	bool  normalize_use;
-	converter_t *converter;
-	setter_t  *setter;
-} word_table;
-
-typedef struct
-{
-	StringInfo	dest;
-	pgsp_parser_mode mode;
-	node_vals *nodevals;
-	char	   *org_string;
-
-	/* Working variables used internally in parser */
-	int			level;
-	Bitmapset  *first;
-	Bitmapset  *not_item;
-	bool		remove;
-	bool		last_elem_is_object;
-	bool		processing;
-	char	   *fname;
-	char	   *wbuf;
-	int			wbuflen;
-	converter_t *valconverter;
-	setter_t    *setter;
-} pgspParserContext;
-
-
-extern word_table nodetypes[];
-extern word_table strategies[];
-extern word_table propfields[];
-
-extern void init_word_index(void);
-extern word_table *search_word_table(word_table *tbl,
-										  const char *word, int mode);
-extern const char *conv_nodetype(const char *src, pgsp_parser_mode mode);
-extern const char *conv_operation(const char *src, pgsp_parser_mode mode);
-extern const char *conv_scandir(const char *src, pgsp_parser_mode mode);
-extern const char *conv_expression(const char *src, pgsp_parser_mode mode);
-extern const char *conv_relasionship(const char *src, pgsp_parser_mode mode);
-extern const char *conv_jointype(const char *src, pgsp_parser_mode mode);
-extern const char *conv_strategy(const char *src, pgsp_parser_mode mode);
-extern const char *conv_setsetopcommand(const char *src, pgsp_parser_mode mode);
-extern const char *conv_sortmethod(const char *src, pgsp_parser_mode mode);
-extern const char *conv_sortspacetype(const char *src, pgsp_parser_mode mode);
-
-extern bool run_pg_parse_json(JsonLexContext *lex, JsonSemAction *sem);
-extern void init_parser_context(pgspParserContext *ctx, int mode,
-								   char *orgstr, char *buf,int buflen);
-extern void init_json_lex_context(JsonLexContext *lex, char *json);
-
 typedef enum
 {
 	P_Invalid,
@@ -141,5 +85,74 @@ typedef enum
 	P_RowsFilterRmvd,
 	P_RowsIdxRchkRmvd,
 	P_TrgTime,
-	P_TrgCalls
+	P_TrgCalls,
+	P_PlanTime,
+	P_ExecTime,
+	P_ExactHeapBlks,
+	P_LossyHeapBlks,
+	P_RowsJoinFltRemvd
 } pgsp_prop_tags;
+
+typedef struct
+{
+	pgsp_prop_tags tag;		/* Tag to identify words */
+	char *shortname;		/* Property name for short-style JSON */
+	char *longname;			/* Property name for long(normal)-style JSON */
+	char *textname;			/* Property name for Text representation */
+	bool  normalize_use;	/* True means this word to be used for
+							   normalization, which makes difference of
+							   plan-id */
+	converter_t *converter;	/* Converter function for the property name */
+	setter_t  *setter;		/* Converter function for the property value */
+} word_table;
+
+typedef struct
+{
+	StringInfo	dest;			/* Storage for parse result */
+	pgsp_parser_mode mode;		/* Tells what to do to the parser */
+	node_vals *nodevals;		/* Node value holder */
+	char	   *org_string;		/* What to parse */
+
+	/* Working variables used internally in parser */
+	int			level;			/* Next (indent) level */
+	Bitmapset  *first;			/* Bitmap set holds whether the first element
+								 * has been processed for each level */
+	Bitmapset  *not_item;		/* Bitmap set holds whether the node name at
+								   the level was literally "Item" or not. */
+	bool		remove;			/* True if the current node is not shown in
+								 * the result */
+	bool		last_elem_is_object; /* True if the last processed element
+								 * was not an object */
+	pgsp_prop_tags	processing;	/* Tag of the word under processing */
+	char	   *fname;			/* Field name*/
+	char	   *wbuf;			/* Working buffer */
+	int			wbuflen;		/* Length of the working buffer */
+	converter_t *valconverter;	/* field name converter for the current
+								 * element */
+	setter_t    *setter;		/* value converter for the current element */
+} pgspParserContext;
+
+
+extern word_table nodetypes[];
+extern word_table strategies[];
+extern word_table propfields[];
+
+extern void init_word_index(void);
+extern word_table *search_word_table(word_table *tbl,
+										  const char *word, int mode);
+extern const char *conv_nodetype(const char *src, pgsp_parser_mode mode);
+extern const char *conv_operation(const char *src, pgsp_parser_mode mode);
+extern const char *conv_scandir(const char *src, pgsp_parser_mode mode);
+extern const char *conv_expression(const char *src, pgsp_parser_mode mode);
+extern const char *conv_relasionship(const char *src, pgsp_parser_mode mode);
+extern const char *conv_jointype(const char *src, pgsp_parser_mode mode);
+extern const char *conv_strategy(const char *src, pgsp_parser_mode mode);
+extern const char *conv_setsetopcommand(const char *src, pgsp_parser_mode mode);
+extern const char *conv_sortmethod(const char *src, pgsp_parser_mode mode);
+extern const char *conv_sortspacetype(const char *src, pgsp_parser_mode mode);
+
+extern bool run_pg_parse_json(JsonLexContext *lex, JsonSemAction *sem);
+extern void init_parser_context(pgspParserContext *ctx, int mode,
+								   char *orgstr, char *buf,int buflen);
+extern void init_json_lex_context(JsonLexContext *lex, char *json);
+
