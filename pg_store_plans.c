@@ -737,42 +737,41 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
 			queryDesc->totaltime->total >= 
 			(double)min_duration / 1000.0)
 		{
-			ExplainState es;
+			ExplainState *es     = NewExplainState();
+			StringInfo	  es_str = es->str;
 
-			ExplainInitState(&es);
-			es.analyze = queryDesc->instrument_options;
-			es.costs = true;
-			es.verbose = log_verbose;
-			es.buffers = (es.analyze && log_buffers);
-			es.timing = (es.analyze && log_timing);
-			es.format = EXPLAIN_FORMAT_JSON;
+			es->analyze = queryDesc->instrument_options;
+			es->verbose = log_verbose;
+			es->buffers = (es->analyze && log_buffers);
+			es->timing = (es->analyze && log_timing);
+			es->format = EXPLAIN_FORMAT_JSON;
 	
-			ExplainBeginOutput(&es);
-			ExplainPrintPlan(&es, queryDesc);
+			ExplainBeginOutput(es);
+			ExplainPrintPlan(es, queryDesc);
 			if (log_triggers)
-				pgspExplainTriggers(&es, queryDesc);
-			ExplainEndOutput(&es);
+				pgspExplainTriggers(es, queryDesc);
+			ExplainEndOutput(es);
 
 			/* Remove last line break */
-			if (es.str->len > 0 && es.str->data[es.str->len - 1] == '\n')
-				es.str->data[--es.str->len] = '\0';
+			if (es_str->len > 0 && es_str->data[es_str->len - 1] == '\n')
+				es_str->data[--es_str->len] = '\0';
 
 			/* JSON outmost braces. */
-			es.str->data[0] = '{';
-			es.str->data[es.str->len - 1] = '}';
+			es_str->data[0] = '{';
+			es_str->data[es_str->len - 1] = '}';
 
 			/*
 			 * Make sure stats accumulation is done.  (Note: it's okay if several
 			 * levels of hook all do this.)
 			 */
 
-			store_entry(es.str->data,
+			store_entry(es_str->data,
 						hash_query(queryDesc->sourceText),
 						queryDesc->plannedstmt->queryId,
 						queryDesc->totaltime->total * 1000.0,	/* convert to msec */
 						queryDesc->estate->es_processed,
 						&queryDesc->totaltime->bufusage);
-			pfree(es.str->data);
+			pfree(es_str->data);
 		}
 	}
 
@@ -882,9 +881,9 @@ store_entry(char *plan, uint32 queryId, uint32 queryId2,
 
 	normalized_plan = pgsp_json_normalize(plan);
 	shorten_plan = pgsp_json_shorten(plan);
-	//elog(LOG, "Normalized: %s", normalized_plan);
-	//elog(LOG, "Shorten: %s", shorten_plan);
-	//elog(LOG, "Original: %s", plan);
+	elog(DEBUG3, "pg_store_plans: Normalized plan: %s", normalized_plan);
+	elog(DEBUG3, "pg_store_plans: Shorten plan: %s", shorten_plan);
+	elog(DEBUG3, "pg_store_plans: Original plan: %s", plan);
 	plan_len = strlen(shorten_plan);
 
 	key.planid = hash_any((const unsigned char *)normalized_plan,

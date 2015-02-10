@@ -37,6 +37,19 @@ static void pgspExplainJSONLineEnding(ExplainState *es);
 #define GROUPING_STACK(es) ((es)->grouping_stack)
 #endif
 
+/* ExplainInitState() is replaced with NewExlainState() in 9.5 */
+#if PG_VERSION_NUM < 90500
+ExplainState *
+NewExplainState(void)
+{
+  ExplainState *es = (ExplainState *)palloc0(sizeof(ExplainState));
+
+  ExplainInitState(es);
+  es->costs = true;
+  return es;
+}
+#endif
+
 void
 pgspExplainTriggers(ExplainState *es, QueryDesc *queryDesc)
 {
