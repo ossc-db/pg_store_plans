@@ -22,9 +22,17 @@ static void pgspExplainProperty(const char *qlabel, const char *value, bool nume
 							ExplainState *es);
 static void pgspExplainJSONLineEnding(ExplainState *es);
 
-/* ExplainState is modified at 9.4.1 and 9.3.6  */
-#if PG_VERSION_NUM >= 90401 || (PG_VERSION_NUM >= 90306 && PG_VERSION_NUM < 90400)
-#define GROUPING_STACK(es) ((es)->extra->groupingstack)
+/*
+ * ExplainState is modified at 9.4.1 and 9.3.6. But the change is for
+ * internal use and to avoid binary-incompatibility not changing the
+ * size of ExplainState. So we can use ExplainState->extra as if it
+ * were grouping_stack safely and should do so. Using ->extra as List*
+ * discards the memory for ExplainStateExtra but it is not a problem
+ * since it is allocated by palloc.
+ */
+#if (PG_VERSION_NUM >= 90401 && PG_VERSION_NUM < 90500) || \
+	(PG_VERSION_NUM >= 90306 && PG_VERSION_NUM < 90400)
+#define GROUPING_STACK(es) (*((List **)(&(es)->extra)))
 #else
 #define GROUPING_STACK(es) ((es)->grouping_stack)
 #endif
