@@ -1,5 +1,14 @@
-/*
- * pgsp_explain: extracted code from explain.c for explain of triggers.
+/*-------------------------------------------------------------------------
+ *
+ * pgsp_explain.c: extracted code from explain.c for explain of triggers.
+ *
+ * Copyright (c) 2008-2013, PostgreSQL Global Development Group
+ * Copyright (c) 2012-2015, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+ *
+ * IDENTIFICATION
+ *	  pg_store_plan/pgsp_explain.c
+ *
+ *-------------------------------------------------------------------------
  */
 
 #include "postgres.h"

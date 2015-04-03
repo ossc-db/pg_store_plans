@@ -1,3 +1,15 @@
+/*-------------------------------------------------------------------------
+ *
+ * pgsp_json.h: Definitions of plan handler for JSON/XML/YAML style plans
+ *
+ * Copyright (c) 2012-2015, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+ *
+ * IDENTIFICATION
+ *	  pg_store_plan/pgsp_json.h
+ *
+ *-------------------------------------------------------------------------
+ */
+
 #include "pgsp_json_text.h"
 
 extern char *pgsp_json_normalize(char *json);

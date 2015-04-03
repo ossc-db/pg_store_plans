@@ -1,11 +1,32 @@
 /*-------------------------------------------------------------------------
  *
- * pg_store_plans
+ * pg_store_plans.c
+ *		Take statistics of plan selection across a whole database cluster.
+ *
+ * Execution costs are totalled for each distinct plan for each query,
+ * and plan and queryid are kept in a shared hashtable, each record in
+ * which is associated with a record in pg_stat_statements, if any, by
+ * the queryid.
+ *
+ * For Postgres 9.3 or earlier does not expose query id so
+ * pg_store_plans needs to calculate it based on the given query
+ * string using different algorithm from pg_stat_statements, and later
+ * the id will be matched against the one made from query string
+ * stored in pg_stat_statsments. For the reason, queryid matching in
+ * this way will fail if the query string kept in pg_stat_statements
+ * is truncated in the middle.
+ *
+ * Plans are identified by fingerprinting plan representations in
+ * "shortened" JSON format with constants and unstable values such as
+ * rows, width, loops ignored. Nevertheless, stored plan entries hold
+ * them of the lastest execution. Entry eviction is done in the same
+ * way to pg_stat_statments.
  *
  * Copyright (c) 2008-2013, PostgreSQL Global Development Group
+ * Copyright (c) 2012-2015, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
  *
  * IDENTIFICATION
- *	  contrib/pg_store_plan/pg_store_plan.c
+ *	  pg_store_plan/pg_store_plan.c
  *
  *-------------------------------------------------------------------------
  */

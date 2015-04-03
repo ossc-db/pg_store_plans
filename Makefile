@@ -1,4 +1,4 @@
-# contrib/pg_stat_plan/Makefile
+# pg_stat_plan/Makefile
 
 MODULE_big = pg_store_plans
 OBJS = pg_store_plans.o pgsp_json.o pgsp_json_text.o pgsp_explain.o

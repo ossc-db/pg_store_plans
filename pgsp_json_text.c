@@ -1,3 +1,15 @@
+/*-------------------------------------------------------------------------
+ *
+ * pgsp_json_text.h: Text plan generator for pg_store_plan.
+ *
+ * Copyright (c) 2012-2015, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+ *
+ * IDENTIFICATION
+ *	  pg_store_plan/pgsp_json_text.c
+ *
+ *-------------------------------------------------------------------------
+ */
+
 #include "postgres.h"
 #include "miscadmin.h"
 #include "nodes/nodes.h"

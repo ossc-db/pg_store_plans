@@ -1,3 +1,15 @@
+/*-------------------------------------------------------------------------
+ *
+ * pgsp_json.c: Plan handler for JSON/XML/YAML style plans
+ *
+ * Copyright (c) 2012-2015, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+ *
+ * IDENTIFICATION
+ *	  pg_store_plan/pgsp_json.c
+ *
+ *-------------------------------------------------------------------------
+ */
+
 #include "postgres.h"
 #include "miscadmin.h"
 #include "nodes/nodes.h"
