@@ -842,7 +842,6 @@ hash_query(const char* query)
 	char *normquery = pstrdup(query);
 	normalize_expr(normquery, false);
 	queryid = hash_any((const unsigned char*)normquery, strlen(normquery));
-	elog(LOG, "NORMALIZED: %u: %s", queryid, normquery);
 	pfree(normquery);
 
 	return queryid;
