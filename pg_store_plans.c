@@ -1089,20 +1089,20 @@ pg_store_plans(PG_FUNCTION_ARGS)
 
 			switch (plan_format)
 			{
-			case PLAN_FORMAT_TEXT:
-				pstr = pgsp_json_textize(entry->plan);
-				break;
-			case PLAN_FORMAT_JSON:
-				pstr = pgsp_json_inflate(entry->plan);
-				break;
-			case PLAN_FORMAT_YAML:
-				pstr = pgsp_json_yamlize(entry->plan);
-				break;
-			case PLAN_FORMAT_XML:
-				pstr = pgsp_json_xmlize(entry->plan);
-				break;
-			default:
-				break;
+				case PLAN_FORMAT_TEXT:
+					pstr = pgsp_json_textize(entry->plan);
+					break;
+				case PLAN_FORMAT_JSON:
+					pstr = pgsp_json_inflate(entry->plan);
+					break;
+				case PLAN_FORMAT_YAML:
+					pstr = pgsp_json_yamlize(entry->plan);
+					break;
+				case PLAN_FORMAT_XML:
+					pstr = pgsp_json_xmlize(entry->plan);
+					break;
+				default:
+					break;
 			}
 			
 			estr = (char *)

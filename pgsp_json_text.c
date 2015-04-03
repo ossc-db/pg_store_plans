@@ -73,30 +73,30 @@ SETTERDECL(strategy)
 
 	switch (vals->nodetag)
 	{
-	case T_Agg:
-		switch (p->tag)
-		{
-		case S_Hashed:
-			vals->node_type = "HashAggregate"; break;
-		case S_Sorted:
-			vals->node_type = "GroupAggregate"; break;
+		case T_Agg:
+			switch (p->tag)
+			{
+				case S_Hashed:
+					vals->node_type = "HashAggregate"; break;
+				case S_Sorted:
+					vals->node_type = "GroupAggregate"; break;
+				default:
+					break;
+			}
+			break;
+
+		case T_SetOp:
+			switch (p->tag)
+			{
+				case S_Hashed:
+					vals->node_type = "HashSetOp";
+					break;
+				default:
+					break;
+			}
+
 		default:
 			break;
-		}
-		break;
-
-	case T_SetOp:
-		switch (p->tag)
-		{
-			case S_Hashed:
-				vals->node_type = "HashSetOp";
-				break;
-			default:
-				break;
-		}
-
-	default:
-		break;
 	}
 }
 CONVERSION_SETTER(scan_dir, conv_scandir);
@@ -254,54 +254,54 @@ print_current_node(pgspParserContext *ctx)
 
 	switch (v->nodetag)
 	{
-	case T_ModifyTable:
-	case T_SeqScan:
-	case T_BitmapHeapScan:
-	case T_TidScan:
-	case T_SubqueryScan:
-	case T_FunctionScan:
-	case T_ValuesScan:
-	case T_CteScan:
-	case T_WorkTableScan:
-	case T_ForeignScan:
-		if (v->nodetag == T_ModifyTable)
-			appendStringInfoString(s, v->operation);
-		else
+		case T_ModifyTable:
+		case T_SeqScan:
+		case T_BitmapHeapScan:
+		case T_TidScan:
+		case T_SubqueryScan:
+		case T_FunctionScan:
+		case T_ValuesScan:
+		case T_CteScan:
+		case T_WorkTableScan:
+		case T_ForeignScan:
+			if (v->nodetag == T_ModifyTable)
+				appendStringInfoString(s, v->operation);
+			else
+				appendStringInfoString(s, v->node_type);
+
+			print_obj_name(ctx);
+			break;
+
+		case T_IndexScan:
+		case T_IndexOnlyScan:
+		case T_BitmapIndexScan:
 			appendStringInfoString(s, v->node_type);
+			print_prop_if_exists(s, " ", v->scan_dir, 0, 0);
+			print_prop_if_exists(s, " using ", v->index_name, 0, 0);
+			print_obj_name(ctx);
+			break;
 
-		print_obj_name(ctx);
-		break;
+		case T_NestLoop:
+		case T_MergeJoin:
+		case T_HashJoin:
+			appendStringInfoString(s, v->node_type);
+			if (v->join_type && strcmp(v->join_type, "Inner") != 0)
+			{
+				appendStringInfoChar(s, ' ');
+				appendStringInfoString(s, v->join_type);
+			}
+			if (v->nodetag != T_NestLoop)
+				appendStringInfoString(s, " Join");
+			break;
 
-	case T_IndexScan:
-	case T_IndexOnlyScan:
-	case T_BitmapIndexScan:
-		appendStringInfoString(s, v->node_type);
-		print_prop_if_exists(s, " ", v->scan_dir, 0, 0);
-		print_prop_if_exists(s, " using ", v->index_name, 0, 0);
-		print_obj_name(ctx);
-		break;
+		case T_SetOp:
+			appendStringInfoString(s, v->node_type);
+			print_prop_if_exists(s, " ", v->setopcommand, 0, 0);
+			break;
 
-	case T_NestLoop:
-	case T_MergeJoin:
-	case T_HashJoin:
-		appendStringInfoString(s, v->node_type);
-		if (v->join_type && strcmp(v->join_type, "Inner") != 0)
-		{
-			appendStringInfoChar(s, ' ');
-			appendStringInfoString(s, v->join_type);
-		}
-		if (v->nodetag != T_NestLoop)
-			appendStringInfoString(s, " Join");
-		break;
-
-	case T_SetOp:
-		appendStringInfoString(s, v->node_type);
-		print_prop_if_exists(s, " ", v->setopcommand, 0, 0);
-		break;
-
-	default:
-		appendStringInfoString(s, v->node_type);
-		break;
+		default:
+			appendStringInfoString(s, v->node_type);
+			break;
 	}
 	
 	if (!ISZERO(v->startup_cost) &&
@@ -562,14 +562,14 @@ json_text_objend(void *state)
 	pgspParserContext *ctx = (pgspParserContext *)state;
 	switch (ctx->processing)
 	{
-	case P_Plan:
-		print_current_node(ctx);
-		break;
-	case P_Triggers:
-		print_current_trig_node(ctx);
-		break;
-	default:
-		break;
+		case P_Plan:
+			print_current_node(ctx);
+			break;
+		case P_Triggers:
+			print_current_trig_node(ctx);
+			break;
+		default:
+			break;
 	}
 
 	clear_nodeval(ctx->nodevals);
