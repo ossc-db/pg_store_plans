@@ -343,8 +343,22 @@ norm_yylex(char *str, core_YYSTYPE *yylval, YYLTYPE *yylloc, core_yyscan_t yysca
 {
 	int tok;
 
-	tok = core_yylex(yylval, yylloc, yyscanner);
-
+	PG_TRY();
+	{
+		tok = core_yylex(yylval, yylloc, yyscanner);
+	}
+	PG_CATCH();
+	{
+		/*
+		 * Error might occur during parsing quoted tokens that chopped
+		 * halfway. Just ignore the rest of this query even if there might
+		 * be other reasons for parsing to fail.
+		 */
+		FlushErrorState();
+		return -1;
+	}
+	PG_END_TRY();
+	
 	/*
 	 * '?' alone is assumed to be an IDENT.  If there's a real
 	 * operator '?', this should be confused but there's hardly be.
@@ -396,6 +410,7 @@ normalize_expr(char *expr, bool preserve_space)
 	for (;;)
 	{
 		tok = norm_yylex(expr, &yylval, &yylloc, yyscanner);
+
 		start = yylloc;
 
 		if (lastloc >= 0)
@@ -430,9 +445,10 @@ normalize_expr(char *expr, bool preserve_space)
 			 * statement or an expression, spaces are added where it should be
 			 * to keep some extent of sanity.  If readablity is more important
 			 * than uniqueness, preserve_space adds one space for each
-			 * existent whitespace to keep readabilty.
+			 * existent whitespace.
 			 */
-			if (i2 < start &&
+			if (tok > 0 &&
+				i2 < start &&
 				(preserve_space || 
 				 (tok >= IDENT && lasttok >= IDENT &&
 				  !IS_CONST(tok) && !IS_CONST(lasttok))))
@@ -441,6 +457,14 @@ normalize_expr(char *expr, bool preserve_space)
 			start = i2;
 			lasttok = tok;
 		}
+
+		/* Exit on parse error. */
+		if (tok < 0)
+		{
+			*wp = 0;
+			return;
+		}
+
 		/*
 		 * Negative signs before numbers are tokenized separately. And
 		 * explicit positive signs won't appear in deparsed expressions.
@@ -448,11 +472,25 @@ normalize_expr(char *expr, bool preserve_space)
 		if (tok == '-')
 			tok = norm_yylex(expr, &yylval, &yylloc, yyscanner);
 		
+		/* Exit on parse error. */
+		if (tok < 0)
+		{
+			*wp = 0;
+			return;
+		}
+
 		if (IS_CONST(tok))
 		{
 			YYLTYPE end;
 			
 			tok = norm_yylex(expr, &yylval, &end, yyscanner);
+
+			/* Exit on parse error. */
+			if (tok < 0)
+			{
+				*wp = 0;
+				return;
+			}
 
 			/*
 			 * Negative values may be surrounded with parens by the
