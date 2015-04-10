@@ -107,7 +107,7 @@ typedef enum
 
 typedef struct
 {
-	pgsp_prop_tags tag;		/* Tag to identify words */
+	int	  tag;				/* Tag to identify words */
 	char *shortname;		/* Property name for short-style JSON */
 	char *longname;			/* Property name for long(normal)-style JSON */
 	char *textname;			/* Property name for Text representation */

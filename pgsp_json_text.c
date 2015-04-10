@@ -86,14 +86,9 @@ SETTERDECL(strategy)
 			break;
 
 		case T_SetOp:
-			switch (p->tag)
-			{
-				case S_Hashed:
-					vals->node_type = "HashSetOp";
-					break;
-				default:
-					break;
-			}
+			if (p->tag == S_Hashed)
+				vals->node_type = "HashSetOp";
+			break;
 
 		default:
 			break;
