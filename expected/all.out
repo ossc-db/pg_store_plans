@@ -1942,7 +1942,7 @@ SELECT '### '||'normalize        '||title||E'\n'||
 
 =======
 ### normalize        ###### Plan 4: Result, Append Seq Scan
-{"p":{"t":"a","o":["((tt1.a + ?))","(?)","?"],"l":[{"t":"c","h":"o","l":[{"t":"h","h":"m","n":"tt1","s":"public","a":"tt1","o":["(tt1.a + ?)","?"]}{"t":"h","h":"m","n":"tt2","s":"public","a":"tt2","o":["tt2.a","?"]}]}]},"r":[]}
+{"p":{"t":"a","o":["((tt1.a + ?))","?","?"],"l":[{"t":"c","h":"o","l":[{"t":"h","h":"m","n":"tt1","s":"public","a":"tt1","o":["(tt1.a + ?)","?"]}{"t":"h","h":"m","n":"tt2","s":"public","a":"tt2","o":["tt2.a","?"]}]}]},"r":[]}
 
 =======
 ### normalize        ###### Plan 5: Index scan (forward) ANY, array in expr, escape
@@ -1982,23 +1982,23 @@ SELECT '### '||'normalize        '||title||E'\n'||
 
 =======
 ### normalize        ###### Plan 14: SetOp intersect, SbuqueryScan
-{"p":{"t":"x","o":["\"*SELECT* .a","(?)"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","b":"i","o":["\"*SELECT* .a","(?)"],"l":[{"t":"c","h":"o","l":[{"t":"n","h":"m","a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]},"r":[]}
+{"p":{"t":"x","o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","b":"i","o":["\"*SELECT* .a","?"],"l":[{"t":"c","h":"o","l":[{"t":"n","h":"m","a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]},"r":[]}
 
 =======
 ### normalize        ###### Plan 15: Sorted SetOp, Sort on Disk
-{"p":{"t":"3","g":"s","b":"i","o":["\"*SELECT* .a","(?)"],"l":[{"t":"x","h":"o","o":["\"*SELECT* .a","(?)"],"k":["\"*SELECT* .a"],"e":"E","l":[{"t":"c","h":"o","l":[{"t":"n","h":"m","a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]},"r":[]}
+{"p":{"t":"3","g":"s","b":"i","o":["\"*SELECT* .a","?"],"l":[{"t":"x","h":"o","o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"E","l":[{"t":"c","h":"o","l":[{"t":"n","h":"m","a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]},"r":[]}
 
 =======
 ### normalize        ###### Plan 16: HashSetOp intersect All, SubqueryScan
-{"p":{"t":"x","o":["\"*SELECT* .a","(?)"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","b":"I","o":["\"*SELECT* .a","(?)"],"l":[{"t":"c","h":"o","l":[{"t":"n","h":"m","a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]},"r":[]}
+{"p":{"t":"x","o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","b":"I","o":["\"*SELECT* .a","?"],"l":[{"t":"c","h":"o","l":[{"t":"n","h":"m","a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]},"r":[]}
 
 =======
 ### normalize        ###### Plan 17: HashSetOp except, SubqueryScan
-{"p":{"t":"x","o":["\"*SELECT* .a","(?)"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","b":"e","o":["\"*SELECT* .a","(?)"],"l":[{"t":"c","h":"o","l":[{"t":"n","h":"m","a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]},"r":[]}
+{"p":{"t":"x","o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","b":"e","o":["\"*SELECT* .a","?"],"l":[{"t":"c","h":"o","l":[{"t":"n","h":"m","a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]},"r":[]}
 
 =======
 ### normalize        ###### Plan 18: HashSetOp except all, SubqueryScan
-{"p":{"t":"x","o":["\"*SELECT* .a","(?)"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","b":"E","o":["\"*SELECT* .a","(?)"],"l":[{"t":"c","h":"o","l":[{"t":"n","h":"m","a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]},"r":[]}
+{"p":{"t":"x","o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","b":"E","o":["\"*SELECT* .a","?"],"l":[{"t":"c","h":"o","l":[{"t":"n","h":"m","a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]},"r":[]}
 
 =======
 ### normalize        ###### Plan 19: merge LEFT join
@@ -2018,7 +2018,7 @@ SELECT '### '||'normalize        '||title||E'\n'||
 
 =======
 ### normalize        ###### Plan 23: WindowAgg
-{"p":{"t":"0","o":["first_value(a) OVER (?)","((a / ?))"],"l":[{"t":"x","h":"o","o":["((a / ?))","a"],"k":["((tt1.a / ?))"],"e":"q","l":[{"t":"h","h":"o","n":"tt1","s":"public","a":"tt1","o":["(a / ?)","a"]}]}]},"r":[]}
+{"p":{"t":"0","o":["first_value(a) OVER ?","((a / ?))"],"l":[{"t":"x","h":"o","o":["((a / ?))","a"],"k":["((tt1.a / ?))"],"e":"q","l":[{"t":"h","h":"o","n":"tt1","s":"public","a":"tt1","o":["(a / ?)","a"]}]}]},"r":[]}
 
 =======
 ### normalize        ###### Plan 24: Unique
@@ -2030,7 +2030,7 @@ SELECT '### '||'normalize        '||title||E'\n'||
 
 =======
 ### normalize        ###### Plan 26: BitmapIndexScan/BitmapHeapScan, BitmapOr, lossy
-{"p":{"t":"l","n":"tt3","s":"public","a":"tt3","o":["a","b","c"],"0":"(tt3.b > (?))","l":[{"t":"k","h":"o","i":"i_tt3_b","8":"(tt3.b > (?))"}]},"r":[]}
+{"p":{"t":"l","n":"tt3","s":"public","a":"tt3","o":["a","b","c"],"0":"(tt3.b > ?)","l":[{"t":"k","h":"o","i":"i_tt3_b","8":"(tt3.b > ?)"}]},"r":[]}
 
 =======
 ### normalize        ###### Plan 27: Join Filter

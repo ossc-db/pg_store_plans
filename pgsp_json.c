@@ -472,7 +472,6 @@ normalize_expr(char *expr, bool preserve_space)
 				*wp++ = ' ';
 
 			start = i2;
-			lasttok = tok;
 		}
 
 		/* Exit on parse error. */
@@ -515,6 +514,7 @@ normalize_expr(char *expr, bool preserve_space)
 			 */
 			if (lasttok == '(' && tok == ')')
 			{
+				wp -= (start - lastloc);
 				start = lastloc;
 				end++;
 			}
