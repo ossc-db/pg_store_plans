@@ -3,7 +3,7 @@
  * pg_store_plans.c
  *		Take statistics of plan selection across a whole database cluster.
  *
- * Execution costs are totalled for each distinct plan for each query,
+ * Execution costs are totaled for each distinct plan for each query,
  * and plan and queryid are kept in a shared hashtable, each record in
  * which is associated with a record in pg_stat_statements, if any, by
  * the queryid.
@@ -12,15 +12,15 @@
  * pg_store_plans needs to calculate it based on the given query
  * string using different algorithm from pg_stat_statements, and later
  * the id will be matched against the one made from query string
- * stored in pg_stat_statsments. For the reason, queryid matching in
+ * stored in pg_stat_statements. For the reason, queryid matching in
  * this way will fail if the query string kept in pg_stat_statements
  * is truncated in the middle.
  *
  * Plans are identified by fingerprinting plan representations in
  * "shortened" JSON format with constants and unstable values such as
  * rows, width, loops ignored. Nevertheless, stored plan entries hold
- * them of the lastest execution. Entry eviction is done in the same
- * way to pg_stat_statments.
+ * them of the latest execution. Entry eviction is done in the same
+ * way to pg_stat_statements.
  *
  * Copyright (c) 2008-2013, PostgreSQL Global Development Group
  * Copyright (c) 2012-2015, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
@@ -869,11 +869,7 @@ hash_query(const char* query)
 
 
 /*
- * Store some statistics for a statement.
- *
- * If jstate is not NULL then we're trying to create an entry for which
- * we have no statistics as yet; we just want to record the normalized
- * query string.  total_time, rows, bufusage are ignored in this case.
+ * Store some statistics for a plan.
  */
 static void
 store_entry(char *plan, uint32 queryId, uint32 queryId2,
@@ -918,7 +914,7 @@ store_entry(char *plan, uint32 queryId, uint32 queryId2,
 										 shared_state->plan_size - 1);
 
 	
-	/* Lookup the hash table entry with shared lock. */
+	/* Look up the hash table entry with shared lock. */
 	LWLockAcquire(shared_state->lock, LW_SHARED);
 
 	entry = (StatEntry *) hash_search(hash_table, &key, HASH_FIND, NULL);
@@ -939,6 +935,7 @@ store_entry(char *plan, uint32 queryId, uint32 queryId2,
 	}
 
 	/* Increment the counts, except when jstate is not NULL */
+
 	/*
 	 * Grab the spinlock while updating the counters (see comment about
 	 * locking rules at the head of the file)
@@ -1184,7 +1181,7 @@ shared_mem_size(void)
  * Allocate a new hashtable entry.
  * caller must hold an exclusive lock on shared_state->lock
  *
- * "query" need not be null-terminated; we rely on plan_len instead
+ * "plan" need not be null-terminated; we rely on plan_len instead
  *
  * If "sticky" is true, make the new entry artificially sticky so that it will
  * probably still be there when the query finishes execution.  We do this by

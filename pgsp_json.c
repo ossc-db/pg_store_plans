@@ -399,9 +399,9 @@ norm_yylex(char *str, core_YYSTYPE *yylval, YYLTYPE *yylloc, core_yyscan_t yysca
  * normalize_expr - Normalize statements or expressions.
  *
  * Mask constants, strip unnecessary whitespaces and upcase keywords. expr is
- * modified in-place (destructively). If readablity is more important than
+ * modified in-place (destructively). If readability is more important than
  * uniqueness, preserve_space puts one space for one existent whitespace for
- * more readabilty.
+ * more readability.
  */
 void
 normalize_expr(char *expr, bool preserve_space)
@@ -458,9 +458,9 @@ normalize_expr(char *expr, bool preserve_space)
 			/*
 			 * Because of destructive writing, wp must not go advance the
 			 * reading point.
-			 * Altough this function's output does not need any validity as a
+			 * Although this function's output does not need any validity as a
 			 * statement or an expression, spaces are added where it should be
-			 * to keep some extent of sanity.  If readablity is more important
+			 * to keep some extent of sanity.  If readability is more important
 			 * than uniqueness, preserve_space adds one space for each
 			 * existent whitespace.
 			 */
