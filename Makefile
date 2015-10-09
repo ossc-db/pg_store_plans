@@ -1,5 +1,8 @@
 # pg_stat_plan/Makefile
 
+MODULES = pg_store_plans
+STOREPLANSVER = 1.0
+
 MODULE_big = pg_store_plans
 OBJS = pg_store_plans.o pgsp_json.o pgsp_json_text.o pgsp_explain.o
 
@@ -19,8 +22,32 @@ include $(top_builddir)/src/Makefile.global
 include $(top_srcdir)/contrib/contrib-global.mk
 endif
 
-## Theses entries needs running server
+STARBALL94 = pg_store_plans94-$(STOREPLANSVER).tar.gz
+STARBALLS = $(STARBALL94)
+
+TARSOURCES = Makefile *.c  *.h \
+	pg_store_plans--*.sql \
+	pg_store_plans.control \
+	doc/* expected/*.out sql/*.sql \
+
+## These entries need running server
 DBNAME = postgres
+
+rpms: rpm94
+
+$(STARBALLS): $(TARSOURCES)
+	if [ -h $(subst .tar.gz,,$@) ]; then rm $(subst .tar.gz,,$@); fi
+	if [ -e $(subst .tar.gz,,$@) ]; then \
+	  echo "$(subst .tar.gz,,$@) is not a symlink. Stop."; \
+	  exit 1; \
+	fi
+	ln -s . $(subst .tar.gz,,$@)
+	tar -chzf $@ $(addprefix $(subst .tar.gz,,$@)/, $^)
+	rm $(subst .tar.gz,,$@)
+
+rpm94: $(STARBALL94)
+	MAKE_ROOT=`pwd` rpmbuild -bb SPECS/pg_store_plans94.spec
+
 testfiles: all.out all.sql
 
 all.out: all.sql
