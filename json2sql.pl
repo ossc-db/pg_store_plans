@@ -260,6 +260,7 @@ sub setplan0 {
   "Sort Space Type": "Memory",
   "Peak Memory Usage": 0,
   "Original Hash Batches": 0,
+  "Original Hash Buckets": 0,
   "Hash Batches": 0,
   "Hash Buckets": 0,
   "Rows Removed by Filter": 0,

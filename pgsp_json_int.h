@@ -92,6 +92,7 @@ typedef enum
 	P_SortSpaceType,
 	P_PeakMemoryUsage,
 	P_OrgHashBatches,
+	P_OrgHashBuckets,
 	P_HashBatches,
 	P_HashBuckets,
 	P_RowsFilterRmvd,

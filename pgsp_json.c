@@ -122,6 +122,7 @@ word_table propfields[] =
 	{P_SortSpaceType,	"S" ,"Sort Space Type",		NULL, false, conv_sortspacetype,SETTER(sort_space_type)},
 	{P_PeakMemoryUsage,	"T" ,"Peak Memory Usage",	NULL, false, NULL,				SETTER(peak_memory_usage)},
 	{P_OrgHashBatches,	"U","Original Hash Batches",NULL, false, NULL,				SETTER(org_hash_batches)},
+	{P_OrgHashBuckets,	"*","Original Hash Buckets",NULL, false, NULL,				SETTER(org_hash_buckets)},
 	{P_HashBatches,		"V" ,"Hash Batches",		NULL, false, NULL,				SETTER(hash_batches)},
 	{P_HashBuckets,		"W" ,"Hash Buckets",		NULL, false, NULL,				SETTER(hash_buckets)},
 	{P_RowsFilterRmvd,	"X" ,"Rows Removed by Filter",NULL,false,NULL,				SETTER(filter_removed)},

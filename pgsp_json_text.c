@@ -123,6 +123,7 @@ DEFAULT_SETTER(filter_removed);
 DEFAULT_SETTER(idxrchk_removed);
 DEFAULT_SETTER(peak_memory_usage);
 DEFAULT_SETTER(org_hash_batches);
+DEFAULT_SETTER(org_hash_buckets);
 DEFAULT_SETTER(hash_batches);
 DEFAULT_SETTER(hash_buckets);
 DEFAULT_SETTER(actual_startup_time);
@@ -392,16 +393,32 @@ print_current_node(pgspParserContext *ctx)
 
 	if (!ISZERO(v->hash_buckets))
 	{
+		bool show_original = false;
+
 		appendStringInfoString(s, "\n");
 		appendStringInfoSpaces(s, TEXT_INDENT_DETAILS(level, exind));
 		appendStringInfoString(s, "Buckets: ");
 		appendStringInfoString(s, v->hash_buckets);
+
+		/* See show_hash_info() in explain.c for details */
+		if ((v->org_hash_buckets &&
+			 strcmp(v->hash_buckets, v->org_hash_buckets) != 0) ||
+			(v->org_hash_batches &&
+			 strcmp(v->hash_batches, v->org_hash_batches) != 0))
+			show_original = true;
+
+		if (show_original && v->org_hash_buckets)
+		{
+			appendStringInfoString(s, " (originally ");
+			appendStringInfoString(s, v->org_hash_buckets);
+			appendStringInfoChar(s, ')');
+		}
+
 		if (!ISZERO(v->hash_batches))
 		{
 			appendStringInfoString(s, "  Batches: ");
 			appendStringInfoString(s, v->hash_batches);
-			if (v->org_hash_batches &&
-				strcmp(v->hash_batches, v->org_hash_batches) != 0)
+			if (show_original && v->org_hash_batches)
 			{
 				appendStringInfoString(s, " (originally ");
 				appendStringInfoString(s, v->org_hash_batches);

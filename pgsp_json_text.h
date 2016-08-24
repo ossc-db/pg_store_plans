@@ -40,6 +40,7 @@ typedef struct
 	const char *setopcommand;
 	const char *join_type;
 	const char *org_hash_batches;
+	const char *org_hash_buckets;
 	const char *peak_memory_usage;
 	const char *startup_cost;
 	const char *total_cost;
@@ -123,6 +124,7 @@ SETTERDECL(recheck_cond);
 SETTERDECL(hash_buckets);
 SETTERDECL(hash_batches);
 SETTERDECL(org_hash_batches);
+SETTERDECL(org_hash_buckets);
 SETTERDECL(peak_memory_usage);
 SETTERDECL(filter_removed);
 SETTERDECL(idxrchk_removed);
