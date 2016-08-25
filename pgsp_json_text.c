@@ -533,6 +533,27 @@ print_current_node(pgspParserContext *ctx)
 			comma =true;
 		}
 	}
+	if (!ISZERO(v->io_read_time) ||
+		!ISZERO(v->io_write_time))
+	{
+		/* Feed a line if any of Buffers: items has been shown */
+		if (comma)
+			appendStringInfoString(s, "\n");
+			
+		appendStringInfoSpaces(s, TEXT_INDENT_DETAILS(level, exind));
+		appendStringInfoString(s, "I/O Timings: ");
+
+		if (!ISZERO(v->io_read_time))
+		{
+			appendStringInfoString(s, " read=");
+			appendStringInfoString(s, v->io_read_time);
+		}
+		if (!ISZERO(v->io_write_time))
+		{
+			appendStringInfoString(s, " write=");
+			appendStringInfoString(s, v->io_write_time);
+		}
+	}
 }
 
 static void
