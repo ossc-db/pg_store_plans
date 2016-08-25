@@ -29,7 +29,7 @@ typedef struct
 	StringInfo output;
 	const char *func_call;
 	const char *sort_method;
-	const char *sort_key;
+	StringInfo sort_key;
 	const char *index_cond;
 	const char *merge_cond;
 	const char *hash_cond;
@@ -86,6 +86,20 @@ typedef struct
 
 #define SQLQUOTE_SETTER(name) \
 	SETTERDECL(name) { vals->name = quote_identifier(val);}
+
+#define LIST_SETTER(name) \
+	SETTERDECL(name) { \
+		if (!vals->name)\
+		{ \
+			vals->name = makeStringInfo(); \
+			appendStringInfoString(vals->name, val); \
+		} \
+		else \
+		{ \
+			appendStringInfoString(vals->name, ", "); \
+			appendStringInfoString(vals->name, val); \
+		} \
+	}\
 
 #define CONVERSION_SETTER(name, converter) \
 	SETTERDECL(name) { vals->name = converter(val, PGSP_JSON_TEXTIZE);}

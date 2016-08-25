@@ -52,19 +52,6 @@ SETTERDECL(node_type)
 	}
 }
 
-SETTERDECL(output)
-{
-	if(!vals->output)
-	{
-		vals->output = makeStringInfo();
-		appendStringInfoString(vals->output, val);
-	}
-	else
-	{
-		appendStringInfoString(vals->output, ", ");
-		appendStringInfoString(vals->output, val);
-	}
-}
 SETTERDECL(strategy)
 {
 	word_table *p;
@@ -98,11 +85,12 @@ CONVERSION_SETTER(scan_dir, conv_scandir);
 SQLQUOTE_SETTER(obj_name);
 SQLQUOTE_SETTER(alias);
 SQLQUOTE_SETTER(schema_name);
+LIST_SETTER(output);
 DEFAULT_SETTER(merge_cond);
 CONVERSION_SETTER(join_type, conv_jointype);
 CONVERSION_SETTER(setopcommand, conv_setsetopcommand);
 CONVERSION_SETTER(sort_method, conv_sortmethod);
-DEFAULT_SETTER(sort_key);
+LIST_SETTER(sort_key);
 SQLQUOTE_SETTER(index_name);
 DEFAULT_SETTER(startup_cost);
 DEFAULT_SETTER(total_cost);
@@ -211,6 +199,19 @@ print_prop_if_exists(StringInfo s, char *prepstr,
 {
 	if (HASSTRING(prop))
 		print_prop(s, prepstr, prop, level, exind);
+}
+
+static void
+print_propstr_if_exists(StringInfo s, char *prepstr,
+						StringInfo prop, int level, int exind)
+{
+	if (prop && prop->data[0])
+	{
+		appendStringInfoString(s, "\n");
+		appendStringInfoSpaces(s, TEXT_INDENT_DETAILS(level, exind));
+		appendStringInfoString(s, prepstr);
+		appendStringInfoString(s, prop->data);
+	}
 }
 
 static void
@@ -339,20 +340,14 @@ print_current_node(pgspParserContext *ctx)
 		appendStringInfoString(s, ")");
 	}
 
-	if (v->output)
-	{
-		appendStringInfoString(s, "\n");
-		appendStringInfoSpaces(s, TEXT_INDENT_DETAILS(level, exind));
-		appendStringInfoString(s, "Output: ");
-		appendStringInfoString(s, v->output->data);
-	}
+	print_propstr_if_exists(s, "Output: ", v->output, level, exind);
 	print_prop_if_exists(s, "Merge Cond: ", v->merge_cond, level, exind);
 	print_prop_if_exists(s, "Hash Cond: " , v->hash_cond, level, exind);
 	print_prop_if_exists(s, "Tid Cond: " , v->tid_cond, level, exind);
 	print_prop_if_exists(s, "Join Filter: " , v->join_filter, level, exind);
 	print_prop_if_exists(s, "Index Cond: " , v->index_cond, level, exind);
 	print_prop_if_exists(s, "Recheck Cond: ", v->recheck_cond, level, exind);
-	print_prop_if_exists(s, "Sort Key: ", v->sort_key, level, exind);
+	print_propstr_if_exists(s, "Sort Key: ", v->sort_key, level, exind);
 
 	if (HASSTRING(v->sort_method))
 	{
