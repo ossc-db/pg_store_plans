@@ -157,7 +157,7 @@ DEFAULT_SETTER(joinfilt_removed);
 #define TEXT_LEVEL_STEP 6
 #define TEXT_INDENT_OFFSET 2
 #define TEXT_INDENT_BASE(l, e)											\
-	((l < 2) ? 0 : (TEXT_LEVEL_STEP * (l - 2) + TEXT_INDENT_OFFSET) + e)
+	(((l < 2) ? 0 : (TEXT_LEVEL_STEP * (l - 2) + TEXT_INDENT_OFFSET)) + e)
 #define TEXT_INDENT_DETAILS(l, e)					\
 	(TEXT_INDENT_BASE(l, e) + ((l < 2) ? 2 : 6))
 
