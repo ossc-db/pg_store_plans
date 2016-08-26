@@ -12,6 +12,12 @@
 
 typedef struct
 {
+	const char *sort_keys;
+	List *group_keys;
+} grouping_set;
+
+typedef struct
+{
 	NodeTag nodetag;
 	const char *node_type;
 	const char *operation;
@@ -31,6 +37,8 @@ typedef struct
 	const char *func_call;
 	const char *sort_method;
 	StringInfo sort_key;
+	StringInfo group_key;
+	List 	   *grouping_sets;
 	const char *index_cond;
 	const char *merge_cond;
 	const char *hash_cond;
@@ -98,7 +106,7 @@ typedef struct
 
 #define LIST_SETTER(name) \
 	SETTERDECL(name) { \
-		if (!vals->name)\
+		if (!vals->name || !vals->name->data[0])\
 		{ \
 			vals->name = makeStringInfo(); \
 			appendStringInfoString(vals->name, val); \
@@ -127,6 +135,8 @@ SETTERDECL(join_type);
 SETTERDECL(setopcommand);
 SETTERDECL(sort_method);
 SETTERDECL(sort_key);
+SETTERDECL(group_key);
+SETTERDECL(group_keys);
 SETTERDECL(index_name);
 SETTERDECL(startup_cost);
 SETTERDECL(total_cost);

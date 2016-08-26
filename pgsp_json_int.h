@@ -52,6 +52,9 @@ typedef enum
 	P_Command,
 	P_SortMethod,
 	P_SortKey,
+	P_GroupKey,
+	P_GroupKeys,
+	P_GroupSets,
 	P_Filter,
 	P_JoinFilter,
 	P_HashCond,
@@ -141,7 +144,7 @@ typedef struct
 	bool		remove;			/* True if the current node is not shown in
 								 * the result */
 	bool		last_elem_is_object; /* True if the last processed element
-								 * was not an object */
+								 * was an object */
 	pgsp_prop_tags	section;	/* explain section under processing */
 	pgsp_prop_tags	current_list; /* current list tag that needs special treat*/
 	StringInfo work_str;		/* StringInfor for very-short term usage */
@@ -149,6 +152,9 @@ typedef struct
 	char	   *fname;			/* Field name*/
 	char	   *wbuf;			/* Working buffer */
 	int			wbuflen;		/* Length of the working buffer */
+	int			wlist_level;	/* Nest level of list for Grouping Sets */
+	grouping_set *tmp_gset;	/* Working area for grouping sets */
+
 	converter_t *valconverter;	/* field name converter for the current
 								 * element */
 	setter_t    *setter;		/* value converter for the current element */

@@ -172,5 +172,11 @@ explain (analyze on, buffers on, verbose on, format :format)
 \echo ###### ON CONFLICT
 explain (analyze on, buffers on, verbose on, format :format)
    INSERT INTO ct1 VALUES (1,1) ON CONFLICT (a) DO UPDATE SET b = EXCLUDED.b + 1;
+\echo ###### GROUP BY
+explain (analyze on, buffers on, verbose on, format :format)
+   SELECT a, b, max(c) FROM tt1 GROUP BY a, b;
+\echo ###### GROUPING SETS
+explain (analyze on, buffers on, verbose on, format :format)
+   SELECT a, b, max(c) FROM tt1 GROUP BY GROUPING SETS ((a), (b), ());
 
 -- BitmapAnd/Inner/Right/ForegnScan

@@ -94,6 +94,9 @@ word_table propfields[] =
 	{P_ConstraintName,	"x" ,"Constraint Name",		NULL, true,  NULL,				NULL},
 	{P_Plans,			"l" ,"Plans",				NULL, true,  NULL,				NULL},
 	{P_Plan,			"p" ,"Plan",				NULL, true,  NULL,				NULL},
+	{P_GroupKey,    	"-" ,"Group Key",			NULL, true,  NULL,				SETTER(group_key)},
+	{P_GroupSets,    	"=" ,"Grouping Sets",		NULL, true,  NULL,				NULL},
+	{P_GroupKeys,    	"\\" ,"Group Keys",			NULL, true,  NULL,				SETTER(group_key)},
 														  
 	/* Values of these properties are ignored on normalization */
 	{P_FunctionCall,	"y" ,"Function Call",		NULL, false, NULL,				SETTER(func_call)},
@@ -635,6 +638,9 @@ json_arrstart(void *state)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
 
+	if (ctx->current_list == P_GroupKeys)
+		ctx->wlist_level++;
+
 	appendStringInfoChar(ctx->dest, '[');
 	ctx->fname = NULL;
 	ctx->level++;
@@ -646,8 +652,12 @@ static void
 json_arrend(void *state)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
-	if (ctx->mode == PGSP_JSON_INFLATE &&
-		ctx->last_elem_is_object)
+
+	if (ctx->current_list == P_GroupKeys)
+		ctx->wlist_level--;
+
+	if (ctx->current_list == P_GroupKeys ? ctx->wlist_level == 0 :
+		(ctx->mode == PGSP_JSON_INFLATE && ctx->last_elem_is_object))
 	{
 		appendStringInfoChar(ctx->dest, '\n');
 		appendStringInfoSpaces(ctx->dest, (ctx->level - 1) * INDENT_STEP);
@@ -706,6 +716,25 @@ json_ofstart(void *state, char *fname, bool isnull)
 
 	if (ctx->mode == PGSP_JSON_INFLATE)
 		appendStringInfoChar(ctx->dest, ' ');
+
+	if (p && p->tag == P_GroupKeys)
+	{
+		ctx->current_list = p->tag;
+		ctx->list_fname = fname;
+		ctx->wlist_level = 0;
+	}
+}
+
+static void
+json_ofend(void *state, char *fname, bool isnull)
+{
+	pgspParserContext *ctx = (pgspParserContext *)state;
+
+	if (ctx->list_fname && strcmp(fname, ctx->list_fname) == 0)
+	{
+		ctx->list_fname = NULL;
+		ctx->current_list = P_Invalid;
+	}
 }
 
 static void
@@ -715,15 +744,28 @@ json_aestart(void *state, bool isnull)
 	if (ctx->remove)
 		return;
 
-	if (!bms_is_member(ctx->level, ctx->first))
+	if (ctx->current_list == P_GroupKeys &&
+		ctx->wlist_level == 1)
 	{
-		appendStringInfoChar(ctx->dest, ',');
-		if (ctx->mode == PGSP_JSON_INFLATE &&
-			!ctx->last_elem_is_object)
-			appendStringInfoChar(ctx->dest, ' ');
+		if (!bms_is_member(ctx->level, ctx->first))
+			appendStringInfoChar(ctx->dest, ',');
+		
+		appendStringInfoChar(ctx->dest, '\n');
+		appendStringInfoSpaces(ctx->dest, (ctx->level) * INDENT_STEP);
 	}
 	else
-		ctx->first = bms_del_member(ctx->first, ctx->level);
+	{
+		if (!bms_is_member(ctx->level, ctx->first))
+		{
+			appendStringInfoChar(ctx->dest, ',');
+
+			if (ctx->mode == PGSP_JSON_INFLATE &&
+				!ctx->last_elem_is_object)
+				appendStringInfoChar(ctx->dest, ' ');
+		}
+	}
+
+	ctx->first = bms_del_member(ctx->first, ctx->level);
 }
 
 static void
@@ -1125,7 +1167,7 @@ init_json_semaction(JsonSemAction *sem, pgspParserContext *ctx)
 	sem->array_start        = json_arrstart;
 	sem->array_end          = json_arrend;
 	sem->object_field_start = json_ofstart;
-	sem->object_field_end   = NULL;
+	sem->object_field_end   = json_ofend;
 	sem->array_element_start= json_aestart;
 	sem->array_element_end  = NULL;
 	sem->scalar             = json_scalar;

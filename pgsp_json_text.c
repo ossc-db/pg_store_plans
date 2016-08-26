@@ -32,6 +32,8 @@ static void print_prop_if_nz(StringInfo s, char *prepstr,
 							 const char *prop, int leve, int exind);
 static void json_text_objstart(void *state);
 static void json_text_objend(void *state);
+static void json_text_arrstart(void *state);
+static void json_text_arrend(void *state);
 static void json_text_ofstart(void *state, char *fname, bool isnull);
 static void json_text_ofend(void *state, char *fname, bool isnull);
 static void json_text_scalar(void *state, char *token, JsonTokenType tokentype);
@@ -91,6 +93,7 @@ CONVERSION_SETTER(join_type, conv_jointype);
 CONVERSION_SETTER(setopcommand, conv_setsetopcommand);
 CONVERSION_SETTER(sort_method, conv_sortmethod);
 LIST_SETTER(sort_key);
+LIST_SETTER(group_key);
 SQLQUOTE_SETTER(index_name);
 DEFAULT_SETTER(startup_cost);
 DEFAULT_SETTER(total_cost);
@@ -223,6 +226,30 @@ print_propstr_if_exists(StringInfo s, char *prepstr,
 		appendStringInfoSpaces(s, TEXT_INDENT_DETAILS(level, exind));
 		appendStringInfoString(s, prepstr);
 		appendStringInfoString(s, prop->data);
+	}
+}
+
+static void
+print_groupingsets_if_exists(StringInfo s, List *gss, int level, int exind)
+{
+	ListCell *lc;
+
+	foreach (lc, gss)
+	{
+		ListCell *lcg;
+		grouping_set *gs = (grouping_set *)lfirst (lc);
+
+		if (gs->sort_keys)
+		{
+			print_prop_if_exists(s, "Sort Key: ", gs->sort_keys, level, exind);
+			exind += 2;
+		}
+
+		foreach (lcg, gs->group_keys)
+		{
+			const char *gk = (const char *)lfirst (lcg);
+			print_prop_if_exists(s, "Group Key: ", gk, level, exind);
+		}
 	}
 }
 
@@ -368,6 +395,8 @@ print_current_node(pgspParserContext *ctx)
 	}
 		
 	print_propstr_if_exists(s, "Output: ", v->output, level, exind);
+	print_propstr_if_exists(s, "Group Key: ", v->group_key, level, exind);
+	print_groupingsets_if_exists(s, v->grouping_sets, level, exind);
 	print_prop_if_exists(s, "Merge Cond: ", v->merge_cond, level, exind);
 	print_prop_if_exists(s, "Hash Cond: " , v->hash_cond, level, exind);
 	print_prop_if_exists(s, "Tid Cond: " , v->tid_cond, level, exind);
@@ -617,6 +646,20 @@ json_text_objstart(void *state)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
 	ctx->level++;
+
+	/* Create new grouping sets or reset existing ones */
+	if (ctx->current_list == P_GroupSets)
+	{
+		node_vals *v = ctx->nodevals;
+
+		ctx->tmp_gset = (grouping_set*) palloc0(sizeof(grouping_set));
+		if (!v->sort_key)
+			v->sort_key = makeStringInfo();
+		if (!v->group_key)
+			v->group_key = makeStringInfo();
+		resetStringInfo(v->sort_key);
+		resetStringInfo(v->group_key);
+	}
 }
 
 static void
@@ -650,9 +693,68 @@ json_text_objend(void *state)
 								   pstrdup(ctx->work_str->data));
 		resetStringInfo(ctx->work_str);
 	}
+	else if (ctx->current_list == P_GroupSets && ctx->tmp_gset)
+	{
+		/* Move working grouping set into nodevals */
+		node_vals *v = ctx->nodevals;
+
+		/* Copy sort key if any */
+		if (v->sort_key->data[0])
+		{
+			ctx->tmp_gset->sort_keys = strdup(v->sort_key->data);
+			resetStringInfo(v->sort_key);
+		}
+
+		/* Move working grouping set into nodevals */
+		ctx->nodevals->grouping_sets = 
+			lappend(v->grouping_sets, ctx->tmp_gset);
+		ctx->tmp_gset = NULL;
+	}
 
 	ctx->last_elem_is_object = true;
 	ctx->level--;
+}
+
+static void 
+json_text_arrstart(void *state)
+{
+	pgspParserContext *ctx = (pgspParserContext *)state;
+
+	if (ctx->current_list == P_GroupSets)
+	{
+		ctx->wlist_level++;
+	}
+}
+
+static void
+json_text_arrend(void *state)
+{
+	pgspParserContext *ctx = (pgspParserContext *)state;
+
+	if (ctx->current_list == P_GroupSets)
+	{
+		/*
+		 * wlist_level means that now at the end of innermost list of Group
+		 * Keys
+		 */
+		if (ctx->wlist_level  == 3)
+		{
+			node_vals *v = ctx->nodevals;
+
+			/*
+			 * At this point, v->group_key holds the keys in "Group Keys". The
+			 * item holds a double-nested list and the innermost lists are to
+			 * go into individual "Group Key" lines. Empty innermost list is
+			 * represented as "()" there. See explain.c of PostgreSQL.
+			 */
+			ctx->tmp_gset->group_keys =
+				lappend(ctx->tmp_gset->group_keys,
+						(v->group_key->data[0] ?
+						 pstrdup(v->group_key->data) : "()"));
+			resetStringInfo(ctx->nodevals->group_key);
+		}
+		ctx->wlist_level--;
+	}
 }
 
 static void
@@ -693,6 +795,12 @@ json_text_ofstart(void *state, char *fname, bool isnull)
 			v->tmp_schema_name = v->schema_name;
 			v->tmp_alias = v->alias;
 		}
+		else if (p->tag == P_GroupSets)
+		{
+			ctx->current_list = p->tag;
+			ctx->list_fname = fname;
+			ctx->wlist_level = 0;
+		}
 
 		/*
 		 * This paser prints partial result at the end of every P_Plan object,
@@ -725,6 +833,7 @@ json_text_ofend(void *state, char *fname, bool isnull)
 			v->schema_name = v->tmp_schema_name;
 			v->alias = v->tmp_alias;
 		}
+
 		ctx->list_fname = NULL;
 		ctx->current_list = P_Invalid;
 	}
@@ -773,8 +882,8 @@ pgsp_json_textize(char *json)
 	sem.semstate = (void*)&ctx;
 	sem.object_start       = json_text_objstart;
 	sem.object_end         = json_text_objend;
-	sem.array_start        = NULL;
-	sem.array_end          = NULL;
+	sem.array_start        = json_text_arrstart;
+	sem.array_end          = json_text_arrend;
 	sem.object_field_start = json_text_ofstart;
 	sem.object_field_end   = json_text_ofend;
 	sem.array_element_start= NULL;
