@@ -581,26 +581,26 @@ static void
 json_text_objstart(void *state)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
-	clear_nodeval(ctx->nodevals);
 	ctx->level++;
 }
+
 static void
 json_text_objend(void *state)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
-	switch (ctx->processing)
+
+	/* Print current node if the object is a P_Plan or a child of P_Plans */
+	if (bms_is_member(ctx->level - 1, ctx->plan_levels))
 	{
-		case P_Plan:
-			print_current_node(ctx);
-			break;
-		case P_Triggers:
-			print_current_trig_node(ctx);
-			break;
-		default:
-			break;
+		print_current_node(ctx);
+		clear_nodeval(ctx->nodevals);
+	}
+	else if (ctx->section == P_Triggers)
+	{
+		print_current_trig_node(ctx);
+		clear_nodeval(ctx->nodevals);
 	}
 
-	clear_nodeval(ctx->nodevals);
 	ctx->last_elem_is_object = true;
 	ctx->level--;
 }
@@ -622,16 +622,27 @@ json_text_ofstart(void *state, char *fname, bool isnull)
 	}
 	else
 	{
-		/* Print node immediately if next level of Plan/Plans comes */
+		/*
+		 * Print node immediately if the next level of Plan/Plans comes. The
+		 * plan construct is tail-recursive so this doesn't harm.
+		 */
 		if (p->tag == P_Plan || p->tag == P_Plans)
 		{
 			print_current_node(ctx);
 			clear_nodeval(ctx->nodevals);
 		}
 
+		/*
+		 * This paser prints partial result at the end of every P_Plan object,
+		 * which includes elements in P_Plans list.
+		 */
+		if (p->tag == P_Plan || p->tag == P_Plans)
+			ctx->plan_levels = bms_add_member(ctx->plan_levels, ctx->level);
+		else
+			ctx->plan_levels = bms_del_member(ctx->plan_levels, ctx->level);
 		
 		if (p->tag == P_Plan || p->tag == P_Triggers)
-			ctx->processing = p->tag;
+			ctx->section = p->tag;
 		ctx->setter = p->setter;
 	}
 }

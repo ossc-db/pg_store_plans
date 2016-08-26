@@ -127,7 +127,8 @@ typedef struct
 	char	   *org_string;		/* What to parse */
 
 	/* Working variables used internally in parser */
-	int			level;			/* Next (indent) level */
+	int			level;			/* Next (indent or object) level */
+	Bitmapset  *plan_levels;	/* Level list for Plan objects */
 	Bitmapset  *first;			/* Bitmap set holds whether the first element
 								 * has been processed for each level */
 	Bitmapset  *not_item;		/* Bitmap set holds whether the node name at
@@ -136,7 +137,7 @@ typedef struct
 								 * the result */
 	bool		last_elem_is_object; /* True if the last processed element
 								 * was not an object */
-	pgsp_prop_tags	processing;	/* Tag of the word under processing */
+	pgsp_prop_tags	section;	/* Tag of the word under processing */
 	char	   *fname;			/* Field name*/
 	char	   *wbuf;			/* Working buffer */
 	int			wbuflen;		/* Length of the working buffer */

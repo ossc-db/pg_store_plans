@@ -934,7 +934,7 @@ xml_ofstart(void *state, char *fname, bool isnull)
 	 * There's no problem if P_Plan appears recursively.
 	 */
 	if (p && (p->tag == P_Plan || p->tag == P_Triggers))
-		ctx->processing = p->tag;
+		ctx->section = p->tag;
 
 	appendStringInfoChar(ctx->dest, '\n');
 	appendStringInfoSpaces(ctx->dest, (ctx->level + 1) * INDENT_STEP);
@@ -986,7 +986,7 @@ xml_aestart(void *state, bool isnull)
 	ctx->level++;
 	if (bms_is_member(ctx->level, ctx->not_item))
 	{
-		if (ctx->processing == P_Plan)
+		if (ctx->section == P_Plan)
 			tag = "<Plan>";
 		else
 			tag = "<Trigger>";
@@ -1012,7 +1012,7 @@ xml_aeend(void *state, bool isnull)
 
 	if (bms_is_member(ctx->level, ctx->not_item))
 	{
-		if (ctx->processing == P_Plan)
+		if (ctx->section == P_Plan)
 			tag = "</Plan>";
 		else
 			tag = "</Trigger>";
