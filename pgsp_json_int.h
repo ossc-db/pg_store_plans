@@ -103,7 +103,8 @@ typedef enum
 	P_ExecTime,
 	P_ExactHeapBlks,
 	P_LossyHeapBlks,
-	P_RowsJoinFltRemvd
+	P_RowsJoinFltRemvd,
+	P_TargetTables
 } pgsp_prop_tags;
 
 typedef struct
@@ -137,7 +138,10 @@ typedef struct
 								 * the result */
 	bool		last_elem_is_object; /* True if the last processed element
 								 * was not an object */
-	pgsp_prop_tags	section;	/* Tag of the word under processing */
+	pgsp_prop_tags	section;	/* explain section under processing */
+	pgsp_prop_tags	current_list; /* current list tag that needs special treat*/
+	StringInfo work_str;		/* StringInfor for very-short term usage */
+	char	   *list_fname;		/* the field name of the current_list */
 	char	   *fname;			/* Field name*/
 	char	   *wbuf;			/* Working buffer */
 	int			wbuflen;		/* Length of the working buffer */

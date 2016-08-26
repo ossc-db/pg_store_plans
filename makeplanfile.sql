@@ -5,9 +5,11 @@ set work_mem = '1MB';
 drop table if exists tt1;
 drop table if exists tt2;
 drop table if exists tt3;
-create table tt1 (a int, b int not null, c text);
-create table tt2 (a int, b int, c text);
-create table tt3 (a int, b int, c text);
+drop table if exists p cascade;
+create table p (a int, b int, c text);
+create table tt1 (a int, b int not null, c text) inherits (p);
+create table tt2 (a int, b int, c text) inherits (p);
+create table tt3 (a int, b int, c text) inherits (p);
 create index i_tt1 on tt1(a);
 create index i_tt2 on tt2(a);
 create index i_tt3_a on tt3(a);
@@ -158,5 +160,11 @@ rollback;
 \echo ###### Materialize
 explain (analyze on, buffers on, verbose on, format :format)
    select * from tt1 where a = all(select b from tt2);
+\echo ###### Update on partitioned tables
+explain (analyze on, buffers on, verbose on, format :format)
+   UPDATE p SET b = b + 1;
+\echo ###### Delete on partitioned tables
+explain (analyze on, buffers on, verbose on, format :format)
+   DELETE FROM p WHERE a = 100;
 
 -- BitmapAnd/Inner/Right/ForegnScan

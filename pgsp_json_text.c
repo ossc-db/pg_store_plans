@@ -151,34 +151,41 @@ DEFAULT_SETTER(joinfilt_removed);
 	(TEXT_INDENT_BASE(l, e) + ((l < 2) ? 2 : 6))
 
 static void
-print_obj_name(pgspParserContext *ctx)
+print_obj_name0(StringInfo s,
+				const char *obj_name, const char *schema_name, const char *alias)
 {
-	node_vals *v = ctx->nodevals;
-	StringInfo s = ctx->dest;
 	bool on_written = false;
 
-	if (HASSTRING(v->obj_name))
+	if (HASSTRING(obj_name))
 	{
 		on_written = true;
 		appendStringInfoString(s, " on ");
-		if (HASSTRING(v->schema_name))
+		if (HASSTRING(schema_name))
 		{
-			appendStringInfoString(s, v->schema_name);
+			appendStringInfoString(s, schema_name);
 			appendStringInfoChar(s, '.');
 		}
-		appendStringInfoString(s, v->obj_name);
+		appendStringInfoString(s, obj_name);
 	}
-	if (HASSTRING(v->alias) &&
-		(!HASSTRING(v->obj_name) || strcmp(v->obj_name, v->alias) != 0))
+	if (HASSTRING(alias) &&
+		(!HASSTRING(obj_name) || strcmp(obj_name, alias) != 0))
 	{
 		if (!on_written)
 			appendStringInfoString(s, " on ");
 		else
 			appendStringInfoChar(s, ' ');
-		appendStringInfoString(s, v->alias);
+		appendStringInfoString(s, alias);
 	}
 }
 
+static void
+print_obj_name(pgspParserContext *ctx)
+{
+	node_vals *v = ctx->nodevals;
+	StringInfo s = ctx->dest;
+
+	print_obj_name0(s, v->obj_name, v->schema_name, v->alias);
+}
 
 static void
 print_prop(StringInfo s, char *prepstr,
@@ -227,6 +234,7 @@ print_current_node(pgspParserContext *ctx)
 {
 	node_vals *v = ctx->nodevals;
 	StringInfo s = ctx->dest;
+	ListCell *lc;
 	int level = ctx->level - 1;
 	bool comma = false;
 	int exind = 0;
@@ -245,8 +253,9 @@ print_current_node(pgspParserContext *ctx)
 		exind = 2;
 		appendStringInfoSpaces(s, TEXT_INDENT_BASE(level, exind));
 	}
-	
-	if (level > 1)
+
+	/* list items doesn't need this header */
+	if (level > 1 && ctx->current_list == P_Invalid)
 		appendStringInfoString(s, "->  ");
 
 	switch (v->nodetag)
@@ -300,7 +309,11 @@ print_current_node(pgspParserContext *ctx)
 			appendStringInfoString(s, v->node_type);
 			break;
 	}
-	
+
+	/* Don't show costs for child talbes */
+	if (ctx->current_list == P_TargetTables)
+		return;
+
 	if (!ISZERO(v->startup_cost) &&
 		!ISZERO(v->total_cost) &&
 		HASSTRING(v->plan_rows) &&
@@ -340,6 +353,15 @@ print_current_node(pgspParserContext *ctx)
 		appendStringInfoString(s, ")");
 	}
 
+	foreach(lc, v->target_tables)
+	{
+		char *str = (char *)lfirst (lc);
+
+		appendStringInfoString(s, "\n");
+		appendStringInfoSpaces(s, TEXT_INDENT_DETAILS(level, exind));
+		appendStringInfoString(s, str);
+	}
+		
 	print_propstr_if_exists(s, "Output: ", v->output, level, exind);
 	print_prop_if_exists(s, "Merge Cond: ", v->merge_cond, level, exind);
 	print_prop_if_exists(s, "Hash Cond: " , v->hash_cond, level, exind);
@@ -600,6 +622,21 @@ json_text_objend(void *state)
 		print_current_trig_node(ctx);
 		clear_nodeval(ctx->nodevals);
 	}
+	else if (ctx->current_list == P_TargetTables)
+	{
+		/* Move the current working taget tables into nodevals */
+		node_vals *v = ctx->nodevals;
+
+		if (!ctx->work_str)
+			ctx->work_str = makeStringInfo();
+
+		resetStringInfo(ctx->work_str);
+		appendStringInfoString(ctx->work_str, v->operation);
+		print_obj_name0(ctx->work_str, v->obj_name, v->schema_name, v->alias);
+		v->target_tables = lappend(v->target_tables,
+								   pstrdup(ctx->work_str->data));
+		resetStringInfo(ctx->work_str);
+	}
 
 	ctx->last_elem_is_object = true;
 	ctx->level--;
@@ -631,6 +668,18 @@ json_text_ofstart(void *state, char *fname, bool isnull)
 			print_current_node(ctx);
 			clear_nodeval(ctx->nodevals);
 		}
+		else if (p->tag == P_TargetTables)
+		{
+			node_vals *v = ctx->nodevals;
+
+			ctx->current_list = p->tag;
+			ctx->list_fname = fname;
+
+			/* stash some data */
+			v->tmp_obj_name = v->obj_name;
+			v->tmp_schema_name = v->schema_name;
+			v->tmp_alias = v->alias;
+		}
 
 		/*
 		 * This paser prints partial result at the end of every P_Plan object,
@@ -640,7 +689,7 @@ json_text_ofstart(void *state, char *fname, bool isnull)
 			ctx->plan_levels = bms_add_member(ctx->plan_levels, ctx->level);
 		else
 			ctx->plan_levels = bms_del_member(ctx->plan_levels, ctx->level);
-		
+
 		if (p->tag == P_Plan || p->tag == P_Triggers)
 			ctx->section = p->tag;
 		ctx->setter = p->setter;
@@ -652,6 +701,20 @@ json_text_ofend(void *state, char *fname, bool isnull)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
 	node_vals *v = ctx->nodevals;
+
+	/* We assume that lists with same fname will not be nested */
+	if (ctx->list_fname && strcmp(fname, ctx->list_fname) == 0)
+	{
+		/* Restore stashed data, see json_text_ofstart */
+		if (ctx->current_list == P_TargetTables)
+		{
+			v->obj_name = v->tmp_obj_name;
+			v->schema_name = v->tmp_schema_name;
+			v->alias = v->tmp_alias;
+		}
+		ctx->list_fname = NULL;
+		ctx->current_list = P_Invalid;
+	}
 
 	/* Planning/Execution time to be appeared at the end of plan */
 	if (HASSTRING(v->plan_time) ||

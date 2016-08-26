@@ -27,6 +27,7 @@ typedef struct
 	const char *rows_removed_by_filter;
 	const char *alias;
 	StringInfo output;
+	List	   *target_tables;
 	const char *func_call;
 	const char *sort_method;
 	StringInfo sort_key;
@@ -76,6 +77,10 @@ typedef struct
 	const char *exact_heap_blks;
 	const char *lossy_heap_blks;
 	const char *joinfilt_removed;
+
+	const char *tmp_obj_name;
+	const char *tmp_schema_name;
+	const char *tmp_alias;
 } node_vals;
 
 #define SETTER(name) pgsp_node_set_##name

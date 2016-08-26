@@ -134,6 +134,7 @@ word_table propfields[] =
 	{P_ExactHeapBlks,	"&" ,"Exact Heap Blocks",	NULL, false,  NULL,				SETTER(exact_heap_blks)},
 	{P_LossyHeapBlks,	"(" ,"Lossy Heap Blocks",	NULL, false,  NULL,				SETTER(lossy_heap_blks)},
 	{P_RowsJoinFltRemvd,")" ,"Rows Removed by Join Filter",	NULL, false,  NULL,		SETTER(joinfilt_removed)},
+	{P_TargetTables,    "_" ,"Target Tables",		NULL, false,  NULL,				NULL},
 	{P_Invalid, NULL, NULL, NULL, false, NULL, NULL}
 };
 

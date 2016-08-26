@@ -224,6 +224,7 @@ sub setplan0 {
   "Index Cond": "a",
   "TID Cond": "a",
   "Recheck Cond": "a",
+  "Target Tables": "a",
   "Operation": "Insert",
   "Operation": "Delete",
   "Operation": "Update",
