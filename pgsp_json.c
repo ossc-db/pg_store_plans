@@ -28,7 +28,7 @@
 
 
 void normalize_expr(char *expr, bool preserve_space);
-static const char *coverter_core(word_table *tbl,
+static const char *converter_core(word_table *tbl,
 						 const char *src, pgsp_parser_mode mode);
 
 static void json_objstart(void *state);
@@ -281,8 +281,8 @@ search_word_table(word_table *tbl, const char *word, int mode)
 
 
 const char *
-coverter_core(word_table *tbl,
-			  const char *src, pgsp_parser_mode mode)
+converter_core(word_table *tbl,
+			   const char *src, pgsp_parser_mode mode)
 {
 	word_table *p;
 	char *ret;
@@ -318,25 +318,25 @@ coverter_core(word_table *tbl,
 const char *
 conv_nodetype(const char *src, pgsp_parser_mode mode)
 {
-	return coverter_core(nodetypes, src, mode);
+	return converter_core(nodetypes, src, mode);
 }
 
 const char *
 conv_scandir(const char *src, pgsp_parser_mode mode)
 {
-	return coverter_core(directions, src, mode);
+	return converter_core(directions, src, mode);
 }
 
 const char *
 conv_relasionship(const char *src, pgsp_parser_mode mode)
 {
-	return coverter_core(relationships, src, mode);
+	return converter_core(relationships, src, mode);
 }
 
 const char *
 conv_strategy(const char *src, pgsp_parser_mode mode)
 {
-	return coverter_core(strategies, src, mode);
+	return converter_core(strategies, src, mode);
 }
 
 /*
@@ -551,32 +551,32 @@ conv_expression(const char *src, pgsp_parser_mode mode)
 const char *
 conv_operation(const char *src, pgsp_parser_mode mode)
 {
-	return coverter_core(operations, src, mode);
+	return converter_core(operations, src, mode);
 
 }
 
 const char *
 conv_jointype(const char *src, pgsp_parser_mode mode)
 {
-	return coverter_core(jointypes, src, mode);
+	return converter_core(jointypes, src, mode);
 }
 
 const char *
 conv_setsetopcommand(const char *src, pgsp_parser_mode mode)
 {
-	return coverter_core(setsetopcommands, src, mode);
+	return converter_core(setsetopcommands, src, mode);
 }
 
 const char *
 conv_sortmethod(const char *src, pgsp_parser_mode mode)
 {
-	return coverter_core(sortmethods, src, mode);
+	return converter_core(sortmethods, src, mode);
 }
 
 const char *
 conv_sortspacetype(const char *src, pgsp_parser_mode mode)
 {
-	return coverter_core(sortspacetype, src, mode);
+	return converter_core(sortspacetype, src, mode);
 }
 
 /**** Parser callbacks ****/
