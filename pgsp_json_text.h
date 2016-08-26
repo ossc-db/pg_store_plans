@@ -89,6 +89,9 @@ typedef struct
 	StringInfo	conflict_arbiter_indexes;
 	const char *tuples_inserted;
 	const char *conflicting_tuples;
+	const char *sampling_method;
+	StringInfo sampling_params;
+	const char *repeatable_seed;
 
 	const char *tmp_obj_name;
 	const char *tmp_schema_name;
@@ -191,3 +194,6 @@ SETTERDECL(conflict_resolution);
 SETTERDECL(conflict_arbiter_indexes);
 SETTERDECL(tuples_inserted);
 SETTERDECL(conflicting_tuples);
+SETTERDECL(sampling_method);
+SETTERDECL(sampling_params);
+SETTERDECL(repeatable_seed);

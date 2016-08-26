@@ -147,7 +147,9 @@ DEFAULT_SETTER(conflict_resolution);
 LIST_SETTER(conflict_arbiter_indexes);
 DEFAULT_SETTER(tuples_inserted);
 DEFAULT_SETTER(conflicting_tuples);
-
+DEFAULT_SETTER(sampling_method);
+LIST_SETTER(sampling_params);
+DEFAULT_SETTER(repeatable_seed);
 
 #define ISZERO(s) (!s || strcmp(s, "0") == 0 || strcmp(s, "0.000") == 0 )
 #define HASSTRING(s) (s && strlen(s) > 0)
@@ -403,8 +405,19 @@ print_current_node(pgspParserContext *ctx)
 	print_prop_if_exists(s, "Join Filter: " , v->join_filter, level, exind);
 	print_prop_if_exists(s, "Index Cond: " , v->index_cond, level, exind);
 	print_prop_if_exists(s, "Recheck Cond: ", v->recheck_cond, level, exind);
-	print_propstr_if_exists(s, "Sort Key: ", v->sort_key, level, exind);
 
+	if (HASSTRING(v->sampling_method))
+	{
+		appendStringInfoString(s, "\n");
+		appendStringInfoSpaces(s, TEXT_INDENT_DETAILS(level, exind));
+		appendStringInfo(s, "Sampling: %s (%s)",
+						 v->sampling_method,
+						 v->sampling_params ? v->sampling_params->data : "");
+		if (v->repeatable_seed)
+			appendStringInfo(s, " REPEATABLE (%s)", v->repeatable_seed);
+	}
+	
+	print_propstr_if_exists(s, "Sort Key: ", v->sort_key, level, exind);
 	if (HASSTRING(v->sort_method))
 	{
 		appendStringInfoString(s, "\n");

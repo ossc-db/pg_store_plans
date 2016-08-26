@@ -142,6 +142,9 @@ word_table propfields[] =
 	{P_ConfArbitIdx,    "@" ,"Conflict Arbiter Indexes",NULL, false,  NULL,			SETTER(conflict_arbiter_indexes)},
 	{P_TuplesInserted,  "^" ,"Tuples Inserted",		NULL, false,  NULL,				SETTER(tuples_inserted)},
 	{P_ConfTuples,		"+" ,"Conflicting Tuples",	NULL, false,  NULL,				SETTER(conflicting_tuples)},
+	{P_SamplingMethod,  ""  ,"Sampling Method" ,	NULL, false,  NULL,				SETTER(sampling_method)},
+	{P_SamplingParams,  ""  ,"Sampling Parameters" , NULL, false,  NULL,			SETTER(sampling_params)},
+	{P_RepeatableSeed,  ""  ,"Repeatable Seed" ,	NULL, false,  NULL,				SETTER(repeatable_seed)},
 	{P_Invalid, NULL, NULL, NULL, false, NULL, NULL}
 };
 

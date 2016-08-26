@@ -178,5 +178,8 @@ explain (analyze on, buffers on, verbose on, format :format)
 \echo ###### GROUPING SETS
 explain (analyze on, buffers on, verbose on, format :format)
    SELECT a, b, max(c) FROM tt1 GROUP BY GROUPING SETS ((a), (b), ());
+\echo ###### Table sample
+explain (analyze on, buffers on, verbose on, format :format)
+   SELECT * FROM tt1 TABLESAMPLE system(1) REPEATABLE (1);
 
 -- BitmapAnd/Inner/Right/ForegnScan

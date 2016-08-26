@@ -111,7 +111,10 @@ typedef enum
 	P_ConfRes,
 	P_ConfArbitIdx,
 	P_TuplesInserted,
-	P_ConfTuples
+	P_ConfTuples,
+	P_SamplingMethod,
+	P_SamplingParams,
+	P_RepeatableSeed
 } pgsp_prop_tags;
 
 typedef struct
