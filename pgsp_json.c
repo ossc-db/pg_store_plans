@@ -701,9 +701,14 @@ json_ofstart(void *state, char *fname, bool isnull)
 	if (ctx->mode == PGSP_JSON_INFLATE)
 		appendStringInfoSpaces(ctx->dest, ctx->level * INDENT_STEP);
 
+	/*
+	 * We intentionally let some property names not have a short name. Use long
+	 * name for the cases.
+	 */
 	if (!p || !p->longname)
 		fn = fname;
-	else if (ctx->mode == PGSP_JSON_INFLATE)
+	else if (ctx->mode == PGSP_JSON_INFLATE ||
+			 !(p->shortname && p->shortname[0]))
 		fn = p->longname;
 	else
 		fn = p->shortname;
