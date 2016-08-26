@@ -104,7 +104,11 @@ typedef enum
 	P_ExactHeapBlks,
 	P_LossyHeapBlks,
 	P_RowsJoinFltRemvd,
-	P_TargetTables
+	P_TargetTables,
+	P_ConfRes,
+	P_ConfArbitIdx,
+	P_TuplesInserted,
+	P_ConfTuples
 } pgsp_prop_tags;
 
 typedef struct

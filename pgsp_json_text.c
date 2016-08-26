@@ -140,6 +140,11 @@ DEFAULT_SETTER(exec_time);
 DEFAULT_SETTER(exact_heap_blks);
 DEFAULT_SETTER(lossy_heap_blks);
 DEFAULT_SETTER(joinfilt_removed);
+DEFAULT_SETTER(conflict_resolution);
+LIST_SETTER(conflict_arbiter_indexes);
+DEFAULT_SETTER(tuples_inserted);
+DEFAULT_SETTER(conflicting_tuples);
+
 
 #define ISZERO(s) (!s || strcmp(s, "0") == 0 || strcmp(s, "0.000") == 0 )
 #define HASSTRING(s) (s && strlen(s) > 0)
@@ -451,6 +456,14 @@ print_current_node(pgspParserContext *ctx)
 	}
 
 	print_prop_if_exists(s, "Heap Fetches: ", v->heap_fetches, level, exind);
+	print_prop_if_exists(s, "Conflict Resolution: ",
+						 v->conflict_resolution, level, exind);
+	print_propstr_if_exists(s, "Conflict Arbiter Indexes: ",
+							v->conflict_arbiter_indexes, level, exind);
+	print_prop_if_exists(s, "Tuples Inserted: ",
+						 v->tuples_inserted, level, exind);
+	print_prop_if_exists(s, "Conflicting Tuples: ",
+						 v->conflicting_tuples, level, exind);
 
 	if (!ISZERO(v->shared_hit_blks) ||
 		!ISZERO(v->shared_read_blks) ||

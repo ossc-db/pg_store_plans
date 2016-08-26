@@ -77,6 +77,10 @@ typedef struct
 	const char *exact_heap_blks;
 	const char *lossy_heap_blks;
 	const char *joinfilt_removed;
+	const char *conflict_resolution;
+	StringInfo	conflict_arbiter_indexes;
+	const char *tuples_inserted;
+	const char *conflicting_tuples;
 
 	const char *tmp_obj_name;
 	const char *tmp_schema_name;
@@ -173,3 +177,7 @@ SETTERDECL(exec_time);
 SETTERDECL(exact_heap_blks);
 SETTERDECL(lossy_heap_blks);
 SETTERDECL(joinfilt_removed);
+SETTERDECL(conflict_resolution);
+SETTERDECL(conflict_arbiter_indexes);
+SETTERDECL(tuples_inserted);
+SETTERDECL(conflicting_tuples);

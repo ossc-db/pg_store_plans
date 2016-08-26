@@ -135,6 +135,10 @@ word_table propfields[] =
 	{P_LossyHeapBlks,	"(" ,"Lossy Heap Blocks",	NULL, false,  NULL,				SETTER(lossy_heap_blks)},
 	{P_RowsJoinFltRemvd,")" ,"Rows Removed by Join Filter",	NULL, false,  NULL,		SETTER(joinfilt_removed)},
 	{P_TargetTables,    "_" ,"Target Tables",		NULL, false,  NULL,				NULL},
+	{P_ConfRes,			"%" ,"Conflict Resolution",	NULL, false,  NULL,			SETTER(conflict_resolution)},
+	{P_ConfArbitIdx,    "@" ,"Conflict Arbiter Indexes",NULL, false,  NULL,			SETTER(conflict_arbiter_indexes)},
+	{P_TuplesInserted,  "^" ,"Tuples Inserted",		NULL, false,  NULL,				SETTER(tuples_inserted)},
+	{P_ConfTuples,		"+" ,"Conflicting Tuples",	NULL, false,  NULL,				SETTER(conflicting_tuples)},
 	{P_Invalid, NULL, NULL, NULL, false, NULL, NULL}
 };
 

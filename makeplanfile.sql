@@ -14,6 +14,9 @@ create index i_tt1 on tt1(a);
 create index i_tt2 on tt2(a);
 create index i_tt3_a on tt3(a);
 create index i_tt3_b on tt3(b);
+create table ct1 (a int unique, b int);
+insert into ct1 values (1,1), (2,2);
+
 create or replace function t_tt1_1() returns trigger as $$
   BEGIN
     NEW.b := -NEW.a;
@@ -166,5 +169,8 @@ explain (analyze on, buffers on, verbose on, format :format)
 \echo ###### Delete on partitioned tables
 explain (analyze on, buffers on, verbose on, format :format)
    DELETE FROM p WHERE a = 100;
+\echo ###### ON CONFLICT
+explain (analyze on, buffers on, verbose on, format :format)
+   INSERT INTO ct1 VALUES (1,1) ON CONFLICT (a) DO UPDATE SET b = EXCLUDED.b + 1;
 
 -- BitmapAnd/Inner/Right/ForegnScan
