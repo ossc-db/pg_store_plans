@@ -13,7 +13,7 @@
 ## Set general information for pg_store_plans.
 Summary:    Record executed plans on PostgreSQL 9.5
 Name:       pg_store_plans95
-Version:    1.0
+Version:    1.1
 Release:    1%{?dist}
 License:    BSD
 Group:      Applications/Databases
@@ -56,7 +56,8 @@ rm -rf %{buildroot}
 install -d %{buildroot}%{_libdir}
 install pg_store_plans.so %{buildroot}%{_libdir}/pg_store_plans.so
 install -d %{buildroot}%{_datadir}/extension
-install -m 644 pg_store_plans--1.0.sql %{buildroot}%{_datadir}/extension/pg_store_plans--1.0.sql
+install -m 644 pg_store_plans--1.1.sql %{buildroot}%{_datadir}/extension/pg_store_plans--1.1.sql
+install -m 644 pg_store_plans--1.0--1.1.sql %{buildroot}%{_datadir}/extension/pg_store_plans--1.0--1.1.sql
 install -m 644 pg_store_plans.control %{buildroot}%{_datadir}/extension/pg_store_plans.control
 
 %clean
@@ -66,11 +67,14 @@ rm -rf %{buildroot}
 %defattr(0755,root,root)
 %{_libdir}/pg_store_plans.so
 %defattr(0644,root,root)
-%{_datadir}/extension/pg_store_plans--1.0.sql
+%{_datadir}/extension/pg_store_plans--1.1.sql
+%{_datadir}/extension/pg_store_plans--1.0--1.1.sql
 %{_datadir}/extension/pg_store_plans.control
 
 # History of pg_store_plans.
 %changelog
+* Fri Aug 26 2016 Kyotaro Horiguchi
+- Some fix in plan representation functions.
 * Wed Apr 13 2016 Kyotaro Horiguchi
 - Support PostgreSQL 9.5
 * Fri Jun 12 2015 Kyotaro Horiguchi

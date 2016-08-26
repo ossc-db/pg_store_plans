@@ -1,13 +1,13 @@
 # pg_stat_plan/Makefile
 
 MODULES = pg_store_plans
-STOREPLANSVER = 1.0
+STOREPLANSVER = 1.1
 
 MODULE_big = pg_store_plans
 OBJS = pg_store_plans.o pgsp_json.o pgsp_json_text.o pgsp_explain.o
 
 EXTENSION = pg_store_plans
-DATA = pg_store_plans--1.0.sql
+DATA = pg_store_plans--1.1.sql pg_store_plans--1.0--1.1.sql
 
 REGRESS = all
 REGRESS_OPTS = --temp-config=regress.conf
