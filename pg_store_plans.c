@@ -237,9 +237,15 @@ PG_FUNCTION_INFO_V1(pg_store_plans_xmlplan);
 static void pgsp_shmem_startup(void);
 static void pgsp_shmem_shutdown(int code, Datum arg);
 static void pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags);
+#if PG_VERSION_NUM >= 90600
+static void pgsp_ExecutorRun(QueryDesc *queryDesc,
+				 ScanDirection direction,
+				 uint64 count);
+#else
 static void pgsp_ExecutorRun(QueryDesc *queryDesc,
 				 ScanDirection direction,
 				 long count);
+#endif
 static void pgsp_ExecutorFinish(QueryDesc *queryDesc);
 static void pgsp_ExecutorEnd(QueryDesc *queryDesc);
 static void pgsp_ProcessUtility(Node *parsetree, const char *queryString,
@@ -401,7 +407,11 @@ _PG_init(void)
 	 * resources in pgsp_shmem_startup().
 	 */
 	RequestAddinShmemSpace(shared_mem_size());
+#if PG_VERSION_NUM >= 90600
+	RequestNamedLWLockTranche("pg_store_plans", 1);
+#else
 	RequestAddinLWLocks(1);
+#endif
 
 	/*
 	 * Install hooks.
@@ -471,7 +481,11 @@ pgsp_shmem_startup(void)
 	if (!found)
 	{
 		/* First time through ... */
+#if PG_VERSION_NUM >= 90600
+		shared_state->lock = &(GetNamedLWLockTranche("pg_store_plans"))->lock;
+#else
 		shared_state->lock = LWLockAssign();
+#endif
 		shared_state->plan_size = pg_store_plan_size;
 		shared_state->cur_median_usage = ASSUMED_MEDIAN_INIT;
 	}
@@ -702,7 +716,11 @@ pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
  * ExecutorRun hook: all we need do is track nesting depth
  */
 static void
+#if PG_VERSION_NUM >= 90600
+pgsp_ExecutorRun(QueryDesc *queryDesc, ScanDirection direction, uint64 count)
+#else
 pgsp_ExecutorRun(QueryDesc *queryDesc, ScanDirection direction, long count)
+#endif
 {
 	nested_level++;
 	PG_TRY();
