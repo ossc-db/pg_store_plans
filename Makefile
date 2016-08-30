@@ -22,9 +22,10 @@ include $(top_builddir)/src/Makefile.global
 include $(top_srcdir)/contrib/contrib-global.mk
 endif
 
+STARBALL96 = pg_store_plans96-$(STOREPLANSVER).tar.gz
 STARBALL95 = pg_store_plans95-$(STOREPLANSVER).tar.gz
 STARBALL94 = pg_store_plans94-$(STOREPLANSVER).tar.gz
-STARBALLS = $(STARBALL94) $(STARBALL95)
+STARBALLS = $(STARBALL94) $(STARBALL95) $(STARBALL96)
 
 TARSOURCES = Makefile *.c  *.h \
 	pg_store_plans--*.sql \
@@ -34,7 +35,7 @@ TARSOURCES = Makefile *.c  *.h \
 ## These entries need running server
 DBNAME = postgres
 
-rpms: rpm94 rpm95
+rpms: rpm94 rpm95 rpm96
 
 $(STARBALLS): $(TARSOURCES)
 	if [ -h $(subst .tar.gz,,$@) ]; then rm $(subst .tar.gz,,$@); fi
@@ -51,6 +52,9 @@ rpm94: $(STARBALL94)
 
 rpm95: $(STARBALL95)
 	MAKE_ROOT=`pwd` rpmbuild -bb SPECS/pg_store_plans95.spec
+
+rpm96: $(STARBALL96)
+	MAKE_ROOT=`pwd` rpmbuild -bb SPECS/pg_store_plans96.spec
 
 testfiles: all.out all.sql
 
