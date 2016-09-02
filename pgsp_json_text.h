@@ -100,6 +100,8 @@ typedef struct
 	const char *tmp_obj_name;
 	const char *tmp_schema_name;
 	const char *tmp_alias;
+	List	   *_undef;
+	bool		_undef_newelem;
 } node_vals;
 
 #define SETTER(name) pgsp_node_set_##name
@@ -134,6 +136,7 @@ typedef struct
 extern char *pgsp_json_textize(char *json);
 
 /* Prototypes for setter for node_vals */
+SETTERDECL(_undef);
 SETTERDECL(node_type);
 SETTERDECL(scan_dir);
 SETTERDECL(obj_name);

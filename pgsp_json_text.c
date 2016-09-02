@@ -39,6 +39,29 @@ static void json_text_ofend(void *state, char *fname, bool isnull);
 static void json_text_scalar(void *state, char *token, JsonTokenType tokentype);
 
 /* Parser callbacks for plan textization */
+
+/*
+ * This setter is used for field names that store_plans doesn't know of.
+ * Unlike the other setters, this holds a list of strings emitted as is in text
+ * explains.
+ */
+SETTERDECL(_undef)
+{
+	StringInfo s;
+
+	if(vals->_undef_newelem)
+	{
+		s = makeStringInfo();
+		vals->_undef = lappend(vals->_undef, s);
+	}
+	else
+	{
+		s = llast (vals->_undef);
+	}
+
+	appendStringInfoString(s, val);
+}
+
 SETTERDECL(node_type)
 {
 	word_table *p;
@@ -466,6 +489,21 @@ print_current_node(pgspParserContext *ctx)
 	}
 
 	print_prop_if_exists(s, "Function Call: ", v->func_call, level, exind);
+
+	/*
+	 * Emit unknown properties here. The properties are printed in the same
+	 * shape with JSON properties as assumed by explain.c.
+	 */
+	foreach (lc, v->_undef)
+	{
+		StringInfo str = (StringInfo) lfirst(lc);
+
+		appendStringInfoString(s, "\n");
+		appendStringInfoSpaces(s, TEXT_INDENT_DETAILS(level, exind));
+		appendStringInfoString(s, str->data);
+	}
+	v->_undef = NULL;
+
 	print_prop_if_exists(s, "Filter: ", v->filter, level, exind);
 	print_prop_if_nz(s, "Rows Removed by Filter: ",
 						 v->filter_removed, level, exind);
@@ -810,9 +848,20 @@ json_text_ofstart(void *state, char *fname, bool isnull)
 
 	if (!p)
 	{
-		ereport(DEBUG1,
+		ereport(DEBUG2,
 				(errmsg("Short JSON parser encoutered unknown field name: \"%s\", skipped.", fname),
 				 errdetail_log("INPUT: \"%s\"", ctx->org_string)));
+
+		/*
+		 * Unknown properties may be put by foreign data wrappers and assumed
+		 * to be printed in the same format to JSON properties. We store in
+		 * nodevals a string emittable as-is in text explains.
+		 */
+		ctx->setter = SETTER(_undef);
+		ctx->nodevals->_undef_newelem = true;
+		ctx->setter(ctx->nodevals, fname);
+		ctx->nodevals->_undef_newelem = false;
+		ctx->setter(ctx->nodevals, ": ");
 	}
 	else
 	{
