@@ -182,4 +182,14 @@ explain (analyze on, buffers on, verbose on, format :format)
 explain (analyze on, buffers on, verbose on, format :format)
    SELECT * FROM tt1 TABLESAMPLE system(1) REPEATABLE (1);
 
+\echo ###### Parallel
+create table lt1 (a int, b text);
+alter table lt1 alter column b set storage plain;
+insert into lt1 (select a, repeat('x', 1000) from generate_series(0, 99999) a);
+set max_parallel_worders_per_gather to 2;
+set parallel_tuple_cost to 0;
+set parallel_setup_cost to 0;
+explain (analyze on, buffers on, verbose on, format :format)
+   SELECT * FROM lt1;
+
 -- BitmapAnd/Inner/Right/ForegnScan

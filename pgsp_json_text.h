@@ -92,6 +92,10 @@ typedef struct
 	const char *sampling_method;
 	StringInfo sampling_params;
 	const char *repeatable_seed;
+	bool		parallel_aware;
+	const char *worker_number;
+	const char *workers_planned;
+	const char *workers_launched;
 
 	const char *tmp_obj_name;
 	const char *tmp_schema_name;
@@ -106,6 +110,9 @@ typedef struct
 
 #define SQLQUOTE_SETTER(name) \
 	SETTERDECL(name) { vals->name = quote_identifier(val);}
+
+#define BOOL_SETTER(name) \
+	SETTERDECL(name) { vals->parallel_aware = (strcmp(val, "true") == 0 ? 1 : 0);}
 
 #define LIST_SETTER(name) \
 	SETTERDECL(name) { \
@@ -140,6 +147,7 @@ SETTERDECL(sort_method);
 SETTERDECL(sort_key);
 SETTERDECL(group_key);
 SETTERDECL(group_keys);
+SETTERDECL(parallel_aware);
 SETTERDECL(index_name);
 SETTERDECL(startup_cost);
 SETTERDECL(total_cost);
@@ -197,3 +205,6 @@ SETTERDECL(conflicting_tuples);
 SETTERDECL(sampling_method);
 SETTERDECL(sampling_params);
 SETTERDECL(repeatable_seed);
+SETTERDECL(worker_number);
+SETTERDECL(workers_planned);
+SETTERDECL(workers_launched);

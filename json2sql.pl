@@ -101,7 +101,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
 \echo  ###### text format output test
 SELECT '### '||'TEXT-short       '||title||E'\n'||
   pg_store_plans_textplan(splan)
-  FROM plans ORDER BY id;
+  FROM plans WHERE id >= 0 ORDER BY id;
+
 
 \echo  ###### long-json-as-a-source test
 SELECT '### '||'yaml-long JSON   '||title||E'\n'||
@@ -182,6 +183,7 @@ sub setplan0 {
   "Node Type": "SetOp",
   "Node Type": "LockRows",
   "Node Type": "Limit",
+  "Node Type": "Gather",
   "Parent Relationship": "Outer",
   "Parent Relationship": "Inner",
   "Parent Relationship": "Subquery",
@@ -221,6 +223,11 @@ sub setplan0 {
   "Group Key": "a",
   "Grouping Sets": "a",
   "Group Keys": "a",
+  "Parallel Aware": "true",
+  "Workers Planned": "0",
+  "Workers Launched": "0",
+  "Workers": "x",
+  "Worker Number": "0",
   "Filter": "a",
   "Join Filter": "a",
   "Hash Cond": "a",

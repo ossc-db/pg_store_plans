@@ -97,6 +97,9 @@ word_table propfields[] =
 	{P_GroupKey,    	"-" ,"Group Key",			NULL, true,  NULL,				SETTER(group_key)},
 	{P_GroupSets,    	"=" ,"Grouping Sets",		NULL, true,  NULL,				NULL},
 	{P_GroupKeys,    	"\\" ,"Group Keys",			NULL, true,  NULL,				SETTER(group_key)},
+	{P_Parallel,    	"`" ,"Parallel Aware",		NULL, true,  NULL,				SETTER(parallel_aware)},
+	{P_WorkersPlanned, 	"{" ,"Workers Planned",		NULL, true,  NULL,				SETTER(workers_planned)},
+	{P_WorkersLaunched, "}" ,"Workers Launched",	NULL, true,  NULL,				SETTER(workers_launched)},
 														  
 	/* Values of these properties are ignored on normalization */
 	{P_FunctionCall,	"y" ,"Function Call",		NULL, false, NULL,				SETTER(func_call)},
@@ -145,6 +148,9 @@ word_table propfields[] =
 	{P_SamplingMethod,  ""  ,"Sampling Method" ,	NULL, false,  NULL,				SETTER(sampling_method)},
 	{P_SamplingParams,  ""  ,"Sampling Parameters" , NULL, false,  NULL,			SETTER(sampling_params)},
 	{P_RepeatableSeed,  ""  ,"Repeatable Seed" ,	NULL, false,  NULL,				SETTER(repeatable_seed)},
+	{P_Workers,    		"[" ,"Workers",				NULL, false,  NULL,				NULL},
+	{P_WorkerNumber,    "]" ,"Worker Number",		NULL, false,  NULL,				SETTER(worker_number)},
+
 	{P_Invalid, NULL, NULL, NULL, false, NULL, NULL}
 };
 
@@ -184,6 +190,9 @@ word_table nodetypes[] =
 	{T_SetOp,		"3" ,"SetOp",			NULL, false, NULL, NULL},
 	{T_LockRows,	"4" ,"LockRows",		NULL, false, NULL, NULL},
 	{T_Limit,		"5" ,"Limit",			NULL, false, NULL, NULL},
+#if PG_VERSION_NUM >= 90600
+	{T_Gather,		"6" ,"Gather",			NULL, false, NULL, NULL},
+#endif
 	{T_Invalid,		NULL, NULL, NULL, false, NULL, NULL}
 };
 

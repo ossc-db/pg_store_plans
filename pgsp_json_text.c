@@ -94,6 +94,7 @@ CONVERSION_SETTER(setopcommand, conv_setsetopcommand);
 CONVERSION_SETTER(sort_method, conv_sortmethod);
 LIST_SETTER(sort_key);
 LIST_SETTER(group_key);
+BOOL_SETTER(parallel_aware);
 SQLQUOTE_SETTER(index_name);
 DEFAULT_SETTER(startup_cost);
 DEFAULT_SETTER(total_cost);
@@ -150,6 +151,9 @@ DEFAULT_SETTER(conflicting_tuples);
 DEFAULT_SETTER(sampling_method);
 LIST_SETTER(sampling_params);
 DEFAULT_SETTER(repeatable_seed);
+DEFAULT_SETTER(worker_number);
+DEFAULT_SETTER(workers_planned);
+DEFAULT_SETTER(workers_launched);
 
 #define ISZERO(s) (!s || strcmp(s, "0") == 0 || strcmp(s, "0.000") == 0 )
 #define HASSTRING(s) (s && strlen(s) > 0)
@@ -273,7 +277,13 @@ print_current_node(pgspParserContext *ctx)
 	bool comma = false;
 	int exind = 0;
 
-	if (v->node_type == T_Invalid)
+	/*
+	 * The element objects in "Workers" list doesn't have node type, which
+	 * would be named T_Worker if there were in node.h. So it needs a special
+	 * treat.
+	 */
+	
+	if (v->node_type == T_Invalid && !HASSTRING(v->worker_number))
 		return;
 
 	if (s->len > 0)
@@ -291,6 +301,9 @@ print_current_node(pgspParserContext *ctx)
 	/* list items doesn't need this header */
 	if (level > 1 && ctx->current_list == P_Invalid)
 		appendStringInfoString(s, "->  ");
+
+	if (v->parallel_aware)
+		appendStringInfoString(s, "Parallel ");
 
 	switch (v->nodetag)
 	{
@@ -340,7 +353,21 @@ print_current_node(pgspParserContext *ctx)
 			break;
 
 		default:
-			appendStringInfoString(s, v->node_type);
+			/* Existence of worker_number suggests this is a Worker node */
+			if (HASSTRING(v->worker_number))
+			{
+				appendStringInfoString(s, "Worker");
+				print_prop_if_exists(s, " ", v->worker_number, 0, 0);
+
+				/* 
+				 * "Worker"s are individual JSON objects in a JSON list but
+				 * should be printed as just a property in text
+				 * representaion. Correct indent using exind here.
+				 */
+				exind = -4;
+			}
+			else
+				appendStringInfoString(s, v->node_type);
 			break;
 	}
 
@@ -405,6 +432,8 @@ print_current_node(pgspParserContext *ctx)
 	print_prop_if_exists(s, "Join Filter: " , v->join_filter, level, exind);
 	print_prop_if_exists(s, "Index Cond: " , v->index_cond, level, exind);
 	print_prop_if_exists(s, "Recheck Cond: ", v->recheck_cond, level, exind);
+	print_prop_if_exists(s, "Workers Planned: ", v->workers_planned, level, exind);
+	print_prop_if_exists(s, "Workers Launched: ", v->workers_launched, level, exind);
 
 	if (HASSTRING(v->sampling_method))
 	{
@@ -788,10 +817,11 @@ json_text_ofstart(void *state, char *fname, bool isnull)
 	else
 	{
 		/*
-		 * Print node immediately if the next level of Plan/Plans comes. The
-		 * plan construct is tail-recursive so this doesn't harm.
+		 * Print the current node immediately if the next level of
+		 * Plan/Plans/Worers comes. This assumes that the plan output is
+		 * strcutured tail-recursively.
 		 */
-		if (p->tag == P_Plan || p->tag == P_Plans)
+		if (p->tag == P_Plan || p->tag == P_Plans || p->tag == P_Workers)
 		{
 			print_current_node(ctx);
 			clear_nodeval(ctx->nodevals);
@@ -808,7 +838,8 @@ json_text_ofstart(void *state, char *fname, bool isnull)
 			v->tmp_schema_name = v->schema_name;
 			v->tmp_alias = v->alias;
 		}
-		else if (p->tag == P_GroupSets)
+
+		if (p->tag == P_GroupSets || p->tag == P_Workers)
 		{
 			ctx->current_list = p->tag;
 			ctx->list_fname = fname;
@@ -819,7 +850,7 @@ json_text_ofstart(void *state, char *fname, bool isnull)
 		 * This paser prints partial result at the end of every P_Plan object,
 		 * which includes elements in P_Plans list.
 		 */
-		if (p->tag == P_Plan || p->tag == P_Plans)
+		if (p->tag == P_Plan || p->tag == P_Plans || p->tag == P_Workers)
 			ctx->plan_levels = bms_add_member(ctx->plan_levels, ctx->level);
 		else
 			ctx->plan_levels = bms_del_member(ctx->plan_levels, ctx->level);

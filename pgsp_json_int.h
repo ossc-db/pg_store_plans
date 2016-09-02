@@ -68,6 +68,8 @@ typedef enum
 	P_TriggerName,
 	P_TrgRelation,
 	P_ConstraintName,
+	P_Parallel,
+	P_WorkersPlanned,
 
 	P_FunctionCall,
 	P_StartupCost,
@@ -114,7 +116,10 @@ typedef enum
 	P_ConfTuples,
 	P_SamplingMethod,
 	P_SamplingParams,
-	P_RepeatableSeed
+	P_RepeatableSeed,
+	P_Workers,
+	P_WorkersLaunched,
+	P_WorkerNumber
 } pgsp_prop_tags;
 
 typedef struct
