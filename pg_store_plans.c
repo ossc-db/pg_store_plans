@@ -22,8 +22,8 @@
  * them of the latest execution. Entry eviction is done in the same
  * way to pg_stat_statements.
  *
- * Copyright (c) 2008-2013, PostgreSQL Global Development Group
- * Copyright (c) 2012-2015, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+ * Copyright (c) 2008-2016, PostgreSQL Global Development Group
+ * Copyright (c) 2012-2016, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
  *
  * IDENTIFICATION
  *	  pg_store_plan/pg_store_plan.c

@@ -2,7 +2,7 @@
  *
  * pgsp_json_text.h: Text plan generator for pg_store_plan.
  *
- * Copyright (c) 2012-2015, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+ * Copyright (c) 2012-2016, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
  *
  * IDENTIFICATION
  *	  pg_store_plan/pgsp_json_text.c
