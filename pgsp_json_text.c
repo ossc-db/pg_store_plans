@@ -14,6 +14,7 @@
 #include "miscadmin.h"
 #include "nodes/nodes.h"
 #include "nodes/bitmapset.h"
+#include "nodes/pg_list.h"
 #include "utils/json.h"
 #include "utils/jsonapi.h"
 #include "utils/builtins.h"

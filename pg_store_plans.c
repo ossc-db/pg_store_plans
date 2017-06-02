@@ -43,7 +43,9 @@
 #include "miscadmin.h"
 #include "storage/fd.h"
 #include "storage/ipc.h"
+#include "storage/lwlock.h"
 #include "storage/spin.h"
+#include "storage/shmem.h"
 #include "tcop/utility.h"
 #include "utils/builtins.h"
 #include "utils/timestamp.h"
@@ -237,7 +239,11 @@ PG_FUNCTION_INFO_V1(pg_store_plans_xmlplan);
 static void pgsp_shmem_startup(void);
 static void pgsp_shmem_shutdown(int code, Datum arg);
 static void pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags);
-#if PG_VERSION_NUM >= 90600
+#if PG_VERSION_NUM >= 100000
+static void pgsp_ExecutorRun(QueryDesc *queryDesc,
+				 ScanDirection direction,
+							 uint64 count, bool execute_once);
+#elif PG_VERSION_NUM >= 90600
 static void pgsp_ExecutorRun(QueryDesc *queryDesc,
 				 ScanDirection direction,
 				 uint64 count);
@@ -248,9 +254,16 @@ static void pgsp_ExecutorRun(QueryDesc *queryDesc,
 #endif
 static void pgsp_ExecutorFinish(QueryDesc *queryDesc);
 static void pgsp_ExecutorEnd(QueryDesc *queryDesc);
+#if PG_VERSION_NUM >= 100000
+static void pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
+					ProcessUtilityContext context, ParamListInfo params,
+					QueryEnvironment *queryEnv,
+					DestReceiver *dest, char *completionTag);
+#else
 static void pgsp_ProcessUtility(Node *parsetree, const char *queryString,
 					ProcessUtilityContext context, ParamListInfo params,
 					DestReceiver *dest, char *completionTag);
+#endif
 static uint32 hash_table_fn(const void *key, Size keysize);
 static int	match_fn(const void *key1, const void *key2, Size keysize);
 static uint32 hash_query(const char* query);
@@ -716,7 +729,10 @@ pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
  * ExecutorRun hook: all we need do is track nesting depth
  */
 static void
-#if PG_VERSION_NUM >= 90600
+#if PG_VERSION_NUM >= 100000
+pgsp_ExecutorRun(QueryDesc *queryDesc, ScanDirection direction, uint64 count,
+				 bool execute_once)
+#elif PG_VERSION_NUM >= 90600
 pgsp_ExecutorRun(QueryDesc *queryDesc, ScanDirection direction, uint64 count)
 #else
 pgsp_ExecutorRun(QueryDesc *queryDesc, ScanDirection direction, long count)
@@ -725,10 +741,17 @@ pgsp_ExecutorRun(QueryDesc *queryDesc, ScanDirection direction, long count)
 	nested_level++;
 	PG_TRY();
 	{
+#if PG_VERSION_NUM >= 100000
+		if (prev_ExecutorRun)
+			prev_ExecutorRun(queryDesc, direction, count, execute_once);
+		else
+			standard_ExecutorRun(queryDesc, direction, count, execute_once);
+#else
 		if (prev_ExecutorRun)
 			prev_ExecutorRun(queryDesc, direction, count);
 		else
 			standard_ExecutorRun(queryDesc, direction, count);
+#endif
 		nested_level--;
 	}
 	PG_CATCH();
@@ -824,10 +847,27 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
  * ProcessUtility hook
  */
 static void
+#if PG_VERSION_NUM >= 100000
+pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
+					ProcessUtilityContext context, ParamListInfo params,
+					QueryEnvironment *queryEnv,
+					DestReceiver *dest, char *completionTag)
+#else
 pgsp_ProcessUtility(Node *parsetree, const char *queryString,
 					ProcessUtilityContext context, ParamListInfo params,
 					DestReceiver *dest, char *completionTag)
+#endif
 {
+#if PG_VERSION_NUM >= 100000
+	if (prev_ProcessUtility)
+		prev_ProcessUtility(pstmt, queryString,
+							context, params, queryEnv,
+							dest, completionTag);
+	else
+		standard_ProcessUtility(pstmt, queryString,
+								context, params, queryEnv,
+								dest, completionTag);
+#else
 	if (prev_ProcessUtility)
 		prev_ProcessUtility(parsetree, queryString,
 							context, params,
@@ -836,6 +876,7 @@ pgsp_ProcessUtility(Node *parsetree, const char *queryString,
 		standard_ProcessUtility(parsetree, queryString,
 								context, params,
 								dest, completionTag);
+#endif
 }
 
 /*
