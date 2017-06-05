@@ -668,8 +668,9 @@ json_arrend(void *state)
 	if (ctx->current_list == P_GroupKeys)
 		ctx->wlist_level--;
 
-	if (ctx->current_list == P_GroupKeys ? ctx->wlist_level == 0 :
-		(ctx->mode == PGSP_JSON_INFLATE && ctx->last_elem_is_object))
+	if (ctx->mode == PGSP_JSON_INFLATE &&
+		(ctx->current_list == P_GroupKeys ?
+		 ctx->wlist_level == 0 : ctx->last_elem_is_object))
 	{
 		appendStringInfoChar(ctx->dest, '\n');
 		appendStringInfoSpaces(ctx->dest, (ctx->level - 1) * INDENT_STEP);
@@ -766,9 +767,12 @@ json_aestart(void *state, bool isnull)
 	{
 		if (!bms_is_member(ctx->level, ctx->first))
 			appendStringInfoChar(ctx->dest, ',');
-		
-		appendStringInfoChar(ctx->dest, '\n');
-		appendStringInfoSpaces(ctx->dest, (ctx->level) * INDENT_STEP);
+
+		if (ctx->mode == PGSP_JSON_INFLATE)
+		{
+			appendStringInfoChar(ctx->dest, '\n');
+			appendStringInfoSpaces(ctx->dest, (ctx->level) * INDENT_STEP);
+		}
 	}
 	else
 	{
