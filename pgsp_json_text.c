@@ -83,6 +83,9 @@ SETTERDECL(strategy)
 	
 	p = search_word_table(strategies, val, PGSP_JSON_TEXTIZE);
 
+	if (!p)
+		return;
+
 	switch (vals->nodetag)
 	{
 		case T_Agg:
