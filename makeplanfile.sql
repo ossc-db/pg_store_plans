@@ -222,7 +222,7 @@ set client_min_messages to DEFAULT;
 set log_min_messages to DEFAULT;
 set auto_explain.log_min_duration to -1;
 
-\echo ###### Parallel
+-- ###### Parallel
 drop table if exists lt1;
 create table lt1 (a int, b text);
 alter table lt1 alter column b set storage plain;
@@ -233,9 +233,13 @@ set parallel_setup_cost to 0;
 set min_parallel_table_scan_size to 0;
 set min_parallel_index_scan_size to 0;
 
-\echo ###### Gather
+\echo ###### Parallel Seq Scan
 explain (analyze on, buffers on, verbose on, format :format)
    SELECT * FROM lt1;
+
+\echo ###### Parallel Index Scan
+explain (analyze on, buffers on, verbose on, format :format)
+   SELECT * FROM tt1 where a < 100;
 
 \echo ###### Gather Merge
 explain (analyze on, buffers on, verbose on, format :format)

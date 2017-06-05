@@ -15,13 +15,19 @@ INSERT INTO plans (VALUES
 EOS
 
 $plan_no = -1;
-$title = "###### Plan $plan_no: all properties";
+$title = "###### Plan $plan_no: all properties 1/2";
 setplan0(0);  # Without "Unknown Key"
 print "($plan_no, \'$title\',\n";
 print " $escape'$plan')";
 $plan_no--;
 
-$title = "###### Plan $plan_no: all properties plus unknown key";
+$title = "###### Plan $plan_no: all properties 2/2";
+setplan1();
+print ",($plan_no, \'$title\',\n";
+print " $escape'$plan')";
+$plan_no--;
+
+$title = "###### Plan $plan_no: some properties plus unknown key";
 setplan0(1);  # With "Unknown Key"
 print ",($plan_no, \'$title\',\n";
 print " $escape'$plan')";
@@ -90,9 +96,9 @@ print <<'EOS';
 UPDATE plans SET splan = pg_store_plans_shorten(lplan);
 
 \echo ###### tag abbreviation test
-SELECT splan FROM plans WHERE id = -1;
+SELECT splan FROM plans WHERE id in (-1, -2);
 
-\echo ###### JSON properties round-trip test
+\echo ###### JSON properties round-trip test: !!! This shouldn''''t return a row
 SELECT id FROM plans
 	where pg_store_plans_jsonplan(splan) <> lplan;
 
@@ -193,7 +199,12 @@ sub setplan0 {
   "Node Type": "SetOp",
   "Node Type": "LockRows",
   "Node Type": "Limit",
+  "Node Type": "Sample Scan",
   "Node Type": "Gather",
+  "Node Type": "ProjectSet",
+  "Node Type": "Table Function Scan",
+  "Node Type": "Named Tuplestore Scan",
+  "Node Type": "Gather Merge",
   "Parent Relationship": "Outer",
   "Parent Relationship": "Inner",
   "Parent Relationship": "Subquery",
@@ -214,6 +225,7 @@ sub setplan0 {
   "Strategy": "Plain",
   "Strategy": "Sorted",
   "Strategy": "Hashed",
+  "Strategy": "Mixed",
   "Join Type": "Inner",
   "Join Type": "Left",
   "Join Type": "Full",
@@ -233,6 +245,8 @@ sub setplan0 {
   "Group Key": "a",
   "Grouping Sets": "a",
   "Group Keys": "a",
+  "Hash Keys": "a",
+  "Hash Key": "a",
   "Parallel Aware": "true",
   "Workers Planned": "0",
   "Workers Launched": "0",
@@ -285,7 +299,20 @@ sub setplan0 {
   "Sort Space Type": "Memory",
   "Peak Memory Usage": 0,
   "Original Hash Batches": 0,
-  "Original Hash Buckets": 0,
+  "Original Hash Buckets": 0
+EOS
+chop $plan;
+if ($addunknown) {
+	$plan .= ",\n  \"Unknown Key\": \"Unknown Value\"";
+}
+$plan .= "\n}";
+
+}
+
+sub setplan1 {
+	my($addunknown) = @_;
+	$plan = << 'EOS';
+{
   "Hash Batches": 0,
   "Hash Buckets": 0,
   "Rows Removed by Filter": 0,
@@ -296,13 +323,23 @@ sub setplan0 {
   "Execution Time": 0,
   "Exact Heap Blocks": 0,
   "Lossy Heap Blocks": 0,
-  "Rows Removed by Join Filter": 0
+  "Rows Removed by Join Filter": 0,
+  "Target Tables": "dummy",
+  "Conflict Resolution": "NOTHING",
+  "Conflict Arbiter Indexes": "ia",
+  "Tuples Inserted": 123,
+  "Conflicting Tuples": 234,
+  "Sampling Method": "system",
+  "Sampling Parameters": ["''10''::real"],
+  "Repeatable Seed": "''0''::double precision",
+  "Workers": "dummy",
+  "Worker Number": 0
 EOS
-chop $plan;
-if ($addunknown) {
-	$plan .= ",\n  \"Unknown Key\": \"Unknown Value\"";
-}
-$plan .= "\n}";
+
+# Avoid trailing new line
+$plan .= "}";
 
 }
+
+
 
