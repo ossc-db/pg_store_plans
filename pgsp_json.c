@@ -442,6 +442,13 @@ normalize_expr(char *expr, bool preserve_space)
 							 ScanKeywords,
 							 NumScanKeywords);
 
+	/*
+	 * The warnings about nonstandard escape strings is already emitted in the
+	 * core. Just silence them here.
+	 */
+#if PG_VERSION_NUM >= 90500
+	yyextra.escape_string_warning = false;
+#endif
 	lasttok = 0;
 	lastloc = -1;
 
