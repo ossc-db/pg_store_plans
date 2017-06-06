@@ -62,7 +62,7 @@ all.out: all.sql
 	psql $(DBNAME) -a -q -f all.sql > all.out
 
 all.sql: makeplanfile.sql json2sql.pl
-	psql $(DBNAME) -f makeplanfile.sql | ./json2sql.pl > all.sql
+	psql $(DBNAME) -f makeplanfile.sql |& ./json2sql.pl > all.sql
 
 clean-testfiles:
 	rm -f all.out all.sql

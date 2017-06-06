@@ -97,9 +97,15 @@ word_table propfields[] =
 	{P_GroupKey,    	"-" ,"Group Key",			NULL, true,  NULL,				SETTER(group_key)},
 	{P_GroupSets,    	"=" ,"Grouping Sets",		NULL, true,  NULL,				NULL},
 	{P_GroupKeys,    	"\\" ,"Group Keys",			NULL, true,  NULL,				SETTER(group_key)},
+
+	{P_HashKeys,    	"~" ,"Hash Keys",			NULL, true,  NULL,				SETTER(hash_key)},
+	{P_HashKey,    		"|" ,"Hash Key",			NULL, true,  NULL,				SETTER(hash_key)},
+
 	{P_Parallel,    	"`" ,"Parallel Aware",		NULL, true,  NULL,				SETTER(parallel_aware)},
+	{P_PartialMode,    	">" ,"Partial Mode",		NULL, true,  conv_partialmode,SETTER(partial_mode)},
 	{P_WorkersPlanned, 	"{" ,"Workers Planned",		NULL, true,  NULL,				SETTER(workers_planned)},
 	{P_WorkersLaunched, "}" ,"Workers Launched",	NULL, true,  NULL,				SETTER(workers_launched)},
+	{P_InnerUnique,		"?" ,"Inner Unique",		NULL, true,  NULL,				SETTER(inner_unique)},
 														  
 	/* Values of these properties are ignored on normalization */
 	{P_FunctionCall,	"y" ,"Function Call",		NULL, false, NULL,				SETTER(func_call)},
@@ -145,11 +151,12 @@ word_table propfields[] =
 	{P_ConfArbitIdx,    "@" ,"Conflict Arbiter Indexes",NULL, false,  NULL,			SETTER(conflict_arbiter_indexes)},
 	{P_TuplesInserted,  "^" ,"Tuples Inserted",		NULL, false,  NULL,				SETTER(tuples_inserted)},
 	{P_ConfTuples,		"+" ,"Conflicting Tuples",	NULL, false,  NULL,				SETTER(conflicting_tuples)},
-	{P_SamplingMethod,  ""  ,"Sampling Method" ,	NULL, false,  NULL,				SETTER(sampling_method)},
-	{P_SamplingParams,  ""  ,"Sampling Parameters" , NULL, false,  NULL,			SETTER(sampling_params)},
-	{P_RepeatableSeed,  ""  ,"Repeatable Seed" ,	NULL, false,  NULL,				SETTER(repeatable_seed)},
+	{P_SamplingMethod,  ":"  ,"Sampling Method" ,	NULL, false,  NULL,				SETTER(sampling_method)},
+	{P_SamplingParams,  ";"  ,"Sampling Parameters" , NULL, false,  NULL,			SETTER(sampling_params)},
+	{P_RepeatableSeed,  "<"  ,"Repeatable Seed" ,	NULL, false,  NULL,				SETTER(repeatable_seed)},
 	{P_Workers,    		"[" ,"Workers",				NULL, false,  NULL,				NULL},
 	{P_WorkerNumber,    "]" ,"Worker Number",		NULL, false,  NULL,				SETTER(worker_number)},
+	{P_TableFuncName,    "aa" ,"Table Function Name",NULL, false,  NULL,			SETTER(table_func_name)},
 
 	{P_Invalid, NULL, NULL, NULL, false, NULL, NULL}
 };
@@ -190,9 +197,19 @@ word_table nodetypes[] =
 	{T_SetOp,		"3" ,"SetOp",			NULL, false, NULL, NULL},
 	{T_LockRows,	"4" ,"LockRows",		NULL, false, NULL, NULL},
 	{T_Limit,		"5" ,"Limit",			NULL, false, NULL, NULL},
+#if PG_VERSION_NUM >= 90500
+	{T_SampleScan,	"B" ,"Sample Scan",		NULL, false, NULL, NULL},
 #if PG_VERSION_NUM >= 90600
 	{T_Gather,		"6" ,"Gather",			NULL, false, NULL, NULL},
+#if PG_VERSION_NUM >= 100000
+	{T_ProjectSet,	"7" ,"ProjectSet",		NULL, false, NULL, NULL},
+	{T_TableFuncScan,"8","Table Function Scan",	NULL, false, NULL, NULL},
+	{T_NamedTuplestoreScan,"9","Named Tuplestore Scan",	NULL, false, NULL, NULL},
+	{T_GatherMerge,	"A" ,"Gather Merge",	NULL, false, NULL, NULL},
 #endif
+#endif
+#endif
+
 	{T_Invalid,		NULL, NULL, NULL, false, NULL, NULL}
 };
 
@@ -220,6 +237,7 @@ word_table strategies[] =
 	{S_Plain,	"p" ,"Plain", NULL, false, NULL, NULL},
 	{S_Sorted,	"s" ,"Sorted", NULL, false, NULL, NULL},
 	{S_Hashed,	"h" ,"Hashed", NULL, false, NULL, NULL},
+	{S_Mixed,	"m" ,"Mixed", NULL, false, NULL, NULL},
 	{S_Invalid,	NULL, NULL, NULL, false, NULL, NULL}
 };
 
@@ -265,6 +283,14 @@ word_table sortspacetype[] =
 {
 	{T_Invalid,  "d" ,"Disk",	NULL, false, NULL, NULL},
 	{T_Invalid,  "m" ,"Memory",NULL, false, NULL, NULL},
+	{T_Invalid, NULL, NULL, NULL, false, NULL, NULL}
+};
+
+word_table partialmode[] =
+{
+	{T_Invalid,  "p" ,"Partial",	NULL, false, NULL, NULL},
+	{T_Invalid,  "f" ,"Finalize",NULL, false, NULL, NULL},
+	{T_Invalid,  "s" ,"Simple",NULL, false, NULL, NULL},
 	{T_Invalid, NULL, NULL, NULL, false, NULL, NULL}
 };
 
@@ -372,6 +398,7 @@ conv_strategy(const char *src, pgsp_parser_mode mode)
 		    tok == TRUE_P || tok == FALSE_P || \
 			tok == CURRENT_DATE || tok == CURRENT_TIME || \
 		    tok == LOCALTIME || tok == LOCALTIMESTAMP)
+#define IS_INDENTED_ARRAY(v) ((v) == P_GroupKeys || (v) == P_HashKeys)
 
 /*
  * norm_yylex: core_yylex with replacing some tokens.
@@ -607,6 +634,12 @@ conv_sortspacetype(const char *src, pgsp_parser_mode mode)
 	return converter_core(sortspacetype, src, mode);
 }
 
+const char *
+conv_partialmode(const char *src, pgsp_parser_mode mode)
+{
+	return converter_core(partialmode, src, mode);
+}
+
 /**** Parser callbacks ****/
 
 /* JSON */
@@ -657,7 +690,7 @@ json_arrstart(void *state)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
 
-	if (ctx->current_list == P_GroupKeys)
+	if (IS_INDENTED_ARRAY(ctx->current_list))
 		ctx->wlist_level++;
 
 	appendStringInfoChar(ctx->dest, '[');
@@ -672,11 +705,11 @@ json_arrend(void *state)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
 
-	if (ctx->current_list == P_GroupKeys)
+	if (IS_INDENTED_ARRAY(ctx->current_list))
 		ctx->wlist_level--;
 
 	if (ctx->mode == PGSP_JSON_INFLATE &&
-		(ctx->current_list == P_GroupKeys ?
+		(IS_INDENTED_ARRAY(ctx->current_list) ?
 		 ctx->wlist_level == 0 : ctx->last_elem_is_object))
 	{
 		appendStringInfoChar(ctx->dest, '\n');
@@ -742,7 +775,7 @@ json_ofstart(void *state, char *fname, bool isnull)
 	if (ctx->mode == PGSP_JSON_INFLATE)
 		appendStringInfoChar(ctx->dest, ' ');
 
-	if (p && p->tag == P_GroupKeys)
+	if (p && IS_INDENTED_ARRAY(p->tag))
 	{
 		ctx->current_list = p->tag;
 		ctx->list_fname = fname;
@@ -769,7 +802,7 @@ json_aestart(void *state, bool isnull)
 	if (ctx->remove)
 		return;
 
-	if (ctx->current_list == P_GroupKeys &&
+	if (IS_INDENTED_ARRAY(ctx->current_list) &&
 		ctx->wlist_level == 1)
 	{
 		if (!bms_is_member(ctx->level, ctx->first))

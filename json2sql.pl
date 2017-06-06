@@ -28,6 +28,7 @@ print " $escape'$plan')";
 
 $plan_no = 1;
 $state = 0;
+$indent = "";
 while(<>) {
 	chomp;
 	if ($state == 0) {
@@ -35,15 +36,24 @@ while(<>) {
 		$title = "###### Plan $plan_no: $1";
 		$state = 1;
 	} elsif ($state == 1) {
+		# edit auto_explain's result
+		next if (/^psql:makeplanfile.sql/);
+
 		if (/[}\]:,]/) {
 			die("??? : $_");
 		}
-		next if (!/^   { *\+$/);
+		next if (!/^( *){ *\+?$/);
+        $indent = $1;
 		$plan = $_;
 		$plan =~ s/^   (.*[^ ]) *\+$/$1\n/;
+		chomp($plan);
+		$plan .= "\n";
 		$state = 2;
 	} elsif ($state == 2) {
-		if (/^   } *\+$/) {
+		# edit auto_explain's result
+		next if (/^  "Query Text":/);
+
+		if (/^$indent} *\+?$/) {
 			$state = 3;
 		}
 		$l = $_;

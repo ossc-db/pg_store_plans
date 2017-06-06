@@ -96,6 +96,8 @@ SETTERDECL(strategy)
 					vals->node_type = "HashAggregate"; break;
 				case S_Sorted:
 					vals->node_type = "GroupAggregate"; break;
+				case S_Mixed:
+					vals->node_type = "MixedAggregate"; break;
 				default:
 					break;
 			}
@@ -121,7 +123,9 @@ CONVERSION_SETTER(setopcommand, conv_setsetopcommand);
 CONVERSION_SETTER(sort_method, conv_sortmethod);
 LIST_SETTER(sort_key);
 LIST_SETTER(group_key);
+LIST_SETTER(hash_key);
 BOOL_SETTER(parallel_aware);
+CONVERSION_SETTER(partial_mode, conv_partialmode);
 SQLQUOTE_SETTER(index_name);
 DEFAULT_SETTER(startup_cost);
 DEFAULT_SETTER(total_cost);
@@ -181,6 +185,8 @@ DEFAULT_SETTER(repeatable_seed);
 DEFAULT_SETTER(worker_number);
 DEFAULT_SETTER(workers_planned);
 DEFAULT_SETTER(workers_launched);
+BOOL_SETTER(inner_unique);
+DEFAULT_SETTER(table_func_name);
 
 #define ISZERO(s) (!s || strcmp(s, "0") == 0 || strcmp(s, "0.000") == 0 )
 #define HASSTRING(s) (s && strlen(s) > 0)
@@ -281,8 +287,9 @@ print_groupingsets_if_exists(StringInfo s, List *gss, int level, int exind)
 		foreach (lcg, gs->group_keys)
 		{
 			const char *gk = (const char *)lfirst (lcg);
-			print_prop_if_exists(s, "Group Key: ", gk, level, exind);
+			print_prop_if_exists(s, gs->key_type, gk, level, exind);
 		}
+
 	}
 }
 
@@ -741,8 +748,11 @@ json_text_objstart(void *state)
 			v->sort_key = makeStringInfo();
 		if (!v->group_key)
 			v->group_key = makeStringInfo();
+		if (!v->hash_key)
+			v->hash_key = makeStringInfo();
 		resetStringInfo(v->sort_key);
 		resetStringInfo(v->group_key);
+		resetStringInfo(v->hash_key);
 	}
 }
 
@@ -831,11 +841,26 @@ json_text_arrend(void *state)
 			 * go into individual "Group Key" lines. Empty innermost list is
 			 * represented as "()" there. See explain.c of PostgreSQL.
 			 */
-			ctx->tmp_gset->group_keys =
-				lappend(ctx->tmp_gset->group_keys,
-						(v->group_key->data[0] ?
-						 pstrdup(v->group_key->data) : "()"));
+			ctx->tmp_gset->key_type = "Group Key: ";
+			if (v->group_key->data[0])
+			{
+				ctx->tmp_gset->group_keys =
+					lappend(ctx->tmp_gset->group_keys,
+							pstrdup(v->group_key->data));
+			}
+			else if (v->hash_key->data[0])
+			{
+				ctx->tmp_gset->group_keys =
+					lappend(ctx->tmp_gset->group_keys,
+							pstrdup(v->hash_key->data));
+				ctx->tmp_gset->key_type = "Hash Key: ";
+			}
+			else
+				ctx->tmp_gset->group_keys =
+					lappend(ctx->tmp_gset->group_keys, "()");
+
 			resetStringInfo(ctx->nodevals->group_key);
+			resetStringInfo(ctx->nodevals->hash_key);
 		}
 		ctx->wlist_level--;
 	}

@@ -25,7 +25,8 @@ typedef enum
 	S_Invalid,
 	S_Plain,
 	S_Sorted,
-	S_Hashed
+	S_Hashed,
+	S_Mixed
 } pgsp_strategies;
 
 typedef const char *(converter_t)(const char *src, pgsp_parser_mode mode);
@@ -55,6 +56,8 @@ typedef enum
 	P_GroupKey,
 	P_GroupKeys,
 	P_GroupSets,
+	P_HashKeys,
+	P_HashKey,
 	P_Filter,
 	P_JoinFilter,
 	P_HashCond,
@@ -69,6 +72,7 @@ typedef enum
 	P_TrgRelation,
 	P_ConstraintName,
 	P_Parallel,
+	P_PartialMode,
 	P_WorkersPlanned,
 
 	P_FunctionCall,
@@ -119,7 +123,9 @@ typedef enum
 	P_RepeatableSeed,
 	P_Workers,
 	P_WorkersLaunched,
-	P_WorkerNumber
+	P_WorkerNumber,
+	P_InnerUnique,
+	P_TableFuncName
 } pgsp_prop_tags;
 
 typedef struct
@@ -186,6 +192,7 @@ extern const char *conv_strategy(const char *src, pgsp_parser_mode mode);
 extern const char *conv_setsetopcommand(const char *src, pgsp_parser_mode mode);
 extern const char *conv_sortmethod(const char *src, pgsp_parser_mode mode);
 extern const char *conv_sortspacetype(const char *src, pgsp_parser_mode mode);
+extern const char *conv_partialmode(const char *src, pgsp_parser_mode mode);
 
 extern bool run_pg_parse_json(JsonLexContext *lex, JsonSemAction *sem);
 extern void init_parser_context(pgspParserContext *ctx, int mode,

@@ -6,6 +6,7 @@ drop table if exists tt1;
 drop table if exists tt2;
 drop table if exists tt3;
 drop table if exists p cascade;
+drop table if exists ct1;
 create table p (a int, b int, c text);
 create table tt1 (a int, b int not null, c text) inherits (p);
 create table tt2 (a int, b int, c text) inherits (p);
@@ -182,14 +183,62 @@ explain (analyze on, buffers on, verbose on, format :format)
 explain (analyze on, buffers on, verbose on, format :format)
    SELECT * FROM tt1 TABLESAMPLE system(1) REPEATABLE (1);
 
+\echo ###### Project Set
+explain (analyze on, buffers on, verbose on, format :format)
+   SELECT * from XMLTABLE('//towns/town'
+    PASSING BY REF '<towns><town><name>Toronto</name></town><town><name>Ottawa</name></town></towns>'
+	 COLUMNS name text);
+
+-- Named Tuplestore Scan -- requires auto_explain
+DROP TABLE IF EXISTS e1 CASCADE;
+CREATE TABLE e1 (a int, b int);
+CREATE OR REPLACE function e1_t1() RETURNS TRIGGER AS $$
+DECLARE
+  total int;
+BEGIN
+  SELECT sum(a) INTO total FROM post;
+  NEW.b := total;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER e1_t1 AFTER INSERT OR UPDATE ON e1
+ REFERENCING NEW TABLE AS post OLD TABLE AS pre
+ FOR EACH ROW EXECUTE PROCEDURE e1_t1();
+INSERT INTO e1 VALUES (1, 1);
+
+load 'auto_explain';
+set auto_explain.log_min_duration to 0;
+set auto_explain.log_analyze to true;
+set auto_explain.log_buffers to true;
+set auto_explain.log_buffers to true;
+set auto_explain.log_format to :format;
+set auto_explain.log_timing  to true;
+set auto_explain.log_nested_statements to true;
+set client_min_messages to LOG;
+set log_min_messages to FATAL; -- Inhibit LOG by auto_explain
+\echo ###### Named Tuplestore Scan
+UPDATE e1 SET a = a + 1;
+set client_min_messages to DEFAULT;
+set log_min_messages to DEFAULT;
+set auto_explain.log_min_duration to -1;
+
 \echo ###### Parallel
+drop table if exists lt1;
 create table lt1 (a int, b text);
 alter table lt1 alter column b set storage plain;
 insert into lt1 (select a, repeat('x', 1000) from generate_series(0, 99999) a);
-set max_parallel_worders_per_gather to 2;
+set max_parallel_workers_per_gather to 2;
 set parallel_tuple_cost to 0;
 set parallel_setup_cost to 0;
+set min_parallel_table_scan_size to 0;
+set min_parallel_index_scan_size to 0;
+
+\echo ###### Gather
 explain (analyze on, buffers on, verbose on, format :format)
    SELECT * FROM lt1;
+
+\echo ###### Gather Merge
+explain (analyze on, buffers on, verbose on, format :format)
+   SELECT a FROM tt1 ORDER BY a;
 
 -- BitmapAnd/Inner/Right/ForegnScan

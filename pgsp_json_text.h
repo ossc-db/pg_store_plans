@@ -14,6 +14,7 @@ typedef struct
 {
 	const char *sort_keys;
 	List *group_keys;
+	char *key_type;
 } grouping_set;
 
 typedef struct
@@ -38,6 +39,7 @@ typedef struct
 	const char *sort_method;
 	StringInfo sort_key;
 	StringInfo group_key;
+	StringInfo hash_key;
 	List 	   *grouping_sets;
 	const char *index_cond;
 	const char *merge_cond;
@@ -93,9 +95,12 @@ typedef struct
 	StringInfo sampling_params;
 	const char *repeatable_seed;
 	bool		parallel_aware;
+	const char *partial_mode;
 	const char *worker_number;
 	const char *workers_planned;
 	const char *workers_launched;
+	bool		inner_unique;
+	const char *table_func_name;
 
 	const char *tmp_obj_name;
 	const char *tmp_schema_name;
@@ -150,7 +155,9 @@ SETTERDECL(sort_method);
 SETTERDECL(sort_key);
 SETTERDECL(group_key);
 SETTERDECL(group_keys);
+SETTERDECL(hash_key);
 SETTERDECL(parallel_aware);
+SETTERDECL(partial_mode);
 SETTERDECL(index_name);
 SETTERDECL(startup_cost);
 SETTERDECL(total_cost);
@@ -211,3 +218,5 @@ SETTERDECL(repeatable_seed);
 SETTERDECL(worker_number);
 SETTERDECL(workers_planned);
 SETTERDECL(workers_launched);
+SETTERDECL(inner_unique);
+SETTERDECL(table_func_name);
