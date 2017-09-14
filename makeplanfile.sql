@@ -201,9 +201,10 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-CREATE TRIGGER e1_t1 AFTER INSERT OR UPDATE ON e1
- REFERENCING NEW TABLE AS post OLD TABLE AS pre
+CREATE TRIGGER e1_t1 AFTER INSERT ON e1
+ REFERENCING NEW TABLE AS post
  FOR EACH ROW EXECUTE PROCEDURE e1_t1();
+
 INSERT INTO e1 VALUES (1, 1);
 
 load 'auto_explain';
@@ -217,6 +218,9 @@ set auto_explain.log_nested_statements to true;
 set client_min_messages to LOG;
 set log_min_messages to FATAL; -- Inhibit LOG by auto_explain
 \echo ###### Named Tuplestore Scan
+CREATE TRIGGER e1_t2 AFTER UPDATE ON e1
+ REFERENCING NEW TABLE AS post OLD TABLE AS pre
+ FOR EACH ROW EXECUTE PROCEDURE e1_t1();
 UPDATE e1 SET a = a + 1;
 set client_min_messages to DEFAULT;
 set log_min_messages to DEFAULT;
