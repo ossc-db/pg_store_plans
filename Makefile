@@ -9,7 +9,7 @@ OBJS = pg_store_plans.o pgsp_json.o pgsp_json_text.o pgsp_explain.o
 EXTENSION = pg_store_plans
 DATA = pg_store_plans--1.1.sql pg_store_plans--1.0--1.1.sql
 
-REGRESS = all
+REGRESS = convert store
 REGRESS_OPTS = --temp-config=regress.conf
 ifdef USE_PGXS
 PG_CONFIG = pg_config
@@ -56,17 +56,17 @@ rpm95: $(STARBALL95)
 rpm96: $(STARBALL96)
 	MAKE_ROOT=`pwd` rpmbuild -bb SPECS/pg_store_plans96.spec
 
-testfiles: all.out all.sql
+testfiles: convert.out convert.sql
 
-all.out: all.sql
-	psql $(DBNAME) -a -q -f all.sql > all.out
+convert.out: convert.sql
+	psql $(DBNAME) -a -q -f convert.sql > $@
 
-all.sql: makeplanfile.sql json2sql.pl
-	psql $(DBNAME) -f makeplanfile.sql |& ./json2sql.pl > all.sql
+convert.sql: makeplanfile.sql json2sql.pl
+	psql $(DBNAME) -f makeplanfile.sql |& ./json2sql.pl > $@
 
 clean-testfiles:
-	rm -f all.out all.sql
+	rm -f convert.out convert.sql
 
 deploy-testfiles: testfiles
-	mv all.sql sql/
-	mv all.out expected/
+	mv convert.sql sql/
+	mv convert.out expected/
