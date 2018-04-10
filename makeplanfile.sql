@@ -96,7 +96,7 @@ set work_mem = '128kB';
 explain (analyze on, buffers on, verbose on, format :format)
    select b from tt1 group by b;
 set work_mem = '1MB';
-\echo ###### SetOp intersect, SbuqueryScan
+\echo ###### SetOp intersect, SubqueryScan
 explain (analyze on, buffers on, verbose on, format :format)
    select a from tt1 intersect select b from tt2 order by a;
 \echo ###### Sorted SetOp, Sort on Disk
