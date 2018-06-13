@@ -501,6 +501,18 @@ normalize_expr(char *expr, bool preserve_space)
 				memcpy(wp, expr + i, i2 - i);
 				wp += i2 - i;
 			}
+#if PG_VERSION_NUM >= 100000
+			/*
+			 * Since PG10 pg_stat_statements doesn't store trailing semicolon
+			 * in the column "query". Normalization is basically useless in the
+			 * version but still usefull to match utility commands so follow
+			 * the behavior change.
+			 */
+			else if (lasttok == ';')
+			{
+				/* Just do nothing */
+			}
+#endif
 			else
 			{
 				/* Upcase keywords */
