@@ -59,7 +59,7 @@ PG_MODULE_MAGIC;
 #define PGSP_DUMP_FILE	"global/pg_store_plans.stat"
 
 /* This constant defines the magic number in the stats file header */
-static const uint32 PGSP_FILE_HEADER = 0x20130828;
+static const uint32 PGSP_FILE_HEADER = 0x20180613;
 static const uint32 pg_store_plan_size = 5000;
 
 /* XXX: Should USAGE_EXEC reflect execution time and/or buffer usage? */
@@ -83,7 +83,7 @@ typedef struct EntryKey
 	Oid			userid;			/* user OID */
 	Oid			dbid;			/* database OID */
 	int			encoding;		/* query encoding */
-	uint32		queryid;		/* query identifier */
+	uint32		queryid;		/* internal query identifier */
 	uint32		planid;			/* plan identifier */
 } EntryKey;
 
@@ -113,6 +113,16 @@ typedef struct Counters
 } Counters;
 
 /*
+ * The type of queryId has been widen as of PG11. Define substitute type rather
+ * than put #if here and there.
+ */
+#if PG_VERSION_NUM >= 110000
+typedef uint64 queryid_t;
+#else
+typedef uint32 queryid_t;
+#endif
+
+/*
  * Statistics per plan
  *
  * NB: see the file read/write code before changing field order here.
@@ -120,7 +130,7 @@ typedef struct Counters
 typedef struct StatEntry
 {
 	EntryKey	key;			/* hash key of entry - MUST BE FIRST */
-	uint32		queryid;			/* query identifier from stat_statements*/
+	queryid_t	queryid;		/* query identifier from stat_statements*/
 	Counters	counters;		/* the statistics for this query */
 	int			plan_len;		/* # of valid bytes in query string */
 	slock_t		mutex;			/* protects the counters only */
@@ -267,7 +277,7 @@ static void pgsp_ProcessUtility(Node *parsetree, const char *queryString,
 static uint32 hash_table_fn(const void *key, Size keysize);
 static int	match_fn(const void *key1, const void *key2, Size keysize);
 static uint32 hash_query(const char* query);
-static void store_entry(char *plan, uint32 queryId, uint32 queryId2,
+static void store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 		   double total_time, uint64 rows,
 		   const BufferUsage *bufusage);
 static Size shared_mem_size(void);
@@ -913,6 +923,19 @@ match_fn(const void *key1, const void *key2, Size keysize)
 		return 1;
 }
 
+/*
+ * hash_query: calculate internal query ID for a query
+ *
+ *  As of PG11, Query.queryId has been widen to 64 bit to reduce collision of
+ *  queries to practical level. On the other hand pg_store_plans uses the
+ *  combination of query hash and plan hash values as the hash table key and
+ *  the resolution of the hash value effectively has the same degree so we
+ *  continue to use uint32 as internal queryid.
+ *
+ *  This may merge plans from different queries into single internal query id
+ *  but it is not a problem when pg_stat_statements is used together since the
+ *  extension gives enough resolution on queries.
+ */
 static uint32
 hash_query(const char* query)
 {
@@ -929,9 +952,12 @@ hash_query(const char* query)
 
 /*
  * Store some statistics for a plan.
+ *
+ * Table entry is keyed with userid.queryId.planId. queryId_pgss just stores
+ * queryId used to join with pg_stat_statements.
  */
 static void
-store_entry(char *plan, uint32 queryId, uint32 queryId2,
+store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 		   double total_time, uint64 rows,
 		   const BufferUsage *bufusage)
 {
@@ -1003,7 +1029,7 @@ store_entry(char *plan, uint32 queryId, uint32 queryId2,
 	e = (volatile StatEntry *) entry;
 	SpinLockAcquire(&e->mutex);
 	
-	e->queryid = queryId2;
+	e->queryid = queryId_pgss;
 
 	/* "Unstick" entry if it was previously sticky */
 	if (e->counters.calls == 0)
