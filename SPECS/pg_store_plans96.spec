@@ -1,5 +1,5 @@
 # SPEC file for pg_store_plans
-# Copyright(C) 2016 NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+# Copyright(C) 2019 NIPPON TELEGRAPH AND TELEPHONE CORPORATION
 
 %define _pgdir   /usr/pgsql-9.6
 %define _bindir  %{_pgdir}/bin
@@ -13,7 +13,7 @@
 ## Set general information for pg_store_plans.
 Summary:    Record executed plans on PostgreSQL 9.6
 Name:       pg_store_plans96
-Version:    1.1
+Version:    1.3
 Release:    1%{?dist}
 License:    BSD
 Group:      Applications/Databases
@@ -56,7 +56,9 @@ rm -rf %{buildroot}
 install -d %{buildroot}%{_libdir}
 install pg_store_plans.so %{buildroot}%{_libdir}/pg_store_plans.so
 install -d %{buildroot}%{_datadir}/extension
-install -m 644 pg_store_plans--1.1.sql %{buildroot}%{_datadir}/extension/pg_store_plans--1.1.sql
+install -m 644 pg_store_plans--1.1--1.2.sql %{buildroot}%{_datadir}/extension/pg_store_plans--1.1--1.2.sql
+install -m 644 pg_store_plans--1.2--1.3.sql %{buildroot}%{_datadir}/extension/pg_store_plans--1.2--1.3.sql
+install -m 644 pg_store_plans--1.3.sql %{buildroot}%{_datadir}/extension/pg_store_plans--1.3.sql
 install -m 644 pg_store_plans.control %{buildroot}%{_datadir}/extension/pg_store_plans.control
 
 %clean
@@ -66,11 +68,15 @@ rm -rf %{buildroot}
 %defattr(0755,root,root)
 %{_libdir}/pg_store_plans.so
 %defattr(0644,root,root)
-%{_datadir}/extension/pg_store_plans--1.1.sql
+%{_datadir}/extension/pg_store_plans--1.1--1.2.sql
+%{_datadir}/extension/pg_store_plans--1.2--1.3.sql
+%{_datadir}/extension/pg_store_plans--1.3.sql
 %{_datadir}/extension/pg_store_plans.control
 
 # History of pg_store_plans.
 %changelog
+* Tue Jan 22 2019 Kyotaro Horiguchi
+- Fixed a bug.
 * Fri Aug 26 2016 Kyotaro Horiguchi
 - Some fix in plan representation functions.
 * Wed Apr 13 2016 Kyotaro Horiguchi

@@ -1,5 +1,5 @@
 # pg_store_plans extension
 comment = 'track plan statistics of all SQL statements executed'
-default_version = '1.2'
+default_version = '1.3'
 module_pathname = '$libdir/pg_store_plans'
 relocatable = true

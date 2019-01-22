@@ -1,13 +1,13 @@
 # pg_stat_plan/Makefile
 
 MODULES = pg_store_plans
-STOREPLANSVER = 1.2
+STOREPLANSVER = 1.3
 
 MODULE_big = pg_store_plans
 OBJS = pg_store_plans.o pgsp_json.o pgsp_json_text.o pgsp_explain.o
 
 EXTENSION = pg_store_plans
-DATA = pg_store_plans--1.2.sql
+DATA = pg_store_plans--*.sql
 
 REGRESS = convert store
 REGRESS_OPTS = --temp-config=regress.conf
@@ -22,11 +22,12 @@ include $(top_builddir)/src/Makefile.global
 include $(top_srcdir)/contrib/contrib-global.mk
 endif
 
+STARBALL11 = pg_store_plans11-$(STOREPLANSVER).tar.gz
 STARBALL10 = pg_store_plans10-$(STOREPLANSVER).tar.gz
 STARBALL96 = pg_store_plans96-$(STOREPLANSVER).tar.gz
 STARBALL95 = pg_store_plans95-$(STOREPLANSVER).tar.gz
 STARBALL94 = pg_store_plans94-$(STOREPLANSVER).tar.gz
-STARBALLS = $(STARBALL94) $(STARBALL95) $(STARBALL96) $(STARBALL10)
+STARBALLS = $(STARBALL94) $(STARBALL95) $(STARBALL96) $(STARBALL10) $(STARBALL11)
 
 TARSOURCES = Makefile *.c  *.h \
 	pg_store_plans--*.sql \
@@ -38,7 +39,7 @@ LDFLAGS+=-Wl,--build-id
 ## These entries need running server
 DBNAME = postgres
 
-rpms: rpm94 rpm95 rpm96 rpm10
+rpms: rpm94 rpm95 rpm96 rpm10 rpm11
 
 $(STARBALLS): $(TARSOURCES)
 	if [ -h $(subst .tar.gz,,$@) ]; then rm $(subst .tar.gz,,$@); fi
@@ -61,6 +62,9 @@ rpm96: $(STARBALL96)
 
 rpm10: $(STARBALL10)
 	MAKE_ROOT=`pwd` rpmbuild -bb SPECS/pg_store_plans10.spec
+
+rpm11: $(STARBALL11)
+	MAKE_ROOT=`pwd` rpmbuild -bb SPECS/pg_store_plans11.spec
 
 testfiles: convert.out convert.sql
 
