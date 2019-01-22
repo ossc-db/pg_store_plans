@@ -119,7 +119,7 @@ typedef struct
 	SETTERDECL(name) { vals->name = quote_identifier(val);}
 
 #define BOOL_SETTER(name) \
-	SETTERDECL(name) { vals->parallel_aware = (strcmp(val, "true") == 0 ? 1 : 0);}
+	SETTERDECL(name) { vals->name = (strcmp(val, "true") == 0 ? 1 : 0);}
 
 #define LIST_SETTER(name) \
 	SETTERDECL(name) { \
