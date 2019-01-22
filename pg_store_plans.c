@@ -1079,7 +1079,7 @@ pg_store_plans_reset(PG_FUNCTION_ARGS)
 	if (!shared_state || !hash_table)
 		ereport(ERROR,
 				(errcode(ERRCODE_OBJECT_NOT_IN_PREREQUISITE_STATE),
-				 errmsg("pg_stat_plan must be loaded via shared_preload_libraries")));
+				 errmsg("pg_store_plans must be loaded via shared_preload_libraries")));
 	entry_reset();
 	PG_RETURN_VOID();
 }
