@@ -451,6 +451,11 @@ norm_yylex(char *str, core_YYSTYPE *yylval, YYLTYPE *yylloc, core_yyscan_t yysca
  * uniqueness, preserve_space puts one space for one existent whitespace for
  * more readability.
  */
+/* scanner interface is changed in PG12 */
+#if PG_VERSION_NUM < 120000
+#define ScanKeywords (*ScanKeywords)
+#define ScanKeywordTokens NumScanKeywords
+#endif
 void
 normalize_expr(char *expr, bool preserve_space)
 {
@@ -466,8 +471,8 @@ normalize_expr(char *expr, bool preserve_space)
 	wp = expr;
 	yyscanner = scanner_init(expr,
 							 &yyextra,
-							 ScanKeywords,
-							 NumScanKeywords);
+							 &ScanKeywords,
+							 ScanKeywordTokens);
 
 	/*
 	 * The warnings about nonstandard escape strings is already emitted in the
