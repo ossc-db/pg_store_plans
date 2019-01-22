@@ -26,7 +26,7 @@
  * Copyright (c) 2012-2019, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
  *
  * IDENTIFICATION
- *	  pg_store_plan/pg_store_plan.c
+ *	  pg_store_plans/pg_store_plans.c
  *
  *-------------------------------------------------------------------------
  */
@@ -60,7 +60,7 @@ PG_MODULE_MAGIC;
 
 /* This constant defines the magic number in the stats file header */
 static const uint32 PGSP_FILE_HEADER = 0x20180613;
-static const uint32 pg_store_plan_size = 5000;
+static const uint32 store_plan_size = 5000;
 
 /* XXX: Should USAGE_EXEC reflect execution time and/or buffer usage? */
 #define USAGE_EXEC(duration)	(1.0)
@@ -509,7 +509,7 @@ pgsp_shmem_startup(void)
 #else
 		shared_state->lock = LWLockAssign();
 #endif
-		shared_state->plan_size = pg_store_plan_size;
+		shared_state->plan_size = store_plan_size;
 		shared_state->cur_median_usage = ASSUMED_MEDIAN_INIT;
 	}
 
@@ -1256,7 +1256,7 @@ shared_mem_size(void)
 	Size		entrysize;
 
 	size = MAXALIGN(sizeof(SharedState));
-	entrysize = offsetof(StatEntry, plan) +  pg_store_plan_size;
+	entrysize = offsetof(StatEntry, plan) +  store_plan_size;
 	size = add_size(size, hash_estimate_size(store_size, entrysize));
 
 	return size;

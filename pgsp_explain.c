@@ -6,7 +6,7 @@
  * Copyright (c) 2012-2019, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
  *
  * IDENTIFICATION
- *	  pg_store_plan/pgsp_explain.c
+ *	  pg_store_plans/pgsp_explain.c
  *
  *-------------------------------------------------------------------------
  */

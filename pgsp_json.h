@@ -5,7 +5,7 @@
  * Copyright (c) 2012-2019, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
  *
  * IDENTIFICATION
- *	  pg_store_plan/pgsp_json.h
+ *	  pg_store_plans/pgsp_json.h
  *
  *-------------------------------------------------------------------------
  */
