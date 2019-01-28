@@ -17,7 +17,7 @@
 Summary:    Record executed plans on PostgreSQL 11
 Name:       pg_store_plans11
 Version:    1.3
-Release:    1%{?dist}
+Release:    2%{?dist}
 License:    BSD
 Group:      Applications/Databases
 Source0:    %{name}-%{version}.tar.gz
@@ -39,11 +39,11 @@ Note that this package is available for only PostgreSQL 11.
 
 %package llvmjit
 Requires: postgresql11-server, postgresql11-llvmjit
-Requires: pg_hint_plan11 = 1.3.4
-Summary:  Just-in-time compilation support for pg_hint_plan11
+Requires: pg_store_plans11 = 1.3
+Summary:  Just-in-time compilation support for pg_store_plans11
 
 %description llvmjit
-Just-in-time compilation support for pg_hint_plan11
+Just-in-time compilation support for pg_store_plans11
 
 ## pre work for build pg_store_plans
 %prep
