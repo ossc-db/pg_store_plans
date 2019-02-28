@@ -770,7 +770,7 @@ Execution Time: 0.453 ms
 
 =======
 ### TEXT-short       ###### Plan 9: FunctionScan, Hash/HashJoin, Nested Loop
-Parallel Hash Left Join  (cost=1.11..3.37 rows=100 width=64) (actual time=0.094..0.103 rows=7 loops=1)
+Hash Left Join  (cost=1.11..3.37 rows=100 width=64) (actual time=0.094..0.103 rows=7 loops=1)
   Output: d.datname
   Hash Cond: (s.datid = d.oid)
   Buffers: shared hit=1
