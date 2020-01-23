@@ -34,7 +34,9 @@
 
 #include <unistd.h>
 #include <dlfcn.h>
+#include <math.h>
 
+#include "catalog/pg_authid.h"
 #include "commands/explain.h"
 #include "access/hash.h"
 #include "executor/instrument.h"
@@ -47,6 +49,7 @@
 #include "storage/spin.h"
 #include "storage/shmem.h"
 #include "tcop/utility.h"
+#include "utils/acl.h"
 #include "utils/builtins.h"
 #include "utils/timestamp.h"
 
@@ -82,7 +85,6 @@ typedef struct EntryKey
 {
 	Oid			userid;			/* user OID */
 	Oid			dbid;			/* database OID */
-	int			encoding;		/* query encoding */
 	uint32		queryid;		/* internal query identifier */
 	uint32		planid;			/* plan identifier */
 } EntryKey;
@@ -94,6 +96,10 @@ typedef struct Counters
 {
 	int64		calls;				/* # of times executed */
 	double		total_time;			/* total execution time, in msec */
+	double		min_time;			/* minimum execution time in msec */
+	double		max_time;			/* maximum execution time in msec */
+	double		mean_time;			/* mean execution time in msec */
+	double		sum_var_time;	/* sum of variances in execution time in msec */
 	int64		rows;				/* total # of retrieved or affected rows */
 	int64		shared_blks_hit;	/* # of shared buffer hits */
 	int64		shared_blks_read;	/* # of shared disk blocks read */
@@ -116,11 +122,7 @@ typedef struct Counters
  * The type of queryId has been widen as of PG11. Define substitute type rather
  * than put #if here and there.
  */
-#if PG_VERSION_NUM >= 110000
 typedef uint64 queryid_t;
-#else
-typedef uint32 queryid_t;
-#endif
 
 /*
  * Statistics per plan
@@ -133,6 +135,7 @@ typedef struct StatEntry
 	queryid_t	queryid;		/* query identifier from stat_statements*/
 	Counters	counters;		/* the statistics for this query */
 	int			plan_len;		/* # of valid bytes in query string */
+	int			encoding;		/* query encoding */
 	slock_t		mutex;			/* protects the counters only */
 	char		plan[1];		/* VARIABLE LENGTH ARRAY - MUST BE LAST */
 	/*
@@ -249,33 +252,15 @@ PG_FUNCTION_INFO_V1(pg_store_plans_xmlplan);
 static void pgsp_shmem_startup(void);
 static void pgsp_shmem_shutdown(int code, Datum arg);
 static void pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags);
-#if PG_VERSION_NUM >= 100000
 static void pgsp_ExecutorRun(QueryDesc *queryDesc,
 				 ScanDirection direction,
 							 uint64 count, bool execute_once);
-#elif PG_VERSION_NUM >= 90600
-static void pgsp_ExecutorRun(QueryDesc *queryDesc,
-				 ScanDirection direction,
-				 uint64 count);
-#else
-static void pgsp_ExecutorRun(QueryDesc *queryDesc,
-				 ScanDirection direction,
-				 long count);
-#endif
 static void pgsp_ExecutorFinish(QueryDesc *queryDesc);
 static void pgsp_ExecutorEnd(QueryDesc *queryDesc);
-#if PG_VERSION_NUM >= 100000
 static void pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
 					ProcessUtilityContext context, ParamListInfo params,
 					QueryEnvironment *queryEnv,
 					DestReceiver *dest, char *completionTag);
-#else
-static void pgsp_ProcessUtility(Node *parsetree, const char *queryString,
-					ProcessUtilityContext context, ParamListInfo params,
-					DestReceiver *dest, char *completionTag);
-#endif
-static uint32 hash_table_fn(const void *key, Size keysize);
-static int	match_fn(const void *key1, const void *key2, Size keysize);
 static uint32 hash_query(const char* query);
 static void store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 		   double total_time, uint64 rows,
@@ -430,11 +415,7 @@ _PG_init(void)
 	 * resources in pgsp_shmem_startup().
 	 */
 	RequestAddinShmemSpace(shared_mem_size());
-#if PG_VERSION_NUM >= 90600
 	RequestNamedLWLockTranche("pg_store_plans", 1);
-#else
-	RequestAddinLWLocks(1);
-#endif
 
 	/*
 	 * Install hooks.
@@ -504,11 +485,7 @@ pgsp_shmem_startup(void)
 	if (!found)
 	{
 		/* First time through ... */
-#if PG_VERSION_NUM >= 90600
 		shared_state->lock = &(GetNamedLWLockTranche("pg_store_plans"))->lock;
-#else
-		shared_state->lock = LWLockAssign();
-#endif
 		shared_state->plan_size = store_plan_size;
 		shared_state->cur_median_usage = ASSUMED_MEDIAN_INIT;
 	}
@@ -519,12 +496,10 @@ pgsp_shmem_startup(void)
 	memset(&info, 0, sizeof(info));
 	info.keysize = sizeof(EntryKey);
 	info.entrysize = offsetof(StatEntry, plan) + plan_size;
-	info.hash = hash_table_fn;
-	info.match = match_fn;
 	hash_table = ShmemInitHash("pg_store_plans hash",
 							  store_size, store_size,
-							  &info,
-							  HASH_ELEM | HASH_FUNCTION | HASH_COMPARE);
+							  &info, HASH_ELEM |
+							  HASH_BLOBS);
 
 	LWLockRelease(AddinShmemInitLock);
 
@@ -571,7 +546,7 @@ pgsp_shmem_startup(void)
 			goto error;
 
 		/* Encoding is the only field we can easily sanity-check */
-		if (!PG_VALID_BE_ENCODING(temp.key.encoding))
+	if (!PG_VALID_BE_ENCODING(temp.encoding))
 			goto error;
 
 		/* Previous incarnation might have had a larger plan_size */
@@ -591,7 +566,7 @@ pgsp_shmem_startup(void)
 
 		/* Clip to available length if needed */
 		if (temp.plan_len >= plan_size)
-			temp.plan_len = pg_encoding_mbcliplen(temp.key.encoding,
+			temp.plan_len = pg_encoding_mbcliplen(temp.encoding,
 												   buffer,
 												   temp.plan_len,
 												   plan_size - 1);
@@ -739,29 +714,16 @@ pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
  * ExecutorRun hook: all we need do is track nesting depth
  */
 static void
-#if PG_VERSION_NUM >= 100000
 pgsp_ExecutorRun(QueryDesc *queryDesc, ScanDirection direction, uint64 count,
 				 bool execute_once)
-#elif PG_VERSION_NUM >= 90600
-pgsp_ExecutorRun(QueryDesc *queryDesc, ScanDirection direction, uint64 count)
-#else
-pgsp_ExecutorRun(QueryDesc *queryDesc, ScanDirection direction, long count)
-#endif
 {
 	nested_level++;
 	PG_TRY();
 	{
-#if PG_VERSION_NUM >= 100000
 		if (prev_ExecutorRun)
 			prev_ExecutorRun(queryDesc, direction, count, execute_once);
 		else
 			standard_ExecutorRun(queryDesc, direction, count, execute_once);
-#else
-		if (prev_ExecutorRun)
-			prev_ExecutorRun(queryDesc, direction, count);
-		else
-			standard_ExecutorRun(queryDesc, direction, count);
-#endif
 		nested_level--;
 	}
 	PG_CATCH();
@@ -857,18 +819,11 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
  * ProcessUtility hook
  */
 static void
-#if PG_VERSION_NUM >= 100000
 pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
 					ProcessUtilityContext context, ParamListInfo params,
 					QueryEnvironment *queryEnv,
 					DestReceiver *dest, char *completionTag)
-#else
-pgsp_ProcessUtility(Node *parsetree, const char *queryString,
-					ProcessUtilityContext context, ParamListInfo params,
-					DestReceiver *dest, char *completionTag)
-#endif
 {
-#if PG_VERSION_NUM >= 100000
 	if (prev_ProcessUtility)
 		prev_ProcessUtility(pstmt, queryString,
 							context, params, queryEnv,
@@ -877,50 +832,6 @@ pgsp_ProcessUtility(Node *parsetree, const char *queryString,
 		standard_ProcessUtility(pstmt, queryString,
 								context, params, queryEnv,
 								dest, completionTag);
-#else
-	if (prev_ProcessUtility)
-		prev_ProcessUtility(parsetree, queryString,
-							context, params,
-							dest, completionTag);
-	else
-		standard_ProcessUtility(parsetree, queryString,
-								context, params,
-								dest, completionTag);
-#endif
-}
-
-/*
- * Calculate hash value for a key
- */
-static uint32
-hash_table_fn(const void *key, Size keysize)
-{
-	const EntryKey *k = (const EntryKey *) key;
-
-	/* we don't bother to include encoding in the hash */
-	return hash_uint32((uint32) k->userid) ^
-		hash_uint32((uint32) k->dbid) ^
-		hash_uint32((uint32) k->queryid) ^
-		hash_uint32((uint32) k->planid);
-}
-
-/*
- * Compare two keys - zero means match
- */
-static int
-match_fn(const void *key1, const void *key2, Size keysize)
-{
-	const EntryKey *k1 = (const EntryKey *) key1;
-	const EntryKey *k2 = (const EntryKey *) key2;
-
-	if (k1->userid == k2->userid &&
-		k1->dbid == k2->dbid &&
-		k1->encoding == k2->encoding &&
-		k1->queryid == k2->queryid &&
-		k1->planid == k2->planid)
-		return 0;
-	else
-		return 1;
 }
 
 /*
@@ -978,7 +889,6 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	/* Set up key for hashtable search */
 	key.userid = GetUserId();
 	key.dbid = MyDatabaseId;
-	key.encoding = GetDatabaseEncoding();
 	key.queryid = queryId;
 
 	normalized_plan = pgsp_json_normalize(plan);
@@ -1040,6 +950,32 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	
 	e->counters.calls += 1;
 	e->counters.total_time += total_time;
+	if (e->counters.calls == 1)
+	{
+		e->counters.min_time = total_time;
+		e->counters.max_time = total_time;
+		e->counters.mean_time = total_time;
+	}
+	else
+	{
+		/*
+		 * Welford's method for accurately computing variance. See
+		 * <http://www.johndcook.com/blog/standard_deviation/>
+		 */
+		double		old_mean = e->counters.mean_time;
+
+		e->counters.mean_time +=
+			(total_time - old_mean) / e->counters.calls;
+		e->counters.sum_var_time +=
+			(total_time - old_mean) * (total_time - e->counters.mean_time);
+
+		/* calculate min and max time */
+		if (e->counters.min_time > total_time)
+			e->counters.min_time = total_time;
+		if (e->counters.max_time < total_time)
+			e->counters.max_time = total_time;
+	}
+
 	e->counters.rows += rows;
 	e->counters.shared_blks_hit += bufusage->shared_blks_hit;
 	e->counters.shared_blks_read += bufusage->shared_blks_read;
@@ -1084,7 +1020,7 @@ pg_store_plans_reset(PG_FUNCTION_ARGS)
 	PG_RETURN_VOID();
 }
 
-#define PG_STORE_PLANS_COLS			23
+#define PG_STORE_PLANS_COLS			27
 
 /*
  * Retrieve statement statistics.
@@ -1098,7 +1034,7 @@ pg_store_plans(PG_FUNCTION_ARGS)
 	MemoryContext per_query_ctx;
 	MemoryContext oldcontext;
 	Oid			userid = GetUserId();
-	bool		is_superuser = superuser();
+	bool		is_allowed_role = is_member_of_role(GetUserId(), DEFAULT_ROLE_READ_ALL_STATS);
 	HASH_SEQ_STATUS hash_seq;
 	StatEntry  *entry;
 
@@ -1144,13 +1080,14 @@ pg_store_plans(PG_FUNCTION_ARGS)
 		int64		queryid_stmt = entry->queryid;
 		int64		planid       = entry->key.planid;
 		Counters	tmp;
+		double		stddev;
 
 		memset(values, 0, sizeof(values));
 		memset(nulls, 0, sizeof(nulls));
 
 		values[i++] = ObjectIdGetDatum(entry->key.userid);
 		values[i++] = ObjectIdGetDatum(entry->key.dbid);
-		if (is_superuser || entry->key.userid == userid)
+		if (is_allowed_role || entry->key.userid == userid)
 		{
 			values[i++] = Int64GetDatumFast(queryid);
 			values[i++] = Int64GetDatumFast(planid);
@@ -1164,7 +1101,7 @@ pg_store_plans(PG_FUNCTION_ARGS)
 		}
 
 
-		if (is_superuser || entry->key.userid == userid)
+		if (is_allowed_role || entry->key.userid == userid)
 		{
 			char	   *pstr = entry->plan;
 			char	   *estr;
@@ -1190,7 +1127,7 @@ pg_store_plans(PG_FUNCTION_ARGS)
 			estr = (char *)
 				pg_do_encoding_conversion((unsigned char *) pstr,
 										  strlen(pstr),
-										  entry->key.encoding,
+										  entry->encoding,
 										  GetDatabaseEncoding());
 			values[i++] = CStringGetTextDatum(estr);
 
@@ -1218,6 +1155,22 @@ pg_store_plans(PG_FUNCTION_ARGS)
 
 		values[i++] = Int64GetDatumFast(tmp.calls);
 		values[i++] = Float8GetDatumFast(tmp.total_time);
+		values[i++] = Float8GetDatumFast(tmp.min_time);
+		values[i++] = Float8GetDatumFast(tmp.max_time);
+		values[i++] = Float8GetDatumFast(tmp.mean_time);
+
+		/*
+		 * Note we are calculating the population variance here, not the
+		 * sample variance, as we have data for the whole population, so
+		 * Bessel's correction is not used, and we don't divide by
+		 * tmp.calls - 1.
+		 */
+		if (tmp.calls > 1)
+			stddev = sqrt(tmp.sum_var_time / tmp.calls);
+		else
+			stddev = 0.0;
+		values[i++] = Float8GetDatumFast(stddev);
+
 		values[i++] = Int64GetDatumFast(tmp.rows);
 		values[i++] = Int64GetDatumFast(tmp.shared_blks_hit);
 		values[i++] = Int64GetDatumFast(tmp.shared_blks_read);
@@ -1307,6 +1260,7 @@ entry_alloc(EntryKey *key, const char *plan, int plan_len, bool sticky)
 		entry->plan_len = plan_len;
 		memcpy(entry->plan, plan, plan_len);
 		entry->plan[plan_len] = '\0';
+		entry->encoding = GetDatabaseEncoding();
 	}
 
 	return entry;

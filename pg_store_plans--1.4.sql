@@ -1,4 +1,4 @@
-/* pg_store_plans/pg_store_plans--1.3.sql */
+/* pg_store_plans/pg_store_plans--1.4.sql */
 
 -- complain if script is sourced in psql, rather than via CREATE EXTENSION
 \echo Use "CREATE EXTENSION pg_store_plans" to load this file. \quit
@@ -52,6 +52,10 @@ CREATE FUNCTION pg_store_plans(
     OUT plan text,
     OUT calls int8,
     OUT total_time float8,
+    OUT min_time float8,
+    OUT max_time float8,
+    OUT mean_time float8,
+    OUT stddev_time float8,
     OUT rows int8,
     OUT shared_blks_hit int8,
     OUT shared_blks_read int8,
