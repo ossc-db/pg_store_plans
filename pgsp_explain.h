@@ -2,8 +2,8 @@
  *
  * pgsp_explain.h: extracted code from explain.c for explain of triggers.
  *
- * Copyright (c) 2008-2019, PostgreSQL Global Development Group
- * Copyright (c) 2012-2019, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+ * Copyright (c) 2008-2020, PostgreSQL Global Development Group
+ * Copyright (c) 2012-2020, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
  *
  * IDENTIFICATION
  *	  pg_store_plans/pgsp_explain.h
