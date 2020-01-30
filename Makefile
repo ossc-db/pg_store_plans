@@ -1,7 +1,7 @@
 # pg_stat_plan/Makefile
 
 MODULES = pg_store_plans
-STOREPLANSVER = 1.3
+STOREPLANSVER = 1.3.1
 
 MODULE_big = pg_store_plans
 OBJS = pg_store_plans.o pgsp_json.o pgsp_json_text.o pgsp_explain.o
@@ -10,7 +10,7 @@ EXTENSION = pg_store_plans
 
 PG_VERSION := $(shell pg_config --version | sed "s/^PostgreSQL //" | sed "s/\.[0-9]*$$//")
 
-DATA = pg_store_plans--1.3.sql
+DATA = pg_store_plans--1.3.1.sql pg_store_plans--1.3--1.3.1.sql
 ifeq ($(PG_VERSION),10)
 	DATA += pg_store_plans--1.2--1.3.sql
 endif
