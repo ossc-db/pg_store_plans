@@ -1189,7 +1189,7 @@ pg_store_plans(PG_FUNCTION_ARGS)
 			
 			estr = (char *)
 				pg_do_encoding_conversion((unsigned char *) pstr,
-										  entry->plan_len,
+										  strlen(pstr),
 										  entry->key.encoding,
 										  GetDatabaseEncoding());
 			values[i++] = CStringGetTextDatum(estr);
