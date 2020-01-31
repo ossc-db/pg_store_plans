@@ -1,5 +1,5 @@
 # SPEC file for pg_store_plans
-# Copyright(C) 2020 NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+# Copyright(C) 2019 NIPPON TELEGRAPH AND TELEPHONE CORPORATION
 
 %define _pgdir   /usr/pgsql-11
 %define _bindir  %{_pgdir}/bin
@@ -16,8 +16,8 @@
 ## Set general information for pg_store_plans.
 Summary:    Record executed plans on PostgreSQL 11
 Name:       pg_store_plans11
-Version:    1.3.1
-Release:    1%{?dist}
+Version:    1.3
+Release:    2%{?dist}
 License:    BSD
 Group:      Applications/Databases
 Source0:    %{name}-%{version}.tar.gz
@@ -39,7 +39,7 @@ Note that this package is available for only PostgreSQL 11.
 
 %package llvmjit
 Requires: postgresql11-server, postgresql11-llvmjit
-Requires: pg_store_plans11 = 1.3.1
+Requires: pg_store_plans11 = 1.3
 Summary:  Just-in-time compilation support for pg_store_plans11
 
 %description llvmjit
@@ -75,8 +75,7 @@ rm -rf %{buildroot}
 %defattr(0755,root,root)
 %{_libdir}/pg_store_plans.so
 %defattr(0644,root,root)
-%{_datadir}/extension/pg_store_plans--1.3--1.3.1.sql
-%{_datadir}/extension/pg_store_plans--1.3.1.sql
+%{_datadir}/extension/pg_store_plans--1.3.sql
 %{_datadir}/extension/pg_store_plans.control
 
 %files llvmjit
@@ -86,8 +85,6 @@ rm -rf %{buildroot}
 
 # History of pg_store_plans.
 %changelog
-* Tue Jan 30 2020 Kyotaro Horiguchi
-- Fixed a bug.
 * Tue Jan 22 2019 Kyotaro Horiguchi
 - Supports PostgreSQL 11
 * Tue Oct 10 2017 Kyotaro Horiguchi
