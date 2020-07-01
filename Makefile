@@ -33,7 +33,9 @@ TARSOURCES = Makefile *.c  *.h \
 	pg_store_plans.control \
 	docs/* expected/*.out sql/*.sql \
 
+ifneq ($(shell uname), SunOS)
 LDFLAGS+=-Wl,--build-id
+endif
 
 ## These entries need running server
 DBNAME = postgres
