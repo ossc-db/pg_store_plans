@@ -159,6 +159,9 @@ typedef struct SharedState
 /* Current nesting depth of ExecutorRun+ProcessUtility calls */
 static int	nested_level = 0;
 
+/* Is in the EXTENSION script? */
+static bool is_in_extension_script = false;
+
 /* Saved hook values in case of unload */
 static shmem_startup_hook_type prev_shmem_startup_hook = NULL;
 static ExecutorStart_hook_type prev_ExecutorStart = NULL;
@@ -763,7 +766,7 @@ pgsp_ExecutorFinish(QueryDesc *queryDesc)
 static void
 pgsp_ExecutorEnd(QueryDesc *queryDesc)
 {
-	if (queryDesc->totaltime)
+	if (queryDesc->totaltime && !is_in_extension_script)
 	{
 		InstrEndLoop(queryDesc->totaltime);
 
@@ -824,14 +827,41 @@ pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
 					QueryEnvironment *queryEnv,
 					DestReceiver *dest, char *completionTag)
 {
-	if (prev_ProcessUtility)
-		prev_ProcessUtility(pstmt, queryString,
-							context, params, queryEnv,
-							dest, completionTag);
-	else
-		standard_ProcessUtility(pstmt, queryString,
+	/*
+	 * In CREATE/ALTER EXTENSION, execute_sql_string() would be issued.
+	 * In this case, queryDesc->sourceText has queries for entire script.
+	 * So, parse all queries per each query execution in the script
+	 * at hash_query().
+	 * To avoid this, ignore storing of the execution plan for queries 
+	 * executed in CREATE/ALTER EXTENSION. 
+	 */
+	int tag = nodeTag(pstmt->utilityStmt);
+	if (tag == T_CreateExtensionStmt || tag == T_AlterExtensionStmt)
+		is_in_extension_script = true;
+
+	nested_level++;
+	PG_TRY();
+	{
+		if (prev_ProcessUtility)
+			prev_ProcessUtility(pstmt, queryString,
 								context, params, queryEnv,
 								dest, completionTag);
+		else
+			standard_ProcessUtility(pstmt, queryString,
+									context, params, queryEnv,
+									dest, completionTag);
+		nested_level--;
+		if (nested_level == 0)
+			is_in_extension_script = false;
+	}
+	PG_CATCH();
+	{
+		nested_level--;
+		if (nested_level == 0)
+			is_in_extension_script = false;
+		PG_RE_THROW();
+	}
+	PG_END_TRY();
 }
 
 /*
