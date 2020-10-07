@@ -16,7 +16,11 @@
 #include "nodes/bitmapset.h"
 #include "nodes/pg_list.h"
 #include "utils/json.h"
+#if PG_VERSION_NUM < 130000
 #include "utils/jsonapi.h"
+#else
+#include "common/jsonapi.h"
+#endif
 #include "utils/builtins.h"
 
 #include "pgsp_json_text.h"
@@ -187,6 +191,12 @@ DEFAULT_SETTER(workers_planned);
 DEFAULT_SETTER(workers_launched);
 BOOL_SETTER(inner_unique);
 DEFAULT_SETTER(table_func_name);
+LIST_SETTER(presorted_key);
+LIST_SETTER(sortmethod_used);
+DEFAULT_SETTER(sortspace_mem);
+DEFAULT_SETTER(group_count);
+DEFAULT_SETTER(avg_sortspc_used);
+DEFAULT_SETTER(peak_sortspc_used);
 
 #define ISZERO(s) (!s || strcmp(s, "0") == 0 || strcmp(s, "0.000") == 0 )
 #define HASSTRING(s) (s && strlen(s) > 0)

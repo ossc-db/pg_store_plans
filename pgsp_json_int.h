@@ -125,7 +125,15 @@ typedef enum
 	P_WorkersLaunched,
 	P_WorkerNumber,
 	P_InnerUnique,
-	P_TableFuncName
+	P_TableFuncName,
+	P_PresortedKey,
+	P_FullsortGroups,
+	P_SortMethodsUsed,
+	P_SortSpaceMemory,
+	P_GroupCount,
+	P_AvgSortSpcUsed,
+	P_PeakSortSpcUsed,
+	P_PreSortedGroups
 } pgsp_prop_tags;
 
 typedef struct

@@ -101,6 +101,12 @@ typedef struct
 	const char *workers_launched;
 	bool		inner_unique;
 	const char *table_func_name;
+	StringInfo	presorted_key;
+	StringInfo	sortmethod_used;
+	const char *sortspace_mem;
+	const char *group_count;
+	const char *avg_sortspc_used;
+	const char *peak_sortspc_used;
 
 	const char *tmp_obj_name;
 	const char *tmp_schema_name;
@@ -220,3 +226,9 @@ SETTERDECL(workers_planned);
 SETTERDECL(workers_launched);
 SETTERDECL(inner_unique);
 SETTERDECL(table_func_name);
+SETTERDECL(presorted_key);
+SETTERDECL(sortmethod_used);
+SETTERDECL(sortspace_mem);
+SETTERDECL(group_count);
+SETTERDECL(avg_sortspc_used);
+SETTERDECL(peak_sortspc_used);

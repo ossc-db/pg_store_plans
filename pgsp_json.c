@@ -19,8 +19,11 @@
 #include "parser/gram.h"
 #include "utils/xml.h"
 #include "utils/json.h"
+#if PG_VERSION_NUM < 130000
 #include "utils/jsonapi.h"
-
+#else
+#include "common/jsonapi.h"
+#endif
 #include "pgsp_json.h"
 #include "pgsp_json_int.h"
 
@@ -156,7 +159,16 @@ word_table propfields[] =
 	{P_RepeatableSeed,  "<"  ,"Repeatable Seed" ,	NULL, false,  NULL,				SETTER(repeatable_seed)},
 	{P_Workers,    		"[" ,"Workers",				NULL, false,  NULL,				NULL},
 	{P_WorkerNumber,    "]" ,"Worker Number",		NULL, false,  NULL,				SETTER(worker_number)},
-	{P_TableFuncName,    "aa" ,"Table Function Name",NULL, false,  NULL,			SETTER(table_func_name)},
+	{P_TableFuncName,   "aa" ,"Table Function Name",NULL, false,  NULL,			SETTER(table_func_name)},
+
+	{P_PresortedKey,    "pk" ,"Presorted Key" 	   ,NULL, false,  NULL,			SETTER(presorted_key)},
+	{P_FullsortGroups,  "fg" ,"Full-sort Groups"   ,NULL, false,  NULL,			NULL},
+	{P_SortMethodsUsed, "su" ,"Sort Methods Used"  ,NULL, false,  NULL,			SETTER(sortmethod_used)},
+	{P_SortSpaceMemory, "sm" ,"Sort Space Memory"  ,NULL, false,  NULL,			SETTER(sortspace_mem)},
+	{P_GroupCount, 		"gc" ,"Group Count" 	   ,NULL, false,  NULL,			SETTER(group_count)},
+	{P_AvgSortSpcUsed,  "as" ,"Average Sort Space Used",NULL, false,  NULL,		SETTER(avg_sortspc_used)},
+	{P_PeakSortSpcUsed, "ps" ,"Peak Sort Space Used",NULL, false,  NULL,		SETTER(peak_sortspc_used)},
+	{P_PreSortedGroups, "pg" ,"Pre-sorted Groups"  ,NULL, false,  NULL,			NULL},
 
 	{P_Invalid, NULL, NULL, NULL, false, NULL, NULL}
 };
@@ -199,15 +211,18 @@ word_table nodetypes[] =
 	{T_Limit,		"5" ,"Limit",			NULL, false, NULL, NULL},
 #if PG_VERSION_NUM >= 90500
 	{T_SampleScan,	"B" ,"Sample Scan",		NULL, false, NULL, NULL},
+#endif
 #if PG_VERSION_NUM >= 90600
 	{T_Gather,		"6" ,"Gather",			NULL, false, NULL, NULL},
+#endif
 #if PG_VERSION_NUM >= 100000
 	{T_ProjectSet,	"7" ,"ProjectSet",		NULL, false, NULL, NULL},
 	{T_TableFuncScan,"8","Table Function Scan",	NULL, false, NULL, NULL},
 	{T_NamedTuplestoreScan,"9","Named Tuplestore Scan",	NULL, false, NULL, NULL},
 	{T_GatherMerge,	"A" ,"Gather Merge",	NULL, false, NULL, NULL},
 #endif
-#endif
+#if PG_VERSION_NUM >= 130000
+	{T_IncrementalSort,	"C" ,"Incremental Sort", NULL, false, NULL, NULL},
 #endif
 
 	{T_Invalid,		NULL, NULL, NULL, false, NULL, NULL}
@@ -293,6 +308,7 @@ word_table partialmode[] =
 	{T_Invalid,  "s" ,"Simple",NULL, false, NULL, NULL},
 	{T_Invalid, NULL, NULL, NULL, false, NULL, NULL}
 };
+
 
 word_table *
 search_word_table(word_table *tbl, const char *word, int mode)
@@ -1187,6 +1203,9 @@ init_parser_context(pgspParserContext *ctx, int mode,
 bool
 run_pg_parse_json(JsonLexContext *lex, JsonSemAction *sem)
 {
+#if PG_VERSION_NUM >= 130000
+	return pg_parse_json(lex, sem) == JSON_SUCCESS;
+#else
 	MemoryContext ccxt = CurrentMemoryContext;
 	uint32 saved_IntrHoldoffCount;
 
@@ -1225,6 +1244,7 @@ run_pg_parse_json(JsonLexContext *lex, JsonSemAction *sem)
 	PG_END_TRY();
 
 	return true;
+#endif
 }
 
 void

@@ -249,6 +249,12 @@ PG_FUNCTION_INFO_V1(pg_store_plans_textplan);
 PG_FUNCTION_INFO_V1(pg_store_plans_yamlplan);
 PG_FUNCTION_INFO_V1(pg_store_plans_xmlplan);
 
+#if PG_VERSION_NUM < 130000
+#define COMPTAG_TYPE char
+#else
+#define COMPTAG_TYPE QueryCompletion
+#endif
+
 static void pgsp_shmem_startup(void);
 static void pgsp_shmem_shutdown(int code, Datum arg);
 static void pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags);
@@ -260,7 +266,7 @@ static void pgsp_ExecutorEnd(QueryDesc *queryDesc);
 static void pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
 					ProcessUtilityContext context, ParamListInfo params,
 					QueryEnvironment *queryEnv,
-					DestReceiver *dest, char *completionTag);
+					DestReceiver *dest, COMPTAG_TYPE *completionTag);
 static uint32 hash_query(const char* query);
 static void store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 		   double total_time, uint64 rows,
@@ -822,7 +828,7 @@ static void
 pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
 					ProcessUtilityContext context, ParamListInfo params,
 					QueryEnvironment *queryEnv,
-					DestReceiver *dest, char *completionTag)
+					DestReceiver *dest, COMPTAG_TYPE *completionTag)
 {
 	if (prev_ProcessUtility)
 		prev_ProcessUtility(pstmt, queryString,

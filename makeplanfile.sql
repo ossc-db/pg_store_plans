@@ -189,6 +189,11 @@ explain (analyze on, buffers on, verbose on, format :format)
     PASSING BY REF '<towns><town><name>Toronto</name></town><town><name>Ottawa</name></town></towns>'
 	 COLUMNS name text);
 
+\echo ###### Incremental Sort
+explain (analyze on, buffers on, verbose on, format :format)
+	WITH x AS (SELECT i/100 + 1 AS a, i + 1 AS b FROM generate_series(0, 999) i)
+	  SELECT * FROM (SELECT * FROM x ORDER BY a) s ORDER BY a, b LIMIT 31;
+
 -- Named Tuplestore Scan -- requires auto_explain
 DROP TABLE IF EXISTS e1 CASCADE;
 CREATE TABLE e1 (a int, b int);
