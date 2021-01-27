@@ -31,7 +31,7 @@ STARBALLS = $(STARBALL13)
 TARSOURCES = Makefile *.c  *.h \
 	pg_store_plans--*.sql \
 	pg_store_plans.control \
-	doc/* expected/*.out sql/*.sql \
+	docs/* expected/*.out sql/*.sql \
 
 LDFLAGS+=-Wl,--build-id
 
