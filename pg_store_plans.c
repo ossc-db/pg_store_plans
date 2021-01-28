@@ -995,7 +995,7 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	e->counters.last_call = GetCurrentTimestamp();
 	e->counters.usage += USAGE_EXEC(total_time);
 
-	if update_text_plan
+	if (update_text_plan)
     {
         Assert(plan_len >= 0 && plan_len < shared_state->plan_size);
         memcpy(entry->plan, shorten_plan, plan_len);
