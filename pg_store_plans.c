@@ -885,6 +885,7 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	char	   *normalized_plan = NULL;
 	char	   *shorten_plan = NULL;
 	volatile StatEntry *e;
+	bool update_text_plan = false;
 
 	Assert(plan != NULL);
 
@@ -898,23 +899,11 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	key.queryid = queryId;
 
 	normalized_plan = pgsp_json_normalize(plan);
-	shorten_plan = pgsp_json_shorten(plan);
-	elog(DEBUG3, "pg_store_plans: Normalized plan: %s", normalized_plan);
-	elog(DEBUG3, "pg_store_plans: Shorten plan: %s", shorten_plan);
-	elog(DEBUG3, "pg_store_plans: Original plan: %s", plan);
-	plan_len = strlen(shorten_plan);
-
 	key.planid = hash_any((const unsigned char *)normalized_plan,
 						  strlen(normalized_plan));
 	pfree(normalized_plan);
 
-	if (plan_len >= shared_state->plan_size)
-		plan_len = pg_encoding_mbcliplen(GetDatabaseEncoding(),
-										 shorten_plan,
-										 plan_len,
-										 shared_state->plan_size - 1);
 
-	
 	/* Look up the hash table entry with shared lock. */
 	LWLockAcquire(shared_state->lock, LW_SHARED);
 
@@ -923,6 +912,14 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	/* Create new entry, if not present */
 	if (!entry)
 	{
+	    update_text_plan = true;
+	    shorten_plan = pgsp_json_shorten(plan);
+	    plan_len = strlen(shorten_plan);
+	    if (plan_len >= shared_state->plan_size)
+		    plan_len = pg_encoding_mbcliplen(GetDatabaseEncoding(),
+										 shorten_plan,
+										 plan_len,
+										 shared_state->plan_size - 1);
 		/*
 		 * We'll need exclusive lock to make a new entry.  There is no point
 		 * in holding shared lock while we normalize the string, though.
@@ -998,10 +995,13 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	e->counters.last_call = GetCurrentTimestamp();
 	e->counters.usage += USAGE_EXEC(total_time);
 
-	Assert(plan_len >= 0 && plan_len < shared_state->plan_size);
-	memcpy(entry->plan, shorten_plan, plan_len);
-	entry->plan_len = plan_len;
-	entry->plan[plan_len] = '\0';
+	if update_text_plan
+    {
+        Assert(plan_len >= 0 && plan_len < shared_state->plan_size);
+        memcpy(entry->plan, shorten_plan, plan_len);
+        entry->plan_len = plan_len;
+        entry->plan[plan_len] = '\0';
+    }
 	
 	SpinLockRelease(&e->mutex);
 
