@@ -1,0 +1,7 @@
+*.idea
+*.so
+*.o
+*.bc
+CMakeLists.txt
+regression.*
+results

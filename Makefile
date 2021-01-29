@@ -14,16 +14,12 @@ DATA = pg_store_plans--1.5.sql
 
 REGRESS = convert store
 REGRESS_OPTS = --temp-config=regress.conf
-ifdef USE_PGXS
+
+ifndef PG_CONFIG
 PG_CONFIG = pg_config
+endif
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)
-else
-subdir = contrib/pg_store_plans
-top_builddir = ../..
-include $(top_builddir)/src/Makefile.global
-include $(top_srcdir)/contrib/contrib-global.mk
-endif
 
 STARBALL13 = pg_store_plans13-$(STOREPLANSVER).tar.gz
 STARBALLS = $(STARBALL13)
@@ -33,7 +29,6 @@ TARSOURCES = Makefile *.c  *.h \
 	pg_store_plans.control \
 	docs/* expected/*.out sql/*.sql \
 
-LDFLAGS+=-Wl,--build-id
 
 ## These entries need running server
 DBNAME = postgres

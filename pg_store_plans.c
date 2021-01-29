@@ -24,6 +24,7 @@
  *
  * Copyright (c) 2008-2020, PostgreSQL Global Development Group
  * Copyright (c) 2012-2020, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+ * Copyright (c) 2021, Dmitriy Vasiliev
  *
  * IDENTIFICATION
  *	  pg_store_plans/pg_store_plans.c
@@ -211,18 +212,25 @@ static const struct config_enum_entry plan_formats[] =
 static int	store_size;			/* max # statements to track */
 static int	track_level;		/* tracking level */
 static int	min_duration;		/* min duration to record */
+static int	slow_statement_duration;	/* slow log to record */
 static bool dump_on_shutdown;	/* whether to save stats across shutdown */
 static bool log_analyze;		/* Similar to EXPLAIN (ANALYZE *) */
 static bool log_verbose;		/* Similar to EXPLAIN (VERBOSE *) */
 static bool log_buffers;		/* Similar to EXPLAIN (BUFFERS *) */
 static bool log_timing;			/* Similar to EXPLAIN (TIMING *) */
 static bool log_triggers;		/* whether to log trigger statistics  */
+static bool store_last_plan;    /* always update plan */
+static double sample_rate = 1;  /* sample rate */
 static int  plan_format;	/* Plan representation style in
 								 * pg_store_plans.plan  */
 
+/* Is the current top-level query to be sampled? */
+static bool current_query_sampled = false;
+
 #define pgsp_enabled() \
 	(track_level == TRACK_LEVEL_ALL || \
-	(track_level == TRACK_LEVEL_TOP && nested_level == 0))
+	(track_level == TRACK_LEVEL_TOP && nested_level == 0)) && \
+    current_query_sampled
 
 /*---- Function declarations ----*/
 
@@ -335,14 +343,27 @@ _PG_init(void)
 							 NULL);
 
 	DefineCustomIntVariable("pg_store_plans.min_duration",
-					"Minimum duration to record plan in milliseconds.",
+					"Minimum duration to record plan.",
 							NULL,
 							&min_duration,
 							0,
 							0,
 							INT_MAX,
 							PGC_SUSET,
+							GUC_UNIT_MS,
+							NULL,
+							NULL,
+							NULL);
+
+	DefineCustomIntVariable("pg_store_plans.slow_statement_duration",
+					"Unconditional record plan of slow statement.",
+							NULL,
+							&slow_statement_duration,
 							0,
+							0,
+							INT_MAX,
+							PGC_SUSET,
+							GUC_UNIT_MS,
 							NULL,
 							NULL,
 							NULL);
@@ -352,6 +373,17 @@ _PG_init(void)
 							 NULL,
 							 &dump_on_shutdown,
 							 true,
+							 PGC_SIGHUP,
+							 0,
+							 NULL,
+							 NULL,
+							 NULL);
+
+	DefineCustomBoolVariable("pg_store_plans.store_last_plan",
+			   "Always update text of stored plan.",
+							 NULL,
+							 &store_last_plan,
+							 false,
 							 PGC_SIGHUP,
 							 0,
 							 NULL,
@@ -407,6 +439,19 @@ _PG_init(void)
 							 NULL,
 							 &log_verbose,
 							 false,
+							 PGC_SUSET,
+							 0,
+							 NULL,
+							 NULL,
+							 NULL);
+
+	DefineCustomRealVariable("pg_store_plans.sample_rate",
+                          "Fraction of queries to process.",
+							 NULL,
+							 &sample_rate,
+							 1.0,
+							 0.0,
+							 1.0,
 							 PGC_SUSET,
 							 0,
 							 NULL,
@@ -696,6 +741,9 @@ pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
 			(log_timing ? 0: INSTRUMENT_ROWS)|
 			(log_buffers ? INSTRUMENT_BUFFERS : 0);
 	}
+
+    current_query_sampled = (random() < sample_rate *((double) MAX_RANDOM_VALUE + 1));
+
 	if (prev_ExecutorStart)
 		prev_ExecutorStart(queryDesc, eflags);
 	else
@@ -773,9 +821,10 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
 	{
 		InstrEndLoop(queryDesc->totaltime);
 
-		if (pgsp_enabled() &&
-			queryDesc->totaltime->total >= 
-			(double)min_duration / 1000.0)
+		if ((pgsp_enabled() &&
+			queryDesc->totaltime->total >= (double)min_duration / 1000.0) ||
+            (slow_statement_duration > 0 && nested_level == 0 && queryDesc->totaltime &&
+                queryDesc->totaltime->total >= (double)slow_statement_duration / 1000.0))
 		{
 			ExplainState *es     = NewExplainState();
 			StringInfo	  es_str = es->str;
@@ -806,7 +855,7 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
 			 */
 
 			store_entry(es_str->data,
-						hash_query(queryDesc->sourceText),
+						0,
 						queryDesc->plannedstmt->queryId,
 						queryDesc->totaltime->total * 1000.0,	/* convert to msec */
 						queryDesc->estate->es_processed,
@@ -884,7 +933,8 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	int 		plan_len;
 	char	   *normalized_plan = NULL;
 	char	   *shorten_plan = NULL;
-	volatile StatEntry *e;
+	volatile   StatEntry *e;
+	bool       update_plan = false;
 
 	Assert(plan != NULL);
 
@@ -898,23 +948,21 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	key.queryid = queryId;
 
 	normalized_plan = pgsp_json_normalize(plan);
-	shorten_plan = pgsp_json_shorten(plan);
-	elog(DEBUG3, "pg_store_plans: Normalized plan: %s", normalized_plan);
-	elog(DEBUG3, "pg_store_plans: Shorten plan: %s", shorten_plan);
-	elog(DEBUG3, "pg_store_plans: Original plan: %s", plan);
-	plan_len = strlen(shorten_plan);
-
 	key.planid = hash_any((const unsigned char *)normalized_plan,
 						  strlen(normalized_plan));
 	pfree(normalized_plan);
 
-	if (plan_len >= shared_state->plan_size)
-		plan_len = pg_encoding_mbcliplen(GetDatabaseEncoding(),
+	if (store_last_plan) {
+	    update_plan = true;
+	    shorten_plan = pgsp_json_shorten(plan);
+	    plan_len = strlen(shorten_plan);
+	    if (plan_len >= shared_state->plan_size)
+		    plan_len = pg_encoding_mbcliplen(GetDatabaseEncoding(),
 										 shorten_plan,
 										 plan_len,
 										 shared_state->plan_size - 1);
+	}
 
-	
 	/* Look up the hash table entry with shared lock. */
 	LWLockAcquire(shared_state->lock, LW_SHARED);
 
@@ -923,6 +971,16 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	/* Create new entry, if not present */
 	if (!entry)
 	{
+	    if (!update_plan) {
+	        update_plan = true;
+            shorten_plan = pgsp_json_shorten(plan);
+            plan_len = strlen(shorten_plan);
+            if (plan_len >= shared_state->plan_size)
+                plan_len = pg_encoding_mbcliplen(GetDatabaseEncoding(),
+                                                 shorten_plan,
+                                                 plan_len,
+                                                 shared_state->plan_size - 1);
+        }
 		/*
 		 * We'll need exclusive lock to make a new entry.  There is no point
 		 * in holding shared lock while we normalize the string, though.
@@ -953,8 +1011,9 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 		e->counters.usage = USAGE_INIT;
 		e->counters.first_call = GetCurrentTimestamp();
 	}
-	
+
 	e->counters.calls += 1;
+
 	e->counters.total_time += total_time;
 	if (e->counters.calls == 1)
 	{
@@ -998,10 +1057,13 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	e->counters.last_call = GetCurrentTimestamp();
 	e->counters.usage += USAGE_EXEC(total_time);
 
-	Assert(plan_len >= 0 && plan_len < shared_state->plan_size);
-	memcpy(entry->plan, shorten_plan, plan_len);
-	entry->plan_len = plan_len;
-	entry->plan[plan_len] = '\0';
+	if (update_plan)
+    {
+        Assert(plan_len >= 0 && plan_len < shared_state->plan_size);
+        memcpy(entry->plan, shorten_plan, plan_len);
+        entry->plan_len = plan_len;
+        entry->plan[plan_len] = '\0';
+    }
 	
 	SpinLockRelease(&e->mutex);
 

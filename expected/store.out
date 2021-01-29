@@ -114,3 +114,53 @@ SELECT test_explain();
 
 DROP FUNCTION test_explain();
 DROP TABLE t1;
+SELECT pg_stat_statements_reset();
+ pg_stat_statements_reset 
+--------------------------
+ 
+(1 row)
+
+SELECT pg_store_plans_reset(); -- collision with plan id
+ pg_store_plans_reset 
+----------------------
+ 
+(1 row)
+
+SELECT 'sleep' as regress, pg_sleep(0.1);
+ regress | pg_sleep 
+---------+----------
+ sleep   | 
+(1 row)
+
+SELECT sum(p.calls) FROM pg_stat_statements s JOIN pg_store_plans p ON (s.queryid = p.queryid_stat_statements) JOIN pg_database d ON (d.oid = s.dbid) WHERE  s.query = 'SELECT $1 as regress, pg_sleep($2)';
+ sum 
+-----
+   2
+(1 row)
+
+SET pg_store_plans.min_duration TO '1s';
+SELECT 'sleep' as regress, pg_sleep(0.1);
+ regress | pg_sleep 
+---------+----------
+ sleep   | 
+(1 row)
+
+SELECT sum(p.calls) FROM pg_stat_statements s JOIN pg_store_plans p ON (s.queryid = p.queryid_stat_statements) JOIN pg_database d ON (d.oid = s.dbid) WHERE s.query = 'SELECT $1 as regress, pg_sleep($2)';
+ sum 
+-----
+   2
+(1 row)
+
+SET pg_store_plans.slow_statement_duration TO '1ms';
+SELECT 'sleep' as regress, pg_sleep(0.1);
+ regress | pg_sleep 
+---------+----------
+ sleep   | 
+(1 row)
+
+SELECT sum(p.calls) FROM pg_stat_statements s JOIN pg_store_plans p ON (s.queryid = p.queryid_stat_statements) JOIN pg_database d ON (d.oid = s.dbid) WHERE s.query = 'SELECT $1 as regress, pg_sleep($2)';
+ sum 
+-----
+   3
+(1 row)
+

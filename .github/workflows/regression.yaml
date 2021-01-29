@@ -1,0 +1,13 @@
+name: test-and-release
+on: [push]
+jobs:
+
+  test:
+    runs-on: ubuntu-18.04
+    steps:
+
+    - name: Checkout repo
+      uses: actions/checkout@v2
+
+    - name: Tests
+      run: sudo ./scripts/regression.sh
