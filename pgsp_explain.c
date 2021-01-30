@@ -19,16 +19,16 @@
 #include "pgsp_explain.h"
 
 static void pgspExplainOpenGroup(const char *objtype, const char *labelname,
-					  bool labeled, ExplainState *es);
+								 bool labeled, ExplainState *es);
 static void pgspExplainCloseGroup(const char *objtype, const char *labelname,
-					   bool labeled, ExplainState *es);
+								  bool labeled, ExplainState *es);
 static void report_triggers(ResultRelInfo *rInfo, bool show_relname,
-					 ExplainState *es);
+							ExplainState *es);
 static void pgspExplainPropertyText(const char *qlabel, const char *value, ExplainState *es);
 static void pgspExplainPropertyFloat(const char *qlabel, double value, int ndigits,
-						  ExplainState *es);
+									 ExplainState *es);
 static void pgspExplainProperty(const char *qlabel, const char *value, bool numeric,
-							ExplainState *es);
+								ExplainState *es);
 static void pgspExplainJSONLineEnding(ExplainState *es);
 
 /*
@@ -51,11 +51,11 @@ static void pgspExplainJSONLineEnding(ExplainState *es);
 ExplainState *
 NewExplainState(void)
 {
-  ExplainState *es = (ExplainState *)palloc0(sizeof(ExplainState));
+	ExplainState *es = (ExplainState *) palloc0(sizeof(ExplainState));
 
-  ExplainInitState(es);
-  es->costs = true;
-  return es;
+	ExplainInitState(es);
+	es->costs = true;
+	return es;
 }
 #endif
 
@@ -70,27 +70,27 @@ pgspExplainTriggers(ExplainState *es, QueryDesc *queryDesc)
 		List	   *targrels = queryDesc->estate->es_trig_target_relations;
 		int			nr;
 		ListCell   *l;
-		
+
 		pgspExplainOpenGroup("Triggers", "Triggers", false, es);
-		
+
 		show_relname = (numrels > 1 || targrels != NIL);
 		rInfo = queryDesc->estate->es_result_relations;
 		for (nr = 0; nr < numrels; rInfo++, nr++)
 			report_triggers(rInfo, show_relname, es);
-		
+
 		foreach(l, targrels)
 		{
 			rInfo = (ResultRelInfo *) lfirst(l);
 			report_triggers(rInfo, show_relname, es);
 		}
-		
+
 		pgspExplainCloseGroup("Triggers", "Triggers", false, es);
 	}
 }
 
 static void
 pgspExplainOpenGroup(const char *objtype, const char *labelname,
-				 bool labeled, ExplainState *es)
+					 bool labeled, ExplainState *es)
 {
 	pgspExplainJSONLineEnding(es);
 	appendStringInfoSpaces(es->str, 2 * es->indent);
@@ -100,14 +100,14 @@ pgspExplainOpenGroup(const char *objtype, const char *labelname,
 		appendStringInfoString(es->str, ": ");
 	}
 	appendStringInfoChar(es->str, labeled ? '{' : '[');
-	
+
 	GROUPING_STACK(es) = lcons_int(0, GROUPING_STACK(es));
 	es->indent++;
 }
 
 static void
 pgspExplainCloseGroup(const char *objtype, const char *labelname,
-				  bool labeled, ExplainState *es)
+					  bool labeled, ExplainState *es)
 {
 	es->indent--;
 	appendStringInfoChar(es->str, '\n');
@@ -168,7 +168,7 @@ pgspExplainPropertyText(const char *qlabel, const char *value, ExplainState *es)
 
 static void
 pgspExplainPropertyFloat(const char *qlabel, double value, int ndigits,
-					 ExplainState *es)
+						 ExplainState *es)
 {
 	char		buf[256];
 
@@ -179,7 +179,7 @@ pgspExplainPropertyFloat(const char *qlabel, double value, int ndigits,
 
 static void
 pgspExplainProperty(const char *qlabel, const char *value, bool numeric,
-				ExplainState *es)
+					ExplainState *es)
 {
 	pgspExplainJSONLineEnding(es);
 	appendStringInfoSpaces(es->str, es->indent * 2);
@@ -201,4 +201,3 @@ pgspExplainJSONLineEnding(ExplainState *es)
 		linitial_int(GROUPING_STACK(es)) = 1;
 	appendStringInfoChar(es->str, '\n');
 }
-

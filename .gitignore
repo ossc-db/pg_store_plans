@@ -5,3 +5,4 @@
 CMakeLists.txt
 regression.*
 results
+typedefs.list

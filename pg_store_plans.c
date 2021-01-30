@@ -72,7 +72,7 @@ static const uint32 store_plan_size = 5000;
 #define ASSUMED_MEDIAN_INIT		(10.0)	/* initial assumed median usage */
 #define USAGE_DECREASE_FACTOR	(0.99)	/* decreased every entry_dealloc */
 #define STICKY_DECREASE_FACTOR	(0.50)	/* factor for sticky entries */
-#define USAGE_DEALLOC_PERCENT	5		/* free this % of entries at once */
+#define USAGE_DEALLOC_PERCENT	5	/* free this % of entries at once */
 
 /*
  * Hashtable key that defines the identity of a hashtable entry.  We separate
@@ -88,35 +88,35 @@ typedef struct EntryKey
 	Oid			dbid;			/* database OID */
 	uint32		queryid;		/* internal query identifier */
 	uint32		planid;			/* plan identifier */
-} EntryKey;
+}			EntryKey;
 
 /*
  * The actual stats counters kept within StatEntry.
  */
 typedef struct Counters
 {
-	int64		calls;				/* # of times executed */
-	double		total_time;			/* total execution time, in msec */
-	double		min_time;			/* minimum execution time in msec */
-	double		max_time;			/* maximum execution time in msec */
-	double		mean_time;			/* mean execution time in msec */
+	int64		calls;			/* # of times executed */
+	double		total_time;		/* total execution time, in msec */
+	double		min_time;		/* minimum execution time in msec */
+	double		max_time;		/* maximum execution time in msec */
+	double		mean_time;		/* mean execution time in msec */
 	double		sum_var_time;	/* sum of variances in execution time in msec */
-	int64		rows;				/* total # of retrieved or affected rows */
+	int64		rows;			/* total # of retrieved or affected rows */
 	int64		shared_blks_hit;	/* # of shared buffer hits */
 	int64		shared_blks_read;	/* # of shared disk blocks read */
-	int64		shared_blks_dirtied;/* # of shared disk blocks dirtied */
-	int64		shared_blks_written;/* # of shared disk blocks written */
-	int64		local_blks_hit; 	/* # of local buffer hits */
+	int64		shared_blks_dirtied;	/* # of shared disk blocks dirtied */
+	int64		shared_blks_written;	/* # of shared disk blocks written */
+	int64		local_blks_hit; /* # of local buffer hits */
 	int64		local_blks_read;	/* # of local disk blocks read */
-	int64		local_blks_dirtied;	/* # of local disk blocks dirtied */
-	int64		local_blks_written;	/* # of local disk blocks written */
-	int64		temp_blks_read; 	/* # of temp blocks read */
+	int64		local_blks_dirtied; /* # of local disk blocks dirtied */
+	int64		local_blks_written; /* # of local disk blocks written */
+	int64		temp_blks_read; /* # of temp blocks read */
 	int64		temp_blks_written;	/* # of temp blocks written */
-	double		blk_read_time;		/* time spent reading, in msec */
-	double		blk_write_time; 	/* time spent writing, in msec */
-	TimestampTz	first_call;			/* timestamp of first call  */
-	TimestampTz	last_call;			/* timestamp of last call  */
-	double		usage;				/* usage factor */
+	double		blk_read_time;	/* time spent reading, in msec */
+	double		blk_write_time; /* time spent writing, in msec */
+	TimestampTz first_call;		/* timestamp of first call  */
+	TimestampTz last_call;		/* timestamp of last call  */
+	double		usage;			/* usage factor */
 } Counters;
 
 /*
@@ -133,12 +133,13 @@ typedef uint64 queryid_t;
 typedef struct StatEntry
 {
 	EntryKey	key;			/* hash key of entry - MUST BE FIRST */
-	queryid_t	queryid;		/* query identifier from stat_statements*/
+	queryid_t	queryid;		/* query identifier from stat_statements */
 	Counters	counters;		/* the statistics for this query */
 	int			plan_len;		/* # of valid bytes in query string */
 	int			encoding;		/* query encoding */
 	slock_t		mutex;			/* protects the counters only */
 	char		plan[1];		/* VARIABLE LENGTH ARRAY - MUST BE LAST */
+
 	/*
 	 * Note: the allocated length of query[] is actually
 	 * shared_state->query_size
@@ -153,7 +154,7 @@ typedef struct SharedState
 	LWLockId	lock;			/* protects hashtable search/modification */
 	int			plan_size;		/* max query length in bytes */
 	double		cur_median_usage;	/* current median usage in hashtable */
-} SharedState;
+}			SharedState;
 
 /*---- Local variables ----*/
 
@@ -169,7 +170,7 @@ static ExecutorEnd_hook_type prev_ExecutorEnd = NULL;
 static ProcessUtility_hook_type prev_ProcessUtility = NULL;
 
 /* Links to shared memory state */
-static SharedState *shared_state = NULL;
+static SharedState * shared_state = NULL;
 static HTAB *hash_table = NULL;
 
 /*---- GUC variables ----*/
@@ -177,10 +178,10 @@ static HTAB *hash_table = NULL;
 typedef enum
 {
 	TRACK_LEVEL_NONE,			/* track no statements */
-	TRACK_LEVEL_TOP,				/* only top level statements */
-	TRACK_LEVEL_ALL,				/* all statements, including nested ones */
+	TRACK_LEVEL_TOP,			/* only top level statements */
+	TRACK_LEVEL_ALL,			/* all statements, including nested ones */
 	TRACK_LEVEL_FORCE			/* all statements, including nested ones */
-}	PGSPTrackLevel;
+}			PGSPTrackLevel;
 
 static const struct config_enum_entry track_options[] =
 {
@@ -192,20 +193,20 @@ static const struct config_enum_entry track_options[] =
 
 typedef enum
 {
-	PLAN_FORMAT_RAW,		/* No conversion. Shorten JSON */
-	PLAN_FORMAT_TEXT,		/* Traditional text representation */
-	PLAN_FORMAT_JSON,		/* JSON representation */
-	PLAN_FORMAT_YAML,		/* YAML */
-	PLAN_FORMAT_XML,		/* XML  */
-}	PGSPPlanFormats;
+	PLAN_FORMAT_RAW,			/* No conversion. Shorten JSON */
+	PLAN_FORMAT_TEXT,			/* Traditional text representation */
+	PLAN_FORMAT_JSON,			/* JSON representation */
+	PLAN_FORMAT_YAML,			/* YAML */
+	PLAN_FORMAT_XML,			/* XML  */
+}			PGSPPlanFormats;
 
 static const struct config_enum_entry plan_formats[] =
 {
-	{"raw" , PLAN_FORMAT_RAW , false},
+	{"raw", PLAN_FORMAT_RAW, false},
 	{"text", PLAN_FORMAT_TEXT, false},
 	{"json", PLAN_FORMAT_JSON, false},
 	{"yaml", PLAN_FORMAT_YAML, false},
-	{"xml" , PLAN_FORMAT_XML , false},
+	{"xml", PLAN_FORMAT_XML, false},
 	{NULL, 0, false}
 };
 
@@ -219,9 +220,9 @@ static bool log_verbose;		/* Similar to EXPLAIN (VERBOSE *) */
 static bool log_buffers;		/* Similar to EXPLAIN (BUFFERS *) */
 static bool log_timing;			/* Similar to EXPLAIN (TIMING *) */
 static bool log_triggers;		/* whether to log trigger statistics  */
-static bool store_last_plan;    /* always update plan */
-static double sample_rate = 1;  /* sample rate */
-static int  plan_format;	/* Plan representation style in
+static bool store_last_plan;	/* always update plan */
+static double sample_rate = 1;	/* sample rate */
+static int	plan_format;		/* Plan representation style in
 								 * pg_store_plans.plan  */
 
 /* Is the current top-level query to be sampled? */
@@ -267,21 +268,21 @@ static void pgsp_shmem_startup(void);
 static void pgsp_shmem_shutdown(int code, Datum arg);
 static void pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags);
 static void pgsp_ExecutorRun(QueryDesc *queryDesc,
-				 ScanDirection direction,
+							 ScanDirection direction,
 							 uint64 count, bool execute_once);
 static void pgsp_ExecutorFinish(QueryDesc *queryDesc);
 static void pgsp_ExecutorEnd(QueryDesc *queryDesc);
 static void pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
-					ProcessUtilityContext context, ParamListInfo params,
-					QueryEnvironment *queryEnv,
-					DestReceiver *dest, COMPTAG_TYPE *completionTag);
-static uint32 hash_query(const char* query);
+								ProcessUtilityContext context, ParamListInfo params,
+								QueryEnvironment *queryEnv,
+								DestReceiver *dest, COMPTAG_TYPE * completionTag);
+static uint32 hash_query(const char *query);
 static void store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
-		   double total_time, uint64 rows,
-		   const BufferUsage *bufusage);
+						double total_time, uint64 rows,
+						const BufferUsage *bufusage);
 static Size shared_mem_size(void);
-static StatEntry *entry_alloc(EntryKey *key, const char *query,
-			int plan_len, bool sticky);
+static StatEntry *entry_alloc(EntryKey * key, const char *query,
+							  int plan_len, bool sticky);
 static void entry_dealloc(void);
 static void entry_reset(void);
 
@@ -306,7 +307,7 @@ _PG_init(void)
 	 * Define (or redefine) custom GUC variables.
 	 */
 	DefineCustomIntVariable("pg_store_plans.max",
-	  "Sets the maximum number of plans tracked by pg_store_plans.",
+							"Sets the maximum number of plans tracked by pg_store_plans.",
 							NULL,
 							&store_size,
 							1000,
@@ -319,7 +320,7 @@ _PG_init(void)
 							NULL);
 
 	DefineCustomEnumVariable("pg_store_plans.track",
-			   "Selects which plans are tracked by pg_store_plans.",
+							 "Selects which plans are tracked by pg_store_plans.",
 							 NULL,
 							 &track_level,
 							 TRACK_LEVEL_TOP,
@@ -331,7 +332,7 @@ _PG_init(void)
 							 NULL);
 
 	DefineCustomEnumVariable("pg_store_plans.plan_format",
-			   "Selects which format to be appied for plan representation in pg_store_plans.",
+							 "Selects which format to be appied for plan representation in pg_store_plans.",
 							 NULL,
 							 &plan_format,
 							 PLAN_FORMAT_TEXT,
@@ -343,7 +344,7 @@ _PG_init(void)
 							 NULL);
 
 	DefineCustomIntVariable("pg_store_plans.min_duration",
-					"Minimum duration to record plan.",
+							"Minimum duration to record plan.",
 							NULL,
 							&min_duration,
 							0,
@@ -356,7 +357,7 @@ _PG_init(void)
 							NULL);
 
 	DefineCustomIntVariable("pg_store_plans.slow_statement_duration",
-					"Unconditional record plan of slow statement.",
+							"Unconditional record plan of slow statement.",
 							NULL,
 							&slow_statement_duration,
 							0,
@@ -369,7 +370,7 @@ _PG_init(void)
 							NULL);
 
 	DefineCustomBoolVariable("pg_store_plans.save",
-			   "Save pg_store_plans statistics across server shutdowns.",
+							 "Save pg_store_plans statistics across server shutdowns.",
 							 NULL,
 							 &dump_on_shutdown,
 							 true,
@@ -380,7 +381,7 @@ _PG_init(void)
 							 NULL);
 
 	DefineCustomBoolVariable("pg_store_plans.store_last_plan",
-			   "Always update text of stored plan.",
+							 "Always update text of stored plan.",
 							 NULL,
 							 &store_last_plan,
 							 false,
@@ -435,7 +436,7 @@ _PG_init(void)
 							 NULL);
 
 	DefineCustomBoolVariable("pg_store_plans.log_verbose",
-			   "Set VERBOSE for EXPLAIN on logging.",
+							 "Set VERBOSE for EXPLAIN on logging.",
 							 NULL,
 							 &log_verbose,
 							 false,
@@ -446,7 +447,7 @@ _PG_init(void)
 							 NULL);
 
 	DefineCustomRealVariable("pg_store_plans.sample_rate",
-                          "Fraction of queries to process.",
+							 "Fraction of queries to process.",
 							 NULL,
 							 &sample_rate,
 							 1.0,
@@ -530,8 +531,8 @@ pgsp_shmem_startup(void)
 	LWLockAcquire(AddinShmemInitLock, LW_EXCLUSIVE);
 
 	shared_state = ShmemInitStruct("pg_store_plans",
-						   sizeof(SharedState),
-						   &found);
+								   sizeof(SharedState),
+								   &found);
 
 	if (!found)
 	{
@@ -548,9 +549,9 @@ pgsp_shmem_startup(void)
 	info.keysize = sizeof(EntryKey);
 	info.entrysize = offsetof(StatEntry, plan) + plan_size;
 	hash_table = ShmemInitHash("pg_store_plans hash",
-							  store_size, store_size,
-							  &info, HASH_ELEM |
-							  HASH_BLOBS);
+							   store_size, store_size,
+							   &info, HASH_ELEM |
+							   HASH_BLOBS);
 
 	LWLockRelease(AddinShmemInitLock);
 
@@ -597,7 +598,7 @@ pgsp_shmem_startup(void)
 			goto error;
 
 		/* Encoding is the only field we can easily sanity-check */
-	if (!PG_VALID_BE_ENCODING(temp.encoding))
+		if (!PG_VALID_BE_ENCODING(temp.encoding))
 			goto error;
 
 		/* Previous incarnation might have had a larger plan_size */
@@ -618,9 +619,9 @@ pgsp_shmem_startup(void)
 		/* Clip to available length if needed */
 		if (temp.plan_len >= plan_size)
 			temp.plan_len = pg_encoding_mbcliplen(temp.encoding,
-												   buffer,
-												   temp.plan_len,
-												   plan_size - 1);
+												  buffer,
+												  temp.plan_len,
+												  plan_size - 1);
 
 		/* make the hashtable entry (discards old entries if too many) */
 		entry = entry_alloc(&temp.key, buffer, temp.plan_len, false);
@@ -737,12 +738,12 @@ pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
 		(eflags & EXEC_FLAG_EXPLAIN_ONLY) == 0)
 	{
 		queryDesc->instrument_options |=
-			(log_timing ? INSTRUMENT_TIMER : 0)|
-			(log_timing ? 0: INSTRUMENT_ROWS)|
+			(log_timing ? INSTRUMENT_TIMER : 0) |
+			(log_timing ? 0 : INSTRUMENT_ROWS) |
 			(log_buffers ? INSTRUMENT_BUFFERS : 0);
 	}
 
-    current_query_sampled = (random() < sample_rate *((double) MAX_RANDOM_VALUE + 1));
+	current_query_sampled = (random() < sample_rate * ((double) MAX_RANDOM_VALUE + 1));
 
 	if (prev_ExecutorStart)
 		prev_ExecutorStart(queryDesc, eflags);
@@ -750,8 +751,8 @@ pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
 		standard_ExecutorStart(queryDesc, eflags);
 
 	/*
-	 * Set up to track total elapsed time in ExecutorRun. Allocate in per-query
-	 * context so as to be free at ExecutorEnd.
+	 * Set up to track total elapsed time in ExecutorRun. Allocate in
+	 * per-query context so as to be free at ExecutorEnd.
 	 */
 	if (queryDesc->totaltime == NULL && pgsp_enabled())
 	{
@@ -761,7 +762,7 @@ pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
 		queryDesc->totaltime = InstrAlloc(1, INSTRUMENT_ALL);
 		MemoryContextSwitchTo(oldcxt);
 	}
-	
+
 }
 
 /*
@@ -822,19 +823,19 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
 		InstrEndLoop(queryDesc->totaltime);
 
 		if ((pgsp_enabled() &&
-			queryDesc->totaltime->total >= (double)min_duration / 1000.0) ||
-            (slow_statement_duration > 0 && nested_level == 0 && queryDesc->totaltime &&
-                queryDesc->totaltime->total >= (double)slow_statement_duration / 1000.0))
+			 queryDesc->totaltime->total >= (double) min_duration / 1000.0) ||
+			(slow_statement_duration > 0 && nested_level == 0 && queryDesc->totaltime &&
+			 queryDesc->totaltime->total >= (double) slow_statement_duration / 1000.0))
 		{
-			ExplainState *es     = NewExplainState();
-			StringInfo	  es_str = es->str;
+			ExplainState *es = NewExplainState();
+			StringInfo	es_str = es->str;
 
 			es->analyze = queryDesc->instrument_options;
 			es->verbose = log_verbose;
 			es->buffers = (es->analyze && log_buffers);
 			es->timing = (es->analyze && log_timing);
 			es->format = EXPLAIN_FORMAT_JSON;
-	
+
 			ExplainBeginOutput(es);
 			ExplainPrintPlan(es, queryDesc);
 			if (log_triggers)
@@ -850,8 +851,8 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
 			es_str->data[es_str->len - 1] = '}';
 
 			/*
-			 * Make sure stats accumulation is done.  (Note: it's okay if several
-			 * levels of hook all do this.)
+			 * Make sure stats accumulation is done.  (Note: it's okay if
+			 * several levels of hook all do this.)
 			 */
 
 			store_entry(es_str->data,
@@ -877,7 +878,7 @@ static void
 pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
 					ProcessUtilityContext context, ParamListInfo params,
 					QueryEnvironment *queryEnv,
-					DestReceiver *dest, COMPTAG_TYPE *completionTag)
+					DestReceiver *dest, COMPTAG_TYPE * completionTag)
 {
 	if (prev_ProcessUtility)
 		prev_ProcessUtility(pstmt, queryString,
@@ -903,13 +904,14 @@ pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
  *  extension gives enough resolution on queries.
  */
 static uint32
-hash_query(const char* query)
+hash_query(const char *query)
 {
-	uint32 queryid;
+	uint32		queryid;
 
-	char *normquery = pstrdup(query);
+	char	   *normquery = pstrdup(query);
+
 	normalize_expr(normquery, false);
-	queryid = hash_any((const unsigned char*)normquery, strlen(normquery));
+	queryid = hash_any((const unsigned char *) normquery, strlen(normquery));
 	pfree(normquery);
 
 	return queryid;
@@ -924,17 +926,17 @@ hash_query(const char* query)
  */
 static void
 store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
-		   double total_time, uint64 rows,
-		   const BufferUsage *bufusage)
+			double total_time, uint64 rows,
+			const BufferUsage *bufusage)
 {
-	EntryKey key;
+	EntryKey	key;
 	StatEntry  *entry;
 	char	   *norm_query = NULL;
-	int 		plan_len;
+	int			plan_len;
 	char	   *normalized_plan = NULL;
 	char	   *shorten_plan = NULL;
-	volatile   StatEntry *e;
-	bool       update_plan = false;
+	volatile StatEntry *e;
+	bool		update_plan = false;
 
 	Assert(plan != NULL);
 
@@ -948,19 +950,20 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	key.queryid = queryId;
 
 	normalized_plan = pgsp_json_normalize(plan);
-	key.planid = hash_any((const unsigned char *)normalized_plan,
+	key.planid = hash_any((const unsigned char *) normalized_plan,
 						  strlen(normalized_plan));
 	pfree(normalized_plan);
 
-	if (store_last_plan) {
-	    update_plan = true;
-	    shorten_plan = pgsp_json_shorten(plan);
-	    plan_len = strlen(shorten_plan);
-	    if (plan_len >= shared_state->plan_size)
-		    plan_len = pg_encoding_mbcliplen(GetDatabaseEncoding(),
-										 shorten_plan,
-										 plan_len,
-										 shared_state->plan_size - 1);
+	if (store_last_plan)
+	{
+		update_plan = true;
+		shorten_plan = pgsp_json_shorten(plan);
+		plan_len = strlen(shorten_plan);
+		if (plan_len >= shared_state->plan_size)
+			plan_len = pg_encoding_mbcliplen(GetDatabaseEncoding(),
+											 shorten_plan,
+											 plan_len,
+											 shared_state->plan_size - 1);
 	}
 
 	/* Look up the hash table entry with shared lock. */
@@ -971,16 +974,18 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	/* Create new entry, if not present */
 	if (!entry)
 	{
-	    if (!update_plan) {
-	        update_plan = true;
-            shorten_plan = pgsp_json_shorten(plan);
-            plan_len = strlen(shorten_plan);
-            if (plan_len >= shared_state->plan_size)
-                plan_len = pg_encoding_mbcliplen(GetDatabaseEncoding(),
-                                                 shorten_plan,
-                                                 plan_len,
-                                                 shared_state->plan_size - 1);
-        }
+		if (!update_plan)
+		{
+			update_plan = true;
+			shorten_plan = pgsp_json_shorten(plan);
+			plan_len = strlen(shorten_plan);
+			if (plan_len >= shared_state->plan_size)
+				plan_len = pg_encoding_mbcliplen(GetDatabaseEncoding(),
+												 shorten_plan,
+												 plan_len,
+												 shared_state->plan_size - 1);
+		}
+
 		/*
 		 * We'll need exclusive lock to make a new entry.  There is no point
 		 * in holding shared lock while we normalize the string, though.
@@ -999,10 +1004,10 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	 * Grab the spinlock while updating the counters (see comment about
 	 * locking rules at the head of the file)
 	 */
-	
+
 	e = (volatile StatEntry *) entry;
 	SpinLockAcquire(&e->mutex);
-	
+
 	e->queryid = queryId_pgss;
 
 	/* "Unstick" entry if it was previously sticky */
@@ -1058,13 +1063,13 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	e->counters.usage += USAGE_EXEC(total_time);
 
 	if (update_plan)
-    {
-        Assert(plan_len >= 0 && plan_len < shared_state->plan_size);
-        memcpy(entry->plan, shorten_plan, plan_len);
-        entry->plan_len = plan_len;
-        entry->plan[plan_len] = '\0';
-    }
-	
+	{
+		Assert(plan_len >= 0 && plan_len < shared_state->plan_size);
+		memcpy(entry->plan, shorten_plan, plan_len);
+		entry->plan_len = plan_len;
+		entry->plan[plan_len] = '\0';
+	}
+
 	SpinLockRelease(&e->mutex);
 
 	LWLockRelease(shared_state->lock);
@@ -1144,9 +1149,9 @@ pg_store_plans(PG_FUNCTION_ARGS)
 		Datum		values[PG_STORE_PLANS_COLS];
 		bool		nulls[PG_STORE_PLANS_COLS];
 		int			i = 0;
-		int64		queryid      = entry->key.queryid;
+		int64		queryid = entry->key.queryid;
 		int64		queryid_stmt = entry->queryid;
-		int64		planid       = entry->key.planid;
+		int64		planid = entry->key.planid;
 		Counters	tmp;
 		double		stddev;
 
@@ -1191,7 +1196,7 @@ pg_store_plans(PG_FUNCTION_ARGS)
 				default:
 					break;
 			}
-			
+
 			estr = (char *)
 				pg_do_encoding_conversion((unsigned char *) pstr,
 										  strlen(pstr),
@@ -1203,7 +1208,7 @@ pg_store_plans(PG_FUNCTION_ARGS)
 				pfree(estr);
 			if (pstr != entry->plan)
 				pfree(pstr);
-			
+
 		}
 		else
 			values[i++] = CStringGetTextDatum("<insufficient privilege>");
@@ -1230,8 +1235,8 @@ pg_store_plans(PG_FUNCTION_ARGS)
 		/*
 		 * Note we are calculating the population variance here, not the
 		 * sample variance, as we have data for the whole population, so
-		 * Bessel's correction is not used, and we don't divide by
-		 * tmp.calls - 1.
+		 * Bessel's correction is not used, and we don't divide by tmp.calls -
+		 * 1.
 		 */
 		if (tmp.calls > 1)
 			stddev = sqrt(tmp.sum_var_time / tmp.calls);
@@ -1277,7 +1282,7 @@ shared_mem_size(void)
 	Size		entrysize;
 
 	size = MAXALIGN(sizeof(SharedState));
-	entrysize = offsetof(StatEntry, plan) +  store_plan_size;
+	entrysize = offsetof(StatEntry, plan) + store_plan_size;
 	size = add_size(size, hash_estimate_size(store_size, entrysize));
 
 	return size;
@@ -1301,7 +1306,7 @@ shared_mem_size(void)
  * have made the entry while we waited to get exclusive lock.
  */
 static StatEntry *
-entry_alloc(EntryKey *key, const char *plan, int plan_len, bool sticky)
+entry_alloc(EntryKey * key, const char *plan, int plan_len, bool sticky)
 {
 	StatEntry  *entry;
 	bool		found;
@@ -1426,40 +1431,43 @@ pg_store_plans_hash_query(PG_FUNCTION_ARGS)
 {
 	PG_RETURN_OID(hash_query(text_to_cstring(PG_GETARG_TEXT_P(0))));
 }
-		
+
 Datum
 pg_store_plans_shorten(PG_FUNCTION_ARGS)
 {
-	text *short_plan = PG_GETARG_TEXT_P(0);
-	char *cjson = text_to_cstring(short_plan);
-	char *cshorten = pgsp_json_shorten(cjson);
+	text	   *short_plan = PG_GETARG_TEXT_P(0);
+	char	   *cjson = text_to_cstring(short_plan);
+	char	   *cshorten = pgsp_json_shorten(cjson);
+
 	PG_RETURN_TEXT_P(cstring_to_text(cshorten));
 }
 
 Datum
 pg_store_plans_normalize(PG_FUNCTION_ARGS)
 {
-	text *short_plan = PG_GETARG_TEXT_P(0);
-	char *cjson = text_to_cstring(short_plan);
-	char *cnormalized = pgsp_json_normalize(cjson);
+	text	   *short_plan = PG_GETARG_TEXT_P(0);
+	char	   *cjson = text_to_cstring(short_plan);
+	char	   *cnormalized = pgsp_json_normalize(cjson);
+
 	PG_RETURN_TEXT_P(cstring_to_text(cnormalized));
 }
 
 Datum
 pg_store_plans_jsonplan(PG_FUNCTION_ARGS)
 {
-	text *short_plan = PG_GETARG_TEXT_P(0);
-	char *cshort = text_to_cstring(short_plan);
-	char *cinflated = pgsp_json_inflate(cshort);
+	text	   *short_plan = PG_GETARG_TEXT_P(0);
+	char	   *cshort = text_to_cstring(short_plan);
+	char	   *cinflated = pgsp_json_inflate(cshort);
+
 	PG_RETURN_TEXT_P(cstring_to_text(cinflated));
 }
 
 Datum
 pg_store_plans_textplan(PG_FUNCTION_ARGS)
 {
-	text *short_plan = PG_GETARG_TEXT_P(0);
-	char *cshort = text_to_cstring(short_plan);
-	char *ctextized = pgsp_json_textize(cshort);
+	text	   *short_plan = PG_GETARG_TEXT_P(0);
+	char	   *cshort = text_to_cstring(short_plan);
+	char	   *ctextized = pgsp_json_textize(cshort);
 
 	PG_RETURN_TEXT_P(cstring_to_text(ctextized));
 }
@@ -1467,9 +1475,9 @@ pg_store_plans_textplan(PG_FUNCTION_ARGS)
 Datum
 pg_store_plans_yamlplan(PG_FUNCTION_ARGS)
 {
-	text *short_plan = PG_GETARG_TEXT_P(0);
-	char *cshort = text_to_cstring(short_plan);
-	char *cyamlized = pgsp_json_yamlize(cshort);
+	text	   *short_plan = PG_GETARG_TEXT_P(0);
+	char	   *cshort = text_to_cstring(short_plan);
+	char	   *cyamlized = pgsp_json_yamlize(cshort);
 
 	PG_RETURN_TEXT_P(cstring_to_text(cyamlized));
 }
@@ -1477,9 +1485,9 @@ pg_store_plans_yamlplan(PG_FUNCTION_ARGS)
 Datum
 pg_store_plans_xmlplan(PG_FUNCTION_ARGS)
 {
-	text *short_plan = PG_GETARG_TEXT_P(0);
-	char *cshort = text_to_cstring(short_plan);
-	char *cxmlized = pgsp_json_xmlize(cshort);
+	text	   *short_plan = PG_GETARG_TEXT_P(0);
+	char	   *cshort = text_to_cstring(short_plan);
+	char	   *cxmlized = pgsp_json_xmlize(cshort);
 
 	PG_RETURN_TEXT_P(cstring_to_text(cxmlized));
 }
