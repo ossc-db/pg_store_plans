@@ -43,7 +43,13 @@ RETURNS oid
 AS 'MODULE_PATHNAME'
 LANGUAGE C
 RETURNS NULL ON NULL INPUT;
-CREATE FUNCTION pg_store_plans(
+-- Return plan by user_id/dbid/queryid/plan_id.
+CREATE FUNCTION pg_store_plans_get_plan(oid, oid, int8, int8)
+RETURNS text
+AS 'MODULE_PATHNAME'
+LANGUAGE C
+RETURNS NULL ON NULL INPUT;
+CREATE FUNCTION pg_store_plans(IN showtext boolean,
     OUT userid oid,
     OUT dbid oid,
     OUT queryid int8,
@@ -51,6 +57,7 @@ CREATE FUNCTION pg_store_plans(
     OUT queryid_stat_statements int8,
     OUT plan text,
     OUT calls int8,
+    OUT slow_log_calls int8,
     OUT total_time float8,
     OUT min_time float8,
     OUT max_time float8,
@@ -78,7 +85,7 @@ LANGUAGE C;
 
 -- Register a view on the function for ease of use.
 CREATE VIEW pg_store_plans AS
-  SELECT * FROM pg_store_plans();
+  SELECT * FROM pg_store_plans(true);
 
 GRANT SELECT ON pg_store_plans TO PUBLIC;
 

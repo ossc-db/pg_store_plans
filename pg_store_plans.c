@@ -96,6 +96,7 @@ typedef struct EntryKey
 typedef struct Counters
 {
 	int64		calls;			/* # of times executed */
+	int64       slow_log_calls; /* count of slow logs */
 	double		total_time;		/* total execution time, in msec */
 	double		min_time;		/* minimum execution time in msec */
 	double		max_time;		/* maximum execution time in msec */
@@ -250,6 +251,7 @@ Datum		pg_store_plans_textplan(PG_FUNCTION_ARGS);
 
 PG_FUNCTION_INFO_V1(pg_store_plans_reset);
 PG_FUNCTION_INFO_V1(pg_store_plans_hash_query);
+PG_FUNCTION_INFO_V1(pg_store_plans_get_plan);
 PG_FUNCTION_INFO_V1(pg_store_plans);
 PG_FUNCTION_INFO_V1(pg_store_plans_shorten);
 PG_FUNCTION_INFO_V1(pg_store_plans_normalize);
@@ -644,7 +646,7 @@ pgsp_shmem_startup(void)
 error:
 	ereport(LOG,
 			(errcode_for_file_access(),
-			 errmsg("could not read pg_stat_statement file \"%s\": %m",
+			 errmsg("could not read pg_store_plans file \"%s\": %m",
 					PGSP_DUMP_FILE)));
 	if (buffer)
 		pfree(buffer);
@@ -1018,6 +1020,8 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	}
 
 	e->counters.calls += 1;
+	if (slow_statement_duration > 0 && total_time > slow_statement_duration)
+		e->counters.slow_log_calls += 1;
 
 	e->counters.total_time += total_time;
 	if (e->counters.calls == 1)
@@ -1093,7 +1097,7 @@ pg_store_plans_reset(PG_FUNCTION_ARGS)
 	PG_RETURN_VOID();
 }
 
-#define PG_STORE_PLANS_COLS			27
+#define PG_STORE_PLANS_COLS			28
 
 /*
  * Retrieve statement statistics.
@@ -1101,6 +1105,7 @@ pg_store_plans_reset(PG_FUNCTION_ARGS)
 Datum
 pg_store_plans(PG_FUNCTION_ARGS)
 {
+	bool		showtext = PG_GETARG_BOOL(0);
 	ReturnSetInfo *rsinfo = (ReturnSetInfo *) fcinfo->resultinfo;
 	TupleDesc	tupdesc;
 	Tuplestorestate *tupstore;
@@ -1174,7 +1179,7 @@ pg_store_plans(PG_FUNCTION_ARGS)
 		}
 
 
-		if (is_allowed_role || entry->key.userid == userid)
+		if (showtext && (is_allowed_role || entry->key.userid == userid))
 		{
 			char	   *pstr = entry->plan;
 			char	   *estr;
@@ -1210,8 +1215,11 @@ pg_store_plans(PG_FUNCTION_ARGS)
 				pfree(pstr);
 
 		}
-		else
+		else if (showtext) {
 			values[i++] = CStringGetTextDatum("<insufficient privilege>");
+		} else {
+			nulls[i++] = true;
+		};
 
 		/* copy counters to a local variable to keep locking time short */
 		{
@@ -1227,6 +1235,7 @@ pg_store_plans(PG_FUNCTION_ARGS)
 			continue;
 
 		values[i++] = Int64GetDatumFast(tmp.calls);
+		values[i++] = Int64GetDatumFast(tmp.slow_log_calls);
 		values[i++] = Float8GetDatumFast(tmp.total_time);
 		values[i++] = Float8GetDatumFast(tmp.min_time);
 		values[i++] = Float8GetDatumFast(tmp.max_time);
@@ -1424,6 +1433,27 @@ entry_reset(void)
 	}
 
 	LWLockRelease(shared_state->lock);
+}
+
+Datum
+pg_store_plans_get_plan(PG_FUNCTION_ARGS)
+{
+	StatEntry  *entry;
+	EntryKey    key;
+
+	key.userid = PG_GETARG_OID(0);
+	key.dbid = PG_GETARG_OID(1);
+	key.queryid = PG_GETARG_INT32(2);
+	key.planid = PG_GETARG_INT32(3);
+
+	LWLockAcquire(shared_state->lock, LW_SHARED);
+	entry = (StatEntry *) hash_search(hash_table, &key, HASH_FIND, NULL);
+	LWLockRelease(shared_state->lock);
+	if (entry) {
+		PG_RETURN_TEXT_P(cstring_to_text(entry->plan));
+	} else {
+		PG_RETURN_NULL();
+	}
 }
 
 Datum
