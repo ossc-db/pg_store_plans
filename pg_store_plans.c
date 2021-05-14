@@ -41,6 +41,7 @@
 #include "commands/explain.h"
 #include "access/hash.h"
 #include "executor/instrument.h"
+#include "optimizer/planner.h"
 #include "funcapi.h"
 #include "mb/pg_wchar.h"
 #include "miscadmin.h"
@@ -113,6 +114,10 @@ typedef struct Counters
 	int64		local_blks_written; /* # of local disk blocks written */
 	int64		temp_blks_read; /* # of temp blocks read */
 	int64		temp_blks_written;	/* # of temp blocks written */
+	double      total_plan_duration_time; /* total time spent planning, in msec */
+	double      min_plan_duration_time; /* max time spent planning, in msec */
+	double      max_plan_duration_time; /* min time spent planning, in msec */
+	double      mean_plan_duration_time; /* mean time spent planning, in msec */
 	double		blk_read_time;	/* time spent reading, in msec */
 	double		blk_write_time; /* time spent writing, in msec */
 	TimestampTz first_call;		/* timestamp of first call  */
@@ -162,8 +167,13 @@ typedef struct SharedState
 /* Current nesting depth of ExecutorRun+ProcessUtility calls */
 static int	nested_level = 0;
 
+/* Current nesting depth of planner calls */
+static int	plan_nested_level = 0;
+static double plan_duration_ms = 0;
+
 /* Saved hook values in case of unload */
 static shmem_startup_hook_type prev_shmem_startup_hook = NULL;
+static planner_hook_type prev_planner_hook = NULL;
 static ExecutorStart_hook_type prev_ExecutorStart = NULL;
 static ExecutorRun_hook_type prev_ExecutorRun = NULL;
 static ExecutorFinish_hook_type prev_ExecutorFinish = NULL;
@@ -223,6 +233,7 @@ static bool log_timing;			/* Similar to EXPLAIN (TIMING *) */
 static bool log_triggers;		/* whether to log trigger statistics  */
 static bool store_last_plan;	/* always update plan */
 static double sample_rate = 1;	/* sample rate */
+static bool pgsp_track_planning;	/* whether to track planning duration */
 static int	plan_format;		/* Plan representation style in
 								 * pg_store_plans.plan  */
 
@@ -268,6 +279,10 @@ PG_FUNCTION_INFO_V1(pg_store_plans_xmlplan);
 
 static void pgsp_shmem_startup(void);
 static void pgsp_shmem_shutdown(int code, Datum arg);
+static PlannedStmt *pgsp_planner(Query *parse,
+								 const char *query_string,
+								 int cursorOptions,
+								 ParamListInfo boundParams);
 static void pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags);
 static void pgsp_ExecutorRun(QueryDesc *queryDesc,
 							 ScanDirection direction,
@@ -280,7 +295,7 @@ static void pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
 								DestReceiver *dest, COMPTAG_TYPE * completionTag);
 static uint32 hash_query(const char *query);
 static void store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
-						double total_time, uint64 rows,
+						double total_time, double plan_duration, uint64 rows,
 						const BufferUsage *bufusage);
 static Size shared_mem_size(void);
 static StatEntry *entry_alloc(EntryKey * key, const char *query,
@@ -460,6 +475,16 @@ _PG_init(void)
 							 NULL,
 							 NULL,
 							 NULL);
+	DefineCustomBoolVariable("pg_store_plans.track_planning",
+							 "Enable planning duration.",
+							 NULL,
+							 &pgsp_track_planning,
+							 false,
+							 PGC_SUSET,
+							 0,
+							 NULL,
+							 NULL,
+							 NULL);
 
 	EmitWarningsOnPlaceholders("pg_store_plans");
 
@@ -476,6 +501,8 @@ _PG_init(void)
 	 */
 	prev_shmem_startup_hook = shmem_startup_hook;
 	shmem_startup_hook = pgsp_shmem_startup;
+	prev_planner_hook = planner_hook;
+	planner_hook = pgsp_planner;
 	prev_ExecutorStart = ExecutorStart_hook;
 	ExecutorStart_hook = pgsp_ExecutorStart;
 	prev_ExecutorRun = ExecutorRun_hook;
@@ -496,6 +523,7 @@ _PG_fini(void)
 {
 	/* Uninstall hooks. */
 	shmem_startup_hook = prev_shmem_startup_hook;
+	planner_hook = prev_planner_hook;
 	ExecutorStart_hook = prev_ExecutorStart;
 	ExecutorRun_hook = prev_ExecutorRun;
 	ExecutorFinish_hook = prev_ExecutorFinish;
@@ -729,6 +757,57 @@ error:
 	unlink(PGSP_DUMP_FILE ".tmp");
 }
 
+/*
+ * Planner hook: forward to regular planner, but measure planning time
+ * if needed.
+ */
+static PlannedStmt *
+pgsp_planner(Query *parse,
+			 const char *query_string,
+			 int cursorOptions,
+			 ParamListInfo boundParams) {
+	PlannedStmt *result;
+	if (pgsp_track_planning)
+	{
+		instr_time	start;
+		instr_time	duration;
+
+		INSTR_TIME_SET_CURRENT(start);
+
+		plan_nested_level++;
+		PG_TRY();
+		{
+			if (prev_planner_hook)
+				result = prev_planner_hook(parse, query_string, cursorOptions,
+										   boundParams);
+			else
+				result = standard_planner(parse, query_string, cursorOptions,
+										  boundParams);
+		}
+		PG_FINALLY();
+		{
+			plan_nested_level--;
+		}
+		PG_END_TRY();
+
+		INSTR_TIME_SET_CURRENT(duration);
+		INSTR_TIME_SUBTRACT(duration, start);
+
+		plan_duration_ms = INSTR_TIME_GET_MILLISEC(duration);
+	}
+	else
+	{
+		if (prev_planner_hook)
+			result = prev_planner_hook(parse, query_string, cursorOptions,
+									   boundParams);
+		else
+			result = standard_planner(parse, query_string, cursorOptions,
+									  boundParams);
+	}
+
+	return result;
+}
+
 
 /*
  * ExecutorStart hook: start up tracking if needed
@@ -861,8 +940,10 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
 						0,
 						queryDesc->plannedstmt->queryId,
 						queryDesc->totaltime->total * 1000.0,	/* convert to msec */
+						plan_duration_ms,
 						queryDesc->estate->es_processed,
 						&queryDesc->totaltime->bufusage);
+			plan_duration_ms = 0;
 			pfree(es_str->data);
 		}
 	}
@@ -928,7 +1009,7 @@ hash_query(const char *query)
  */
 static void
 store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
-			double total_time, uint64 rows,
+			double total_time, double plan_duration, uint64 rows,
 			const BufferUsage *bufusage)
 {
 	EntryKey	key;
@@ -1024,11 +1105,14 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 		e->counters.slow_log_calls += 1;
 
 	e->counters.total_time += total_time;
+	e->counters.total_plan_duration_time += plan_duration;
 	if (e->counters.calls == 1)
 	{
 		e->counters.min_time = total_time;
 		e->counters.max_time = total_time;
 		e->counters.mean_time = total_time;
+		e->counters.min_plan_duration_time = plan_duration;
+		e->counters.max_plan_duration_time = plan_duration;
 	}
 	else
 	{
@@ -1037,17 +1121,25 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 		 * <http://www.johndcook.com/blog/standard_deviation/>
 		 */
 		double		old_mean = e->counters.mean_time;
+		double      old_plan_mean = e->counters.mean_plan_duration_time;
 
 		e->counters.mean_time +=
 			(total_time - old_mean) / e->counters.calls;
+		e->counters.mean_plan_duration_time +=
+            (plan_duration - old_plan_mean) / e->counters.calls;
 		e->counters.sum_var_time +=
 			(total_time - old_mean) * (total_time - e->counters.mean_time);
 
-		/* calculate min and max time */
+		/* total: calculate min and max time */
 		if (e->counters.min_time > total_time)
 			e->counters.min_time = total_time;
 		if (e->counters.max_time < total_time)
 			e->counters.max_time = total_time;
+		/* plan: calculate min and max time */
+		if (e->counters.min_plan_duration_time > plan_duration)
+			e->counters.min_plan_duration_time = plan_duration;
+		if (e->counters.max_plan_duration_time < plan_duration)
+			e->counters.max_plan_duration_time = plan_duration;
 	}
 
 	e->counters.rows += rows;
@@ -1097,7 +1189,7 @@ pg_store_plans_reset(PG_FUNCTION_ARGS)
 	PG_RETURN_VOID();
 }
 
-#define PG_STORE_PLANS_COLS			28
+#define PG_STORE_PLANS_COLS			32
 
 /*
  * Retrieve statement statistics.
@@ -1240,6 +1332,10 @@ pg_store_plans(PG_FUNCTION_ARGS)
 		values[i++] = Float8GetDatumFast(tmp.min_time);
 		values[i++] = Float8GetDatumFast(tmp.max_time);
 		values[i++] = Float8GetDatumFast(tmp.mean_time);
+		values[i++] = Float8GetDatumFast(tmp.total_plan_duration_time);
+		values[i++] = Float8GetDatumFast(tmp.min_plan_duration_time);
+		values[i++] = Float8GetDatumFast(tmp.max_plan_duration_time);
+		values[i++] = Float8GetDatumFast(tmp.mean_plan_duration_time);
 
 		/*
 		 * Note we are calculating the population variance here, not the

@@ -1022,8 +1022,8 @@ pgsp_json_textize(char *json)
 	sem.object_end = json_text_objend;
 	sem.array_start = json_text_arrstart;
 	sem.array_end = json_text_arrend;
-	sem.object_field_start = json_text_ofstart;
-	sem.object_field_end = json_text_ofend;
+	sem.object_field_start = (json_ofield_action) json_text_ofstart;
+	sem.object_field_end = (json_ofield_action) json_text_ofend;
 	sem.array_element_start = NULL;
 	sem.array_element_end = NULL;
 	sem.scalar = json_text_scalar;

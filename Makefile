@@ -9,8 +9,8 @@ EXTENSION = pg_store_plans
 
 PG_VERSION := $(shell pg_config --version | sed "s/^PostgreSQL //" | sed "s/\.[0-9]*$$//")
 
-DATA = pg_store_plans--1.5--1.6.sql pg_store_plans--1.6.sql \
-		pg_store_plans--1.5.sql
+DATA = pg_store_plans--1.5--1.6.sql pg_store_plans--1.6--1.7.sql pg_store_plans--1.5.sql \
+		pg_store_plans--1.6.sql pg_store_plans--1.7.sql
 
 REGRESS = convert store
 REGRESS_OPTS = --temp-config=regress.conf

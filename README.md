@@ -7,4 +7,5 @@ It is a [fork](http://github.com/ossc-db/pg_store_plans) with changes:
 * Added slow_statement_duration - this is an unconditional logging of query plans longer than 
   the specified value.
 * GUC min_duration - now be specified as time.
+* GUC pg_store_plans.track_planning - track planning time.
 * make fixes.
