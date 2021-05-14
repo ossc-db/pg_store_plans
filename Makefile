@@ -1,5 +1,7 @@
 # pg_stat_plan/Makefile
 
+SHELL=/usr/bin/env bash
+
 MODULES = pg_store_plans
 
 MODULE_big = pg_store_plans
