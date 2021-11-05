@@ -264,6 +264,9 @@ static void pgsp_ExecutorRun(QueryDesc *queryDesc,
 static void pgsp_ExecutorFinish(QueryDesc *queryDesc);
 static void pgsp_ExecutorEnd(QueryDesc *queryDesc);
 static void pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
+#if PG_VERSION_NUM >= 140000
+					bool readOnlyTree,
+#endif
 					ProcessUtilityContext context, ParamListInfo params,
 					QueryEnvironment *queryEnv,
 					DestReceiver *dest, COMPTAG_TYPE *completionTag);
@@ -710,7 +713,11 @@ pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
 		MemoryContext oldcxt;
 
 		oldcxt = MemoryContextSwitchTo(queryDesc->estate->es_query_cxt);
-		queryDesc->totaltime = InstrAlloc(1, INSTRUMENT_ALL);
+		queryDesc->totaltime = InstrAlloc(1, INSTRUMENT_ALL
+#if PG_VERSION_NUM >= 140000
+										  , false
+#endif
+										 );
 		MemoryContextSwitchTo(oldcxt);
 	}
 	
@@ -826,16 +833,25 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
  */
 static void
 pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
+#if PG_VERSION_NUM >= 140000
+					bool readOnlyTree,
+#endif
 					ProcessUtilityContext context, ParamListInfo params,
 					QueryEnvironment *queryEnv,
 					DestReceiver *dest, COMPTAG_TYPE *completionTag)
 {
 	if (prev_ProcessUtility)
 		prev_ProcessUtility(pstmt, queryString,
+#if PG_VERSION_NUM >= 140000
+							readOnlyTree,
+#endif
 							context, params, queryEnv,
 							dest, completionTag);
 	else
 		standard_ProcessUtility(pstmt, queryString,
+#if PG_VERSION_NUM >= 140000
+								readOnlyTree,
+#endif
 								context, params, queryEnv,
 								dest, completionTag);
 }
@@ -1040,7 +1056,13 @@ pg_store_plans(PG_FUNCTION_ARGS)
 	MemoryContext per_query_ctx;
 	MemoryContext oldcontext;
 	Oid			userid = GetUserId();
-	bool		is_allowed_role = is_member_of_role(GetUserId(), DEFAULT_ROLE_READ_ALL_STATS);
+	bool		is_allowed_role = is_member_of_role(GetUserId(),
+#if PG_VERSION_NUM >= 140000
+													ROLE_PG_READ_ALL_STATS
+#else
+													DEFAULT_ROLE_READ_ALL_STATS
+#endif
+												   );
 	HASH_SEQ_STATUS hash_seq;
 	StatEntry  *entry;
 
