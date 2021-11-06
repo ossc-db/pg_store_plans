@@ -319,7 +319,7 @@ word_table *
 search_word_table(word_table *tbl, const char *word, int mode)
 {
 	word_table *p;
-	
+
 	bool longname =
 		(mode == PGSP_JSON_SHORTEN || mode == PGSP_JSON_NORMALIZE);
 
@@ -444,7 +444,7 @@ norm_yylex(char *str, core_YYSTYPE *yylval, YYLTYPE *yylloc, core_yyscan_t yysca
 		return -1;
 	}
 	PG_END_TRY();
-	
+
 	/*
 	 * '?' alone is assumed to be an IDENT.  If there's a real
 	 * operator '?', this should be confused but there's hardly be.
@@ -514,7 +514,7 @@ normalize_expr(char *expr, bool preserve_space)
 		if (lastloc >= 0)
 		{
 			int i, i2;
-			
+
 			/* Skipping preceding whitespaces */
 			for(i = lastloc ; i < start && IS_WSCHAR(expr[i]) ; i++);
 
@@ -559,7 +559,7 @@ normalize_expr(char *expr, bool preserve_space)
 			 */
 			if (tok > 0 &&
 				i2 < start &&
-				(preserve_space || 
+				(preserve_space ||
 				 (tok >= IDENT && lasttok >= IDENT &&
 				  !IS_CONST(tok) && !IS_CONST(lasttok))))
 				*wp++ = ' ';
@@ -580,7 +580,7 @@ normalize_expr(char *expr, bool preserve_space)
 		 */
 		if (tok == '-')
 			tok = norm_yylex(expr, &yylval, &yylloc, yyscanner);
-		
+
 		/* Exit on parse error. */
 		if (tok < 0)
 		{
@@ -591,7 +591,7 @@ normalize_expr(char *expr, bool preserve_space)
 		if (IS_CONST(tok))
 		{
 			YYLTYPE end;
-			
+
 			tok = norm_yylex(expr, &yylval, &end, yyscanner);
 
 			/* Exit on parse error. */
@@ -612,7 +612,8 @@ normalize_expr(char *expr, bool preserve_space)
 				end++;
 			}
 
-			while (expr[end - 1] == ' ') end--;			
+			while (expr[end - 1] == ' ')
+				end--;
 
 			*wp++ = '?';
 			yylloc = end;
@@ -772,7 +773,7 @@ json_ofstart(void *state, char *fname, bool isnull)
 		ereport(DEBUG1,
 				(errmsg("JSON parser encoutered unknown field name: \"%s\".", fname),
 				 errdetail_log("INPUT: \"%s\"", ctx->org_string)));
-	}		
+	}
 
 	ctx->remove = (ctx->mode == PGSP_JSON_NORMALIZE &&
 				   (!p || !p->normalize_use));
@@ -954,7 +955,7 @@ yaml_ofstart(void *state, char *fname, bool isnull)
 		ereport(DEBUG1,
 				(errmsg("Short JSON parser encoutered unknown field name: \"%s\".", fname),
 				 errdetail_log("INPUT: \"%s\"", ctx->org_string)));
-	}		
+	}
 	s = (p ? p->longname : fname);
 
 	if (!bms_is_member(ctx->level, ctx->first))
@@ -1072,7 +1073,7 @@ xml_ofstart(void *state, char *fname, bool isnull)
 		ereport(DEBUG1,
 				(errmsg("Short JSON parser encoutered unknown field name: \"%s\".", fname),
 				 errdetail_log("INPUT: \"%s\"", ctx->org_string)));
-	}		
+	}
 	s = (p ? p->longname : fname);
 
 	/*
@@ -1112,7 +1113,7 @@ xml_ofend(void *state, char *fname, bool isnull)
 
 	p =	search_word_table(propfields, fname, ctx->mode);
 	s = (p ? p->longname : fname);
-	
+
 	appendStringInfoString(ctx->dest, "</");
 	appendStringInfoString(ctx->dest, escape_xml(hyphenate_words(ctx, s)));
 	appendStringInfoChar(ctx->dest, '>');
@@ -1234,7 +1235,7 @@ run_pg_parse_json(JsonLexContext *lex, JsonSemAction *sem)
 
 		ecxt = MemoryContextSwitchTo(ccxt);
 		errdata = CopyErrorData();
-		
+
 		if (errdata->sqlerrcode == ERRCODE_INVALID_TEXT_REPRESENTATION)
 		{
 			FlushErrorState();
@@ -1324,7 +1325,7 @@ pgsp_json_inflate(char *json)
 		if (ctx.dest->len > 0 &&
 			ctx.dest->data[ctx.dest->len - 1] != '\n')
 			appendStringInfoChar(ctx.dest, '\n');
-		
+
 		if (ctx.dest->len == 0)
 			appendStringInfoString(ctx.dest, "<Input was not JSON>");
 		else
@@ -1360,7 +1361,7 @@ pgsp_json_yamlize(char *json)
 		if (ctx.dest->len > 0 &&
 			ctx.dest->data[ctx.dest->len - 1] != '\n')
 			appendStringInfoChar(ctx.dest, '\n');
-		
+
 		if (ctx.dest->len == 0)
 			appendStringInfoString(ctx.dest, "<Input was not JSON>");
 		else
@@ -1402,7 +1403,7 @@ pgsp_json_xmlize(char *json)
 		if (ctx.dest->len > start_len &&
 			ctx.dest->data[ctx.dest->len - 1] != '\n')
 			appendStringInfoChar(ctx.dest, '\n');
-		
+
 		if (ctx.dest->len == start_len)
 		{
 			resetStringInfo(ctx.dest);

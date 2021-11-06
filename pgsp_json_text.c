@@ -85,7 +85,7 @@ SETTERDECL(node_type)
 SETTERDECL(strategy)
 {
 	word_table *p;
-	
+
 	p = search_word_table(strategies, val, PGSP_JSON_TEXTIZE);
 
 	if (!p)
@@ -312,7 +312,7 @@ print_prop_if_nz(StringInfo s, char *prepstr,
 		print_prop(s, prepstr, prop, level, exind);
 }
 
-static void 
+static void
 print_current_node(pgspParserContext *ctx)
 {
 	node_vals *v = ctx->nodevals;
@@ -327,7 +327,7 @@ print_current_node(pgspParserContext *ctx)
 	 * would be named T_Worker if there were in node.h. So it needs a special
 	 * treat.
 	 */
-	
+
 	if (v->node_type == T_Invalid && !HASSTRING(v->worker_number))
 		return;
 
@@ -407,7 +407,7 @@ print_current_node(pgspParserContext *ctx)
 				appendStringInfoString(s, "Worker");
 				print_prop_if_exists(s, " ", v->worker_number, 0, 0);
 
-				/* 
+				/*
 				 * "Worker"s are individual JSON objects in a JSON list but
 				 * should be printed as just a property in text
 				 * representaion. Correct indent using exind here.
@@ -470,7 +470,7 @@ print_current_node(pgspParserContext *ctx)
 		appendStringInfoSpaces(s, TEXT_INDENT_DETAILS(level, exind));
 		appendStringInfoString(s, str);
 	}
-		
+
 	print_propstr_if_exists(s, "Output: ", v->output, level, exind);
 	print_propstr_if_exists(s, "Group Key: ", v->group_key, level, exind);
 	print_groupingsets_if_exists(s, v->grouping_sets, level, exind);
@@ -493,7 +493,7 @@ print_current_node(pgspParserContext *ctx)
 		if (v->repeatable_seed)
 			appendStringInfo(s, " REPEATABLE (%s)", v->repeatable_seed);
 	}
-	
+
 	print_propstr_if_exists(s, "Sort Key: ", v->sort_key, level, exind);
 	if (HASSTRING(v->sort_method))
 	{
@@ -703,7 +703,7 @@ print_current_node(pgspParserContext *ctx)
 		/* Feed a line if any of Buffers: items has been shown */
 		if (comma)
 			appendStringInfoString(s, "\n");
-			
+
 		appendStringInfoSpaces(s, TEXT_INDENT_DETAILS(level, exind));
 		appendStringInfoString(s, "I/O Timings: ");
 
@@ -814,7 +814,7 @@ json_text_objend(void *state)
 		}
 
 		/* Move working grouping set into nodevals */
-		ctx->nodevals->grouping_sets = 
+		ctx->nodevals->grouping_sets =
 			lappend(v->grouping_sets, ctx->tmp_gset);
 		ctx->tmp_gset = NULL;
 	}
@@ -823,7 +823,7 @@ json_text_objend(void *state)
 	ctx->level--;
 }
 
-static void 
+static void
 json_text_arrstart(void *state)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
@@ -1035,7 +1035,7 @@ pgsp_json_textize(char *json)
 		if (ctx.dest->len > 0 &&
 			ctx.dest->data[ctx.dest->len - 1] != '\n')
 			appendStringInfoChar(ctx.dest, '\n');
-		
+
 		if (ctx.dest->len == 0)
 			appendStringInfoString(ctx.dest, "<Input was not JSON>");
 		else
