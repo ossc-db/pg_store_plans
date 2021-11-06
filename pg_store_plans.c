@@ -255,8 +255,8 @@ PG_FUNCTION_INFO_V1(pg_store_plans_xmlplan);
 #define COMPTAG_TYPE QueryCompletion
 #endif
 
-#if PG_VERSION_NUM >= 140000
-#define DEFAULT_ROLE_READ_ALL_STATS ROLE_PG_READ_ALL_STATS 
+#if PG_VERSION_NUM < 140000
+#define ROLE_PG_READ_ALL_STATS		DEFAULT_ROLE_READ_ALL_STATS
 #endif
 
 static void pgsp_shmem_startup(void);
@@ -1060,7 +1060,7 @@ pg_store_plans(PG_FUNCTION_ARGS)
 	MemoryContext per_query_ctx;
 	MemoryContext oldcontext;
 	Oid			userid = GetUserId();
-	bool		is_allowed_role = is_member_of_role(GetUserId(), DEFAULT_ROLE_READ_ALL_STATS);
+	bool		is_allowed_role = is_member_of_role(GetUserId(), ROLE_PG_READ_ALL_STATS);
 	HASH_SEQ_STATUS hash_seq;
 	StatEntry  *entry;
 
