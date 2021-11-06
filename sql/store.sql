@@ -43,7 +43,7 @@ BEGIN
              WHERE s.query = 'SELECT count(*) FROM (SELECT * FROM t1) AS x'
              ORDER BY p.calls
     LOOP
-	  IF first then
+      IF first then
         s = r.q || E'\n  totalcalls=' || totalcalls ||
             ' , totalrows=' || totalrows || E'\n';
         first := false;

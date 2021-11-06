@@ -559,7 +559,7 @@ pgsp_shmem_startup(void)
 			goto error;
 
 		/* Encoding is the only field we can easily sanity-check */
-	if (!PG_VALID_BE_ENCODING(temp.encoding))
+		if (!PG_VALID_BE_ENCODING(temp.encoding))
 			goto error;
 
 		/* Previous incarnation might have had a larger plan_size */
@@ -724,7 +724,7 @@ pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
 										 );
 		MemoryContextSwitchTo(oldcxt);
 	}
-	
+
 }
 
 /*
@@ -785,7 +785,7 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
 		InstrEndLoop(queryDesc->totaltime);
 
 		if (pgsp_enabled() &&
-			queryDesc->totaltime->total >= 
+			queryDesc->totaltime->total >=
 			(double)min_duration / 1000.0)
 		{
 			ExplainState *es     = NewExplainState();
@@ -796,7 +796,7 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
 			es->buffers = (es->analyze && log_buffers);
 			es->timing = (es->analyze && log_timing);
 			es->format = EXPLAIN_FORMAT_JSON;
-	
+
 			ExplainBeginOutput(es);
 			ExplainPrintPlan(es, queryDesc);
 			if (log_triggers)
@@ -934,7 +934,7 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 										 plan_len,
 										 shared_state->plan_size - 1);
 
-	
+
 	/* Look up the hash table entry with shared lock. */
 	LWLockAcquire(shared_state->lock, LW_SHARED);
 
@@ -961,10 +961,10 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	 * Grab the spinlock while updating the counters (see comment about
 	 * locking rules at the head of the file)
 	 */
-	
+
 	e = (volatile StatEntry *) entry;
 	SpinLockAcquire(&e->mutex);
-	
+
 	e->queryid = queryId_pgss;
 
 	/* "Unstick" entry if it was previously sticky */
@@ -973,7 +973,7 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 		e->counters.usage = USAGE_INIT;
 		e->counters.first_call = GetCurrentTimestamp();
 	}
-	
+
 	e->counters.calls += 1;
 	e->counters.total_time += total_time;
 	if (e->counters.calls == 1)
@@ -1022,7 +1022,7 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	memcpy(entry->plan, shorten_plan, plan_len);
 	entry->plan_len = plan_len;
 	entry->plan[plan_len] = '\0';
-	
+
 	SpinLockRelease(&e->mutex);
 
 	LWLockRelease(shared_state->lock);
@@ -1149,7 +1149,7 @@ pg_store_plans(PG_FUNCTION_ARGS)
 				default:
 					break;
 			}
-			
+
 			estr = (char *)
 				pg_do_encoding_conversion((unsigned char *) pstr,
 										  strlen(pstr),
@@ -1161,7 +1161,7 @@ pg_store_plans(PG_FUNCTION_ARGS)
 				pfree(estr);
 			if (pstr != entry->plan)
 				pfree(pstr);
-			
+
 		}
 		else
 			values[i++] = CStringGetTextDatum("<insufficient privilege>");
@@ -1384,7 +1384,7 @@ pg_store_plans_hash_query(PG_FUNCTION_ARGS)
 {
 	PG_RETURN_OID(hash_query(text_to_cstring(PG_GETARG_TEXT_P(0))));
 }
-		
+
 Datum
 pg_store_plans_shorten(PG_FUNCTION_ARGS)
 {

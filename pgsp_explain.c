@@ -81,7 +81,7 @@ pgspExplainTriggers(ExplainState *es, QueryDesc *queryDesc)
 		routerels = queryDesc->estate->es_tuple_routing_result_relations;
 		targrels = queryDesc->estate->es_trig_target_relations;
 #endif
-		
+
 		pgspExplainOpenGroup("Triggers", "Triggers", false, es);
 
 #if PG_VERSION_NUM < 140000
@@ -111,7 +111,7 @@ pgspExplainTriggers(ExplainState *es, QueryDesc *queryDesc)
 			rInfo = (ResultRelInfo *) lfirst(l);
 			report_triggers(rInfo, show_relname, es);
 		}
-		
+
 		pgspExplainCloseGroup("Triggers", "Triggers", false, es);
 	}
 }
@@ -128,7 +128,7 @@ pgspExplainOpenGroup(const char *objtype, const char *labelname,
 		appendStringInfoString(es->str, ": ");
 	}
 	appendStringInfoChar(es->str, labeled ? '{' : '[');
-	
+
 	GROUPING_STACK(es) = lcons_int(0, GROUPING_STACK(es));
 	es->indent++;
 }
