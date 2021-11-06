@@ -49,6 +49,11 @@ BEGIN
         first := false;
       END IF;
       p := regexp_replace(r.p, '=[0-9.]+([^0-9.])', '=xxx\1', 'g');
+      -- remove any "Async Capable" lines in the middle of a node, including
+      -- the trailing newline
+      p := regexp_replace(p, ' *Async Capable: (true|false) *\n', '', 'g');
+      -- remove any final "Async Capable" line, including the leading newline
+      p := regexp_replace(p, '\n *Async Capable: (true|false) *$', '', 'g');
       s := s || p || E'\n  calls=' || r.c || ', rows=' || r.r || E'\n';
     END LOOP;
 
