@@ -782,6 +782,10 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
 {
 	if (queryDesc->totaltime)
 	{
+		/*
+		 * Make sure stats accumulation is done.  (Note: it's okay if several
+		 * levels of hook all do this.)
+		 */
 		InstrEndLoop(queryDesc->totaltime);
 
 		if (pgsp_enabled() &&
@@ -810,11 +814,6 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
 			/* JSON outmost braces. */
 			es_str->data[0] = '{';
 			es_str->data[es_str->len - 1] = '}';
-
-			/*
-			 * Make sure stats accumulation is done.  (Note: it's okay if several
-			 * levels of hook all do this.)
-			 */
 
 			store_entry(es_str->data,
 						hash_query(queryDesc->sourceText),
