@@ -77,7 +77,7 @@ BEGIN
 
     FOR r IN SELECT s.query as q, p.plan as p, p.calls as c, p.rows r
              FROM pg_stat_statements s
-             JOIN pg_store_plans p ON (s.queryid = p.queryid_stat_statements)
+             JOIN pg_store_plans p USING (queryid)
              WHERE s.query = 'SELECT count(*) FROM (SELECT * FROM t1) AS x'
              ORDER BY p.calls
     LOOP

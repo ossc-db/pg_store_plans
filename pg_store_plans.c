@@ -51,6 +51,9 @@
 #include "tcop/utility.h"
 #include "utils/acl.h"
 #include "utils/builtins.h"
+#if PG_VERSION_NUM >= 140000
+#include "utils/queryjumble.h"
+#endif
 #include "utils/timestamp.h"
 
 #include "pgsp_json.h"
@@ -73,6 +76,25 @@ static int max_plan_len = 5000;
 #define STICKY_DECREASE_FACTOR	(0.50)	/* factor for sticky entries */
 #define USAGE_DEALLOC_PERCENT	5		/* free this % of entries at once */
 
+/* In PostgreSQL 11, queryid becomes a uint64 internally.
+ */
+#if PG_VERSION_NUM >= 110000
+typedef uint64 queryid_t;
+#define PGSP_NO_QUERYID		UINT64CONST(0)
+#else
+typedef uint32 queryid_t;
+#define PGSP_NO_QUERYID		0
+#endif
+
+/*
+ * Extension version number, for supporting older extension versions' objects
+ */
+typedef enum pgspVersion
+{
+	PGSP_V1_5 = 0,
+	PGSP_V1_6
+} pgspVersion;
+
 /*
  * Hashtable key that defines the identity of a hashtable entry.  We separate
  * queries by user and by database even if they are otherwise identical.
@@ -85,7 +107,7 @@ typedef struct pgspHashKey
 {
 	Oid			userid;			/* user OID */
 	Oid			dbid;			/* database OID */
-	uint32		queryid;		/* internal query identifier */
+	queryid_t	queryid;		/* query identifier */
 	uint32		planid;			/* plan identifier */
 } pgspHashKey;
 
@@ -119,12 +141,6 @@ typedef struct Counters
 } Counters;
 
 /*
- * The type of queryId has been widen as of PG11. Define substitute type rather
- * than put #if here and there.
- */
-typedef uint64 queryid_t;
-
-/*
  * Statistics per plan
  *
  * NB: see the file read/write code before changing field order here.
@@ -132,7 +148,6 @@ typedef uint64 queryid_t;
 typedef struct pgspEntry
 {
 	pgspHashKey	key;			/* hash key of entry - MUST BE FIRST */
-	queryid_t	queryid;		/* query identifier from stat_statements*/
 	Counters	counters;		/* the statistics for this query */
 	int			plan_len;		/* # of valid bytes in query string */
 	int			encoding;		/* query encoding */
@@ -220,9 +235,22 @@ static bool log_triggers;		/* whether to log trigger statistics  */
 static int  plan_format;	/* Plan representation style in
 								 * pg_store_plans.plan  */
 
-#define pgsp_enabled() \
+#if PG_VERSION_NUM >= 140000
+/*
+ * For pg14 and later, we rely on core queryid calculation.  If
+ * it's not available it means that the admin explicitly refused to
+ * compute it, for performance reason or other.  In that case, we
+ * will also consider that this extension is disabled.
+ */
+#define pgsp_enabled(q) \
+	((track_level == TRACK_LEVEL_ALL || \
+	(track_level == TRACK_LEVEL_TOP && nested_level == 0)) && \
+	(q != PGSP_NO_QUERYID))
+#else
+#define pgsp_enabled(q) \
 	(track_level == TRACK_LEVEL_ALL || \
 	(track_level == TRACK_LEVEL_TOP && nested_level == 0))
+#endif
 
 /*---- Function declarations ----*/
 
@@ -242,6 +270,7 @@ Datum		pg_store_plans_textplan(PG_FUNCTION_ARGS);
 PG_FUNCTION_INFO_V1(pg_store_plans_reset);
 PG_FUNCTION_INFO_V1(pg_store_plans_hash_query);
 PG_FUNCTION_INFO_V1(pg_store_plans);
+PG_FUNCTION_INFO_V1(pg_store_plans_1_6);
 PG_FUNCTION_INFO_V1(pg_store_plans_shorten);
 PG_FUNCTION_INFO_V1(pg_store_plans_normalize);
 PG_FUNCTION_INFO_V1(pg_store_plans_jsonplan);
@@ -275,9 +304,11 @@ static void pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
 					QueryEnvironment *queryEnv,
 					DestReceiver *dest, COMPTAG_TYPE *completionTag);
 static uint32 hash_query(const char* query);
-static void pgsp_store(char *plan, uint32 queryId, queryid_t queryId_pgss,
+static void pgsp_store(char *plan, queryid_t queryId,
 		   double total_time, uint64 rows,
 		   const BufferUsage *bufusage);
+static void pg_store_plans_internal(FunctionCallInfo fcinfo,
+									pgspVersion api_version);
 static Size shared_mem_size(void);
 static pgspEntry *entry_alloc(pgspHashKey *key, const char *query,
 			int plan_len, bool sticky);
@@ -300,6 +331,14 @@ _PG_init(void)
 	 */
 	if (!process_shared_preload_libraries_in_progress)
 		return;
+
+#if PG_VERSION_NUM >= 140000
+	/*
+	 * Inform the postmaster that we want to enable query_id calculation if
+	 * compute_query_id is set to auto.
+	 */
+	EnableQueryId();
+#endif
 
 	/*
 	 * Define (or redefine) custom GUC variables.
@@ -716,6 +755,7 @@ pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
 			(log_timing ? 0: INSTRUMENT_ROWS)|
 			(log_buffers ? INSTRUMENT_BUFFERS : 0);
 	}
+
 	if (prev_ExecutorStart)
 		prev_ExecutorStart(queryDesc, eflags);
 	else
@@ -725,7 +765,8 @@ pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
 	 * Set up to track total elapsed time in ExecutorRun. Allocate in per-query
 	 * context so as to be free at ExecutorEnd.
 	 */
-	if (queryDesc->totaltime == NULL && pgsp_enabled())
+	if (queryDesc->totaltime == NULL &&
+			pgsp_enabled(queryDesc->plannedstmt->queryId))
 	{
 		MemoryContext oldcxt;
 
@@ -801,12 +842,17 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
 		 */
 		InstrEndLoop(queryDesc->totaltime);
 
-		if (pgsp_enabled() &&
+		if (pgsp_enabled(queryDesc->plannedstmt->queryId) &&
+			queryDesc->totaltime->total &&
 			queryDesc->totaltime->total >=
 			(double)min_duration / 1000.0)
 		{
-			ExplainState *es     = NewExplainState();
-			StringInfo	  es_str = es->str;
+			queryid_t	  queryid;
+			ExplainState *es;
+			StringInfo	  es_str;
+
+			es = NewExplainState();
+			es_str = es->str;
 
 			es->analyze = queryDesc->instrument_options;
 			es->verbose = log_verbose;
@@ -828,9 +874,24 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
 			es_str->data[0] = '{';
 			es_str->data[es_str->len - 1] = '}';
 
+			queryid = queryDesc->plannedstmt->queryId;
+#if PG_VERSION_NUM < 140000
+			/*
+			 * For versions before pg14, a queryid is only available if
+			 * pg_stat_statements extension (or similar) if configured.  We
+			 * don't want a hard requirement for such an extension so fallback
+			 * to an internal queryid calculation in some case.
+			 * For pg14 and above, core postgres can compute a queryid so we
+			 * will rely on it.
+			 */
+			if (queryid == PGSP_NO_QUERYID)
+				queryid = (queryid_t) hash_query(queryDesc->sourceText);
+#else
+			Assert(queryid != PGSP_NO_QUERYID);
+#endif
+
 			pgsp_store(es_str->data,
-						hash_query(queryDesc->sourceText),
-						queryDesc->plannedstmt->queryId,
+						queryid,
 						queryDesc->totaltime->total * 1000.0,	/* convert to msec */
 						queryDesc->estate->es_processed,
 						&queryDesc->totaltime->bufusage);
@@ -895,6 +956,10 @@ hash_query(const char* query)
 	queryid = hash_any((const unsigned char*)normquery, strlen(normquery));
 	pfree(normquery);
 
+	/* If we are unlucky enough to get a hash of zero, use 1 instead */
+	if (queryid == 0)
+		queryid = 1;
+
 	return queryid;
 }
 
@@ -906,7 +971,7 @@ hash_query(const char* query)
  * value of the given plan, which is calculated in ths function.
  */
 static void
-pgsp_store(char *plan, uint32 queryId, queryid_t queryId_pgss,
+pgsp_store(char *plan, queryid_t queryId,
 		   double total_time, uint64 rows,
 		   const BufferUsage *bufusage)
 {
@@ -918,7 +983,7 @@ pgsp_store(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	char	   *shorten_plan = NULL;
 	volatile pgspEntry *e;
 
-	Assert(plan != NULL);
+	Assert(plan != NULL && queryId != PGSP_NO_QUERYID);
 
 	/* Safety check... */
 	if (!shared_state || !hash_table)
@@ -976,8 +1041,6 @@ pgsp_store(char *plan, uint32 queryId, queryid_t queryId_pgss,
 
 	e = (volatile pgspEntry *) entry;
 	SpinLockAcquire(&e->mutex);
-
-	e->queryid = queryId_pgss;
 
 	/* "Unstick" entry if it was previously sticky */
 	if (e->counters.calls == 0)
@@ -1058,13 +1121,33 @@ pg_store_plans_reset(PG_FUNCTION_ARGS)
 	PG_RETURN_VOID();
 }
 
-#define PG_STORE_PLANS_COLS			27
+/* Number of output arguments (columns) for various API versions */
+#define PG_STORE_PLANS_COLS_V1_5	27
+#define PG_STORE_PLANS_COLS_V1_6	26
+#define PG_STORE_PLANS_COLS			27	/* maximum of above */
 
 /*
  * Retrieve statement statistics.
  */
 Datum
+pg_store_plans_1_6(PG_FUNCTION_ARGS)
+{
+	pg_store_plans_internal(fcinfo, PGSP_V1_6);
+
+	return (Datum) 0;
+}
+
+Datum
 pg_store_plans(PG_FUNCTION_ARGS)
+{
+	pg_store_plans_internal(fcinfo, PGSP_V1_5);
+
+	return (Datum) 0;
+}
+
+static void
+pg_store_plans_internal(FunctionCallInfo fcinfo,
+						pgspVersion api_version)
 {
 	ReturnSetInfo *rsinfo = (ReturnSetInfo *) fcinfo->resultinfo;
 	TupleDesc	tupdesc;
@@ -1115,7 +1198,6 @@ pg_store_plans(PG_FUNCTION_ARGS)
 		bool		nulls[PG_STORE_PLANS_COLS];
 		int			i = 0;
 		int64		queryid      = entry->key.queryid;
-		int64		queryid_stmt = entry->queryid;
 		int64		planid       = entry->key.planid;
 		Counters	tmp;
 		double		stddev;
@@ -1129,15 +1211,16 @@ pg_store_plans(PG_FUNCTION_ARGS)
 		{
 			values[i++] = Int64GetDatumFast(queryid);
 			values[i++] = Int64GetDatumFast(planid);
-			values[i++] = Int64GetDatumFast(queryid_stmt);
+			if (api_version == PGSP_V1_5)
+				values[i++] = ObjectIdGetDatum(queryid);
 		}
 		else
 		{
 			values[i++] = Int64GetDatumFast(0);
 			values[i++] = Int64GetDatumFast(0);
-			values[i++] = Int64GetDatumFast(0);
+			if (api_version == PGSP_V1_5)
+				values[i++] = Int64GetDatumFast(0);
 		}
-
 
 		if (is_allowed_role || entry->key.userid == userid)
 		{
@@ -1224,7 +1307,10 @@ pg_store_plans(PG_FUNCTION_ARGS)
 		values[i++] = Float8GetDatumFast(tmp.blk_write_time);
 		values[i++] = TimestampTzGetDatum(tmp.first_call);
 		values[i++] = TimestampTzGetDatum(tmp.last_call);
-		Assert(i == PG_STORE_PLANS_COLS);
+
+		Assert(i == (api_version == PGSP_V1_5 ? PG_STORE_PLANS_COLS_V1_5 :
+					 api_version == PGSP_V1_6 ? PG_STORE_PLANS_COLS_V1_6 :
+					 -1 /* fail if you forget to update this assert */ ));
 
 		tuplestore_putvalues(tupstore, tupdesc, values, nulls);
 	}
@@ -1233,8 +1319,6 @@ pg_store_plans(PG_FUNCTION_ARGS)
 
 	/* clean up and return the tuplestore */
 	tuplestore_donestoring(tupstore);
-
-	return (Datum) 0;
 }
 
 /*

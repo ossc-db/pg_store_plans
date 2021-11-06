@@ -26,7 +26,11 @@ CONTENT="text/html; charset=ISO-8859-1">
   <A HREF="http://www.postgresql.org/docs/current/static/runtime-config-client.html#GUC-SHARED-PRELOAD-LIBRARIES">shared_preload_libraries</A> in
   <TT CLASS="FILENAME">postgresql.conf</TT>, because it requires
   additional shared memory.  This means that a server restart is
-  required to add or remove the module.
+  required to add or remove the
+  module.  <TT CLASS="LITERAL">pg_store_plans</TT> requires the GUC
+  variable <TT CLASS="LITERAL">compute_query_id</TT> to be "on" or
+  "auto". If it is set to
+  "no", <TT CLASS="LITERAL">pg_store_plans</TT> is silently disabled.
 </P>
 <DIV CLASS="SECT2">
 <H2 CLASS="SECT2">1. The <TT CLASS="STRUCTNAME">pg_store_plans</TT>
@@ -62,20 +66,14 @@ View</H2>
 <TR><TD><TT CLASS="STRUCTFIELD">queryid</TT></TD>
     <TD><TT CLASS="TYPE">bigint</TT></TD>
     <TD>&nbsp;</TD>
-    <TD>Internal hash code, computed from the statement's query string.</TD>
+     <TD>Core-generated query ID. If compute_query_id is set to "no", pg_store_plan is silently disabled. This is usable as the join key
+    with <TT CLASS="LITERAL">pg_stat_statements</TT>.</TD></TD>
     </TR>
 <TR><TD><TT CLASS="STRUCTFIELD">planid</TT></TD>
     <TD><TT CLASS="TYPE">bigint</TT></TD>
     <TD>&nbsp;</TD>
-    <TD>Internal hash code, computed from the statement's plan
-    representation.</TD>
-    </TR>
-<TR><TD><TT CLASS="STRUCTFIELD">queryid_stat_statements</TT></TD>
-    <TD><TT CLASS="TYPE">bigint</TT></TD>
-    <TD>&nbsp;</TD>
-    <TD>A copy of pg_stat_statements' query hash code. This is
-    available only when pg_stat_statements is installed.</TD>
-    </TR>
+    <TD>Plan hash code, computed from the normalized plan representation.
+</TR>
 <TR><TD><TT CLASS="STRUCTFIELD">plan</TT></TD>
     <TD><TT CLASS="TYPE">text</TT></TD>
     <TD>&nbsp;</TD>
@@ -210,49 +208,24 @@ calculated in a similar way. Two plans are considered the same if they
 are seemingly equivalent except for the values of literal constants
 or fluctuating values such like costs or measured time. </P>
 
-<P> For PostgreSQL 9.4 or later, you can find the corresponding query
+<P> For PostgreSQL 14 or later, you can find the corresponding query
 for a <TT CLASS="structname">pg_store_plans</TT> entry
 in <TT CLASS="structname">pg_stat_statements</TT> by joining using
-<TT CLASS="structname">queryid_stat_statements</TT>. Otherwise it is
-identified by using <TT CLASS="VARNAME">queryid</TT>
-and <CODE CLASS="FUNCTION">pg_store_plans_hash_query</CODE >, like
-following.
+<TT CLASS="structname">queryid</TT>, like the following.
 
 </P>
 <P>
-<PRE CLASS="SCREEN">SELECT s.query, p.plan FROM pg_store_plans p JOIN pg_stat_statements s ON (pg_store_plans_hash_query(s.query)) = p.queryid;</PRE>
+<PRE CLASS="SCREEN">SELECT s.query, p.plan FROM pg_store_plans p JOIN pg_stat_statements s USING (queryid);</PRE>
 </P>
 
-<P> However plan id is calculated ignoring fluctuating values, the
-values for most recent execution are still displayed
-in <TT CLASS="STRUCTNAME">pg_store_plans.plan</TT>.
+<P> Plan ID is calculated excluding fluctuating properties of plans.  On the other hand, the <TT CLASS="STRUCTNAME">pg_store_plans.plan</TT> view keeps showing the most recent values for those fluctuating properties.
 </P>
-<P> In some cases, <TT CLASS="STRUCTNAME">pg_stat_statements</TT>
-  merges semantically equivalent queries which are considered
-  different by
-<TT CLASS="STRUCTNAME">pg_stat_statements</TT>. In the cases
-correspondent in <TT CLASS="STRUCTNAME">pg_stat_statements</TT> might
-not be found, but there is a small chance that this happenes. In
-contrast, there also is a small chance that some queries might be
-regarded as equivalent and merged into one entry
-in <TT CLASS="STRUCTNAME">pg_store_plans</TT> but differentiated
-in <TT CLASS="STRUCTNAME">pg_stat_statements</TT> mainly for utility
-statements.
-</P>
-
 <P><TT CLASS="STRUCTNAME">pg_store_plans</TT>
    and <TT CLASS="STRUCTNAME">pg_stat_statements</TT> maintain thier
    entries individually so there is certain unavoidable chance
    especially for entries with low execution frequency that no
    correspondent is found.
 </P>
-<P><TT CLASS="STRUCTFIELD">queryid_stat_statements</TT> has the same
-   restriction to <TT CLASS="STRUCTNAME">pg_stat_statements</TT> in
-   terms of stability. Although <TT CLASS="STRUCTFIELD">queryid</TT>
-   and <TT CLASS="STRUCTFIELD">planid</TT>
-   in <TT CLASS="STRUCTNAME">pg_store_plans</TT> doesn't have such a
-   restriction, assuming long-term stability is also discouraged.
-  </P>
 </DIV>
 <DIV CLASS="SECT2">
 <H2 CLASS="SECT2">
@@ -523,58 +496,78 @@ pg_store_plans.log_timing = false
 bench=# SELECT pg_store_plans_reset();
 
 $ pgbench -i bench
-$ pgbench -c10 -t3000 bench
+$ pgbench -c10 -t1000 bench
 
 bench=# \x
 bench=#  SELECT s.query, p.plan,
         p.calls as "plan calls", s.calls as "stmt calls",
         p.total_time / p.calls as "time/call", p.first_call, p.last_call
         FROM pg_stat_statements s
-        JOIN pg_store_plans p ON
-        (p.queryid = pg_store_plans_hash_query(s.query) and p.calls &#60; s.calls)
+        JOIN pg_store_plans p USING (queryid) WHERE p.calls &#60; s.calls
         ORDER BY query ASC, "time/call" DESC;
--[ RECORD 1 ]----------------------------------------------------------------------------------------------------------------------------
-query      | UPDATE pgbench_branches SET bbalance = bbalance + ? WHERE bid = ?;
-plan       | Update on pgbench_branches  (cost=0.00..8.01 rows=1 width=370) (actual rows=0 loops=1)
-           |   -&#62;  Seq Scan on pgbench_branches  (cost=0.00..8.01 rows=1 width=370) (actual rows=1 loops=1)
-           |         Filter: (bid = 1)
-plan calls | 15583
-stmt calls | 30000
-time/call  | 40.096513957518
-first_call | 2014-04-25 14:29:17.163924+09
-last_call  | 2014-04-25 14:31:29.421635+09
--[ RECORD 2 ]----------------------------------------------------------------------------------------------------------------------------
-query      | UPDATE pgbench_branches SET bbalance = bbalance + ? WHERE bid = ?;
-plan       | Update on pgbench_branches  (cost=0.12..8.14 rows=1 width=370) (actual rows=0 loops=1)
-           |   -&#62;  Index Scan using pgbench_branches_pkey on pgbench_branches  (cost=0.12..8.14 rows=1 width=370) (actual rows=1 loops=1)
-           |         Index Cond: (bid = 1)
-plan calls | 14417
-stmt calls | 30000
-time/call  | 39.1920771311645
-first_call | 2014-04-25 14:31:29.288913+09
-last_call  | 2014-04-25 14:33:31.287061+09
--[ RECORD 3 ]----------------------------------------------------------------------------------------------------------------------------
-query      | UPDATE pgbench_tellers SET tbalance = tbalance + ? WHERE tid = ?;
-plan       | Update on pgbench_tellers  (cost=0.14..8.16 rows=1 width=358) (actual rows=0 loops=1)
-           |   -&#62;  Index Scan using pgbench_tellers_pkey on pgbench_tellers  (cost=0.14..8.16 rows=1 width=358) (actual rows=1 loops=1)
-           |         Index Cond: (tid = 7)
-plan calls | 4
-stmt calls | 30000
-time/call  | 87.0435
-first_call | 2014-04-25 14:30:37.850293+09
-last_call  | 2014-04-25 14:32:38.083977+09
--[ RECORD 4 ]----------------------------------------------------------------------------------------------------------------------------
-query      | UPDATE pgbench_tellers SET tbalance = tbalance + ? WHERE tid = ?;
-plan       | Update on pgbench_tellers  (cost=4.14..8.16 rows=1 width=358) (actual rows=0 loops=1)
-           |   -&#62;  Bitmap Heap Scan on pgbench_tellers  (cost=4.14..8.16 rows=1 width=358) (actual rows=1 loops=1)
-           |         Recheck Cond: (tid = 10)
-           |         -&#62;  Bitmap Index Scan using pgbench_tellers_pkey  (cost=0.00..4.14 rows=1 width=0) (actual rows=1 loops=1)
-           |               Index Cond: (tid = 10)
-plan calls | 29996
-stmt calls | 30000
-time/call  | 33.6455953793834
-first_call | 2014-04-25 14:29:17.162871+09
-last_call  | 2014-04-25 14:33:31.28646+09</PRE>
+-[ RECORD 1 ]-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+query      | UPDATE pgbench_tellers SET tbalance = tbalance + $1 WHERE tid = $2
+plan       | Update on pgbench_tellers  (cost=0.00..7.88 rows=0 width=0)                                                                                                                                                                                                            +
+           |   ->  Seq Scan on pgbench_tellers  (cost=0.00..7.88 rows=1 width=10)                                                                                                                                                                                                   +
+           |         Filter: (tid = 1)
+plan calls | 396
+stmt calls | 10000
+time/call  | 16.15434492676767
+first_call | 2021-11-25 15:11:38.258838+09
+last_call  | 2021-11-25 15:11:40.170291+09
+-[ RECORD 2 ]-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+query      | UPDATE pgbench_tellers SET tbalance = tbalance + $1 WHERE tid = $2
+plan       | Update on pgbench_tellers  (cost=0.14..8.15 rows=0 width=0)                                                                                                                                                                                                            +
+           |   ->  Index Scan using pgbench_tellers_pkey on pgbench_tellers  (cost=0.14..8.15 rows=1 width=10)                                                                                                                                                                      +
+           |         Index Cond: (tid = 8)                                                                                                                                                                                                                                          +
+plan calls | 9604
+stmt calls | 10000
+time/call  | 10.287281695439345
+first_call | 2021-11-25 15:11:40.161556+09
+last_call  | 2021-11-25 15:12:09.957773+09
+-[ RECORD 3 ]-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+query      | select s.query, p.plan, p.calls as "plan calls", s.calls as "stmt calls", p.total_time / p.calls as "time/call", p.first_call, p.last_call from pg_stat_statements s join pg_store_plans p using (queryid) where p.calls < s.calls order by query asc, "time/call" desc
+plan       | Sort  (cost=309.71..313.88 rows=1667 width=104)                                                                                                                                                                                                                        +
+           |   Sort Key: pg_stat_statements.query, ((pg_store_plans.total_time / (pg_store_plans.calls)::double precision)) DESC                                                                                                                                                    +
+           |   ->  Merge Join  (cost=119.66..220.50 rows=1667 width=104)                                                                                                                                                                                                            +
+           |         Merge Cond: (pg_stat_statements.queryid = pg_store_plans.queryid)                                                                                                                                                                                              +
+           |         Join Filter: (pg_store_plans.calls < pg_stat_statements.calls)                                                                                                                                                                                                 +
+           |         ->  Sort  (cost=59.83..62.33 rows=1000 width=48)                                                                                                                                                                                                               +
+           |               Sort Key: pg_stat_statements.queryid                                                                                                                                                                                                                     +
+           |               ->  Function Scan on pg_stat_statements  (cost=0.00..10.00 rows=1000 width=48)                                                                                                                                                                           +
+           |         ->  Sort  (cost=59.83..62.33 rows=1000 width=72)                                                                                                                                                                                                               +
+           |               Sort Key: pg_store_plans.queryid                                                                                                                                                                                                                         +
+           |               ->  Function Scan on pg_store_plans  (cost=0.00..10.00 rows=1000 width=72)                                                                                                                                                                               +
+plan calls | 3
+stmt calls | 4
+time/call  | 16.387161
+first_call | 2021-11-25 15:20:57.978082+09
+last_call  | 2021-11-25 15:23:48.631993+09
+-[ RECORD 4 ]-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+query      | select s.query, p.plan, p.calls as "plan calls", s.calls as "stmt calls", p.total_time / p.calls as "time/call", p.first_call, p.last_call from pg_stat_statements s join pg_store_plans p using (queryid) where p.calls < s.calls order by query asc, "time/call" desc
+plan       | Sort  (cost=309.71..313.88 rows=1667 width=104)                                                                                                                                                                                                                        +
+           |   Sort Key: pg_stat_statements.query, ((pg_store_plans.total_time / (pg_store_plans.calls)::double precision)) DESC                                                                                                                                                    +
+           |   Sort Method: quicksort  Memory: 26kB                                                                                                                                                                                                                                 +
+           |   ->  Merge Join  (cost=119.66..220.50 rows=1667 width=104)                                                                                                                                                                                                            +
+           |         Merge Cond: (pg_stat_statements.queryid = pg_store_plans.queryid)                                                                                                                                                                                              +
+           |         Join Filter: (pg_store_plans.calls < pg_stat_statements.calls)                                                                                                                                                                                                 +
+           |         Rows Removed by Join Filter: 7                                                                                                                                                                                                                                 +
+           |         ->  Sort  (cost=59.83..62.33 rows=1000 width=48)                                                                                                                                                                                                               +
+           |               Sort Key: pg_stat_statements.queryid                                                                                                                                                                                                                     +
+           |               Sort Method: quicksort  Memory: 27kB                                                                                                                                                                                                                     +
+           |               ->  Function Scan on pg_stat_statements  (cost=0.00..10.00 rows=1000 width=48)                                                                                                                                                                           +
+           |         ->  Sort  (cost=59.83..62.33 rows=1000 width=72)                                                                                                                                                                                                               +
+           |               Sort Key: pg_store_plans.queryid                                                                                                                                                                                                                         +
+           |               Sort Method: quicksort  Memory: 30kB                                                                                                                                                                                                                     +
+           |               ->  Function Scan on pg_store_plans  (cost=0.00..10.00 rows=1000 width=72)                                                                                                                                                                               +
+plan calls | 1
+stmt calls | 4
+time/call  | 4.46928
+first_call | 2021-11-25 15:12:27.142535+09
+last_call  | 2021-11-25 15:12:27.142536+09
+
+postgres=#
+</PRE>
 </DIV>
 </DIV>
 <HR>

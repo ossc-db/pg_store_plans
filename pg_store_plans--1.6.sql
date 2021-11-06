@@ -48,7 +48,6 @@ CREATE FUNCTION pg_store_plans(
     OUT dbid oid,
     OUT queryid int8,
     OUT planid int8,
-    OUT queryid_stat_statements int8,
     OUT plan text,
     OUT calls int8,
     OUT total_time float8,
@@ -73,7 +72,7 @@ CREATE FUNCTION pg_store_plans(
     OUT last_call timestamptz
 )
 RETURNS SETOF record
-AS 'MODULE_PATHNAME'
+AS 'MODULE_PATHNAME', 'pg_store_plans_1_6'
 LANGUAGE C;
 
 -- Register a view on the function for ease of use.
