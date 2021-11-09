@@ -109,6 +109,7 @@ word_table propfields[] =
 	{P_WorkersPlanned, 	"{" ,"Workers Planned",		NULL, true,  NULL,				SETTER(workers_planned)},
 	{P_WorkersLaunched, "}" ,"Workers Launched",	NULL, true,  NULL,				SETTER(workers_launched)},
 	{P_InnerUnique,		"?" ,"Inner Unique",		NULL, true,  NULL,				SETTER(inner_unique)},
+	{P_AsyncCapable,	"ac", "Async Capable",		NULL, true,  NULL,				SETTER(async_capable)},
 
 	/* Values of these properties are ignored on normalization */
 	{P_FunctionCall,	"y" ,"Function Call",		NULL, false, NULL,				SETTER(func_call)},
@@ -199,7 +200,7 @@ word_table nodetypes[] =
 	{T_NestLoop,	"t" ,"Nested Loop",	NULL, false, NULL, NULL},
 	{T_MergeJoin,	"u" ,"Merge Join",		"Merge", false, NULL, NULL},
 	{T_HashJoin,	"v" ,"Hash Join",		"Hash", false, NULL, NULL},
-	{T_Material,	"w" ,"Materialize",	NULL, false, NULL, NULL},
+	{T_Material,	"w" ,"Materialize",		NULL, false, NULL, NULL},
 	{T_Sort,		"x" ,"Sort",			NULL, false, NULL, NULL},
 	{T_Group,		"y" ,"Group",			NULL, false, NULL, NULL},
 	{T_Agg,			"z" ,"Aggregate",		NULL, false, NULL, NULL},
@@ -223,6 +224,10 @@ word_table nodetypes[] =
 #endif
 #if PG_VERSION_NUM >= 130000
 	{T_IncrementalSort,	"C" ,"Incremental Sort", NULL, false, NULL, NULL},
+#endif
+#if PG_VERSION_NUM >= 140000
+	{T_TidRangeScan,"D", "Tid Range Scan",	NULL, false, NULL, NULL},
+	{T_Memoize,		"E", "Memoize",			NULL, false, NULL, NULL},
 #endif
 
 	{T_Invalid,		NULL, NULL, NULL, false, NULL, NULL}

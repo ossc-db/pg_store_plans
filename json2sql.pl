@@ -252,6 +252,7 @@ sub setplan0 {
   "Workers Launched": "0",
   "Workers": "x",
   "Worker Number": "0",
+  "Async Capable": "false",
   "Filter": "a",
   "Join Filter": "a",
   "Hash Cond": "a",
@@ -333,7 +334,8 @@ sub setplan1 {
   "Sampling Parameters": ["''10''::real"],
   "Repeatable Seed": "''0''::double precision",
   "Workers": "dummy",
-  "Worker Number": 0
+  "Worker Number": 0,
+  "Async Capable": 0
 EOS
 
 # Avoid trailing new line

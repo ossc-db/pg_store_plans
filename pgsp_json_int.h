@@ -133,7 +133,8 @@ typedef enum
 	P_GroupCount,
 	P_AvgSortSpcUsed,
 	P_PeakSortSpcUsed,
-	P_PreSortedGroups
+	P_PreSortedGroups,
+	P_AsyncCapable
 } pgsp_prop_tags;
 
 typedef struct
