@@ -12,10 +12,10 @@ SET client_min_messages = 'notice';
 UPDATE plans SET splan = pg_store_plans_shorten(lplan);
 ###### tag abbreviation test
 SELECT splan FROM plans WHERE id in (-1, -2);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    splan                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"V":0,"W":0,"X":0,"Y":0,"Z":0,"z":0,"#":0,"$":0,"&":0,"(":0,")":0,"_":"dummy","%":"NOTHING","@":"ia","^":123,"+":234,":":"system",";":["'10'::real"],"<":"'0'::double precision","[":"dummy","]":0}
- {"p":0,"l":0,"t":"a","t":"b","t":"c","t":"d","t":"e","t":"f","t":"g","t":"h","t":"i","t":"j","t":"k","t":"l","t":"m","t":"n","t":"o","t":"p","t":"q","t":"r","t":"s","t":"t","t":"u","t":"v","t":"w","t":"x","t":"y","t":"z","t":"0","t":"1","t":"2","t":"3","t":"4","t":"5","t":"B","t":"6","t":"7","t":"8","t":"9","t":"A","h":"o","h":"i","h":"s","h":"m","h":"I","h":"S","d":"b","d":"n","d":"f","i":0,"n":0,"f":0,"c":0,"s":0,"a":0,"o":"[]","m":"a","g":"p","g":"s","g":"h","g":"m","j":"i","j":"l","j":"f","j":"r","j":"s","j":"a","b":"i","b":"I","b":"e","b":"E","e":"h","e":"q","e":"e","e":"E","e":"s","k":"a","-":"a","=":"a","\\":"a","~":"a","|":"a","`":"true","{":"0","}":"0","[":"x","]":"0","5":"a","6":"a","7":"a","8":"a","9":"a","0":"a","%":"a","@":"a","^":0,"+":0,"_":"a","!":"i","!":"d","!":"u","q":"a","r":0,"u":0,"v":0,"w":0,"x":0,"y":0,"1":0,"2":0,"3":0,"4":0,"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"J":0,"K":0,"L":0,"M":0,"N":0,"O":0,"P":0,"Q":0,"R":0,"S":"d","S":"m","T":0,"U":0,"*":0}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           splan                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"p":0,"l":0,"t":"a","t":"b","t":"c","t":"d","t":"e","t":"f","t":"g","t":"h","t":"i","t":"j","t":"k","t":"l","t":"m","t":"n","t":"o","t":"p","t":"q","t":"r","t":"s","t":"t","t":"u","t":"v","t":"w","t":"x","t":"y","t":"z","t":"0","t":"1","t":"2","t":"3","t":"4","t":"5","t":"B","t":"6","t":"7","t":"8","t":"9","t":"A","h":"o","h":"i","h":"s","h":"m","h":"I","h":"S","d":"b","d":"n","d":"f","i":0,"n":0,"f":0,"c":0,"s":0,"a":0,"o":"[]","m":"a","g":"p","g":"s","g":"h","g":"m","j":"i","j":"l","j":"f","j":"r","j":"s","j":"a","b":"i","b":"I","b":"e","b":"E","e":"h","e":"q","e":"e","e":"E","e":"s","k":"a","-":"a","=":"a","\\":"a","~":"a","|":"a","`":"true","{":"0","}":"0","[":"x","]":"0","ac":"false","5":"a","6":"a","7":"a","8":"a","9":"a","0":"a","%":"a","@":"a","^":0,"+":0,"_":"a","!":"i","!":"d","!":"u","q":"a","r":0,"u":0,"v":0,"w":0,"x":0,"y":0,"1":0,"2":0,"3":0,"4":0,"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"J":0,"K":0,"L":0,"M":0,"N":0,"O":0,"P":0,"Q":0,"R":0,"S":"d","S":"m","T":0,"U":0,"*":0}
+ {"V":0,"W":0,"X":0,"Y":0,"Z":0,"z":0,"#":0,"$":0,"&":0,"(":0,")":0,"_":"dummy","%":"NOTHING","@":"ia","^":123,"+":234,":":"system",";":["'10'::real"],"<":"'0'::double precision","[":"dummy","]":0,"ac":"false"}
 (2 rows)
 
 ###### JSON properties round-trip test: !!! This shouldn't return a row
@@ -34,18 +34,19 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
     Node Type: "ModifyTable"
     Operation: "Insert"
     Parallel Aware: false
+    Async Capable: false
     Relation Name: "tt1"
     Schema: "public"
     Alias: "tt1"
     Startup Cost: 0.00
     Total Cost: 100.01
-    Plan Rows: 10001
-    Plan Width: 40
-    Actual Startup Time: 307.054
-    Actual Total Time: 307.055
+    Plan Rows: 0
+    Plan Width: 0
+    Actual Startup Time: 131.502
+    Actual Total Time: 131.503
     Actual Rows: 0
     Actual Loops: 1
-    Shared Hit Blocks: 29736
+    Shared Hit Blocks: 29749
     Shared Read Blocks: 3
     Shared Dirtied Blocks: 85
     Shared Written Blocks: 84
@@ -57,8 +58,9 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
     Temp Written Blocks: 0
     Plans:
       - Node Type: "Function Scan"
-        Parent Relationship: "Member"
+        Parent Relationship: "Outer"
         Parallel Aware: false
+        Async Capable: false
         Function Name: "generate_series"
         Schema: "pg_catalog"
         Alias: "a"
@@ -66,8 +68,8 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
         Total Cost: 100.01
         Plan Rows: 10001
         Plan Width: 40
-        Actual Startup Time: 3.739
-        Actual Total Time: 12.801
+        Actual Startup Time: 1.451
+        Actual Total Time: 5.136
         Actual Rows: 10001
         Actual Loops: 1
         Output:
@@ -85,6 +87,7 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
         Local Written Blocks: 0
         Temp Read Blocks: 0
         Temp Written Blocks: 0
+  Query Identifier: 1567994068167988335
   
 - Planning:
     Shared Hit Blocks: 0
@@ -97,17 +100,17 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
     Local Written Blocks: 0
     Temp Read Blocks: 0
     Temp Written Blocks: 0
-  Planning Time: 0.064
+  Planning Time: 0.056
   Triggers:
     - Trigger Name: "tt1_trig_1"
       Relation: "tt1"
-      Time: 80.641
+      Time: 31.186
       Calls: 10001
     - Trigger Name: "tt1_trig_2"
       Relation: "tt1"
-      Time: 63.621
+      Time: 27.673
       Calls: 10001
-  Execution Time: 308.848
+  Execution Time: 132.086
 
 =======
 ### yaml-short       ###### Plan 2: Update, Trigger
@@ -115,18 +118,19 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
     Node Type: "ModifyTable"
     Operation: "Update"
     Parallel Aware: false
+    Async Capable: false
     Relation Name: "tt1"
     Schema: "public"
     Alias: "tt1"
     Startup Cost: 0.00
     Total Cost: 137.50
-    Plan Rows: 6600
-    Plan Width: 46
-    Actual Startup Time: 491.114
-    Actual Total Time: 491.115
+    Plan Rows: 0
+    Plan Width: 0
+    Actual Startup Time: 194.493
+    Actual Total Time: 194.494
     Actual Rows: 0
     Actual Loops: 1
-    Shared Hit Blocks: 50222
+    Shared Hit Blocks: 60223
     Shared Read Blocks: 0
     Shared Dirtied Blocks: 81
     Shared Written Blocks: 81
@@ -138,23 +142,22 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
     Temp Written Blocks: 0
     Plans:
       - Node Type: "Seq Scan"
-        Parent Relationship: "Member"
+        Parent Relationship: "Outer"
         Parallel Aware: false
+        Async Capable: false
         Relation Name: "tt1"
         Schema: "public"
         Alias: "tt1"
         Startup Cost: 0.00
         Total Cost: 137.50
         Plan Rows: 6600
-        Plan Width: 46
-        Actual Startup Time: 0.052
-        Actual Total Time: 20.371
+        Plan Width: 10
+        Actual Startup Time: 0.029
+        Actual Total Time: 5.658
         Actual Rows: 10001
         Actual Loops: 1
         Output:
           - "(a + 1)"
-          - "b"
-          - "c"
           - "ctid"
         Shared Hit Blocks: 55
         Shared Read Blocks: 0
@@ -166,6 +169,7 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
         Local Written Blocks: 0
         Temp Read Blocks: 0
         Temp Written Blocks: 0
+  Query Identifier: 419795701252567321
   
 - Planning:
     Shared Hit Blocks: 8
@@ -178,17 +182,17 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
     Local Written Blocks: 0
     Temp Read Blocks: 0
     Temp Written Blocks: 0
-  Planning Time: 0.220
+  Planning Time: 0.135
   Triggers:
     - Trigger Name: "tt1_trig_1"
       Relation: "tt1"
-      Time: 95.170
+      Time: 36.363
       Calls: 10001
     - Trigger Name: "tt1_trig_2"
       Relation: "tt1"
-      Time: 72.762
+      Time: 28.519
       Calls: 10001
-  Execution Time: 492.534
+  Execution Time: 195.015
 
 =======
 ### yaml-short       ###### Plan 3: Delete
@@ -196,15 +200,16 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
     Node Type: "ModifyTable"
     Operation: "Delete"
     Parallel Aware: false
+    Async Capable: false
     Relation Name: "tt1"
     Schema: "public"
     Alias: "tt1"
     Startup Cost: 0.00
     Total Cost: 305.20
-    Plan Rows: 65
-    Plan Width: 6
-    Actual Startup Time: 15.676
-    Actual Total Time: 15.678
+    Plan Rows: 0
+    Plan Width: 0
+    Actual Startup Time: 6.289
+    Actual Total Time: 6.290
     Actual Rows: 0
     Actual Loops: 1
     Shared Hit Blocks: 1109
@@ -219,8 +224,9 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
     Temp Written Blocks: 0
     Plans:
       - Node Type: "Seq Scan"
-        Parent Relationship: "Member"
+        Parent Relationship: "Outer"
         Parallel Aware: false
+        Async Capable: false
         Relation Name: "tt1"
         Schema: "public"
         Alias: "tt1"
@@ -228,8 +234,8 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
         Total Cost: 305.20
         Plan Rows: 65
         Plan Width: 6
-        Actual Startup Time: 4.301
-        Actual Total Time: 12.640
+        Actual Startup Time: 2.415
+        Actual Total Time: 5.097
         Actual Rows: 1000
         Actual Loops: 1
         Output:
@@ -246,10 +252,11 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
         Local Written Blocks: 0
         Temp Read Blocks: 0
         Temp Written Blocks: 0
+  Query Identifier: 8465397082621111028
   
 - Planning:
-    Shared Hit Blocks: 0
-    Shared Read Blocks: 6
+    Shared Hit Blocks: 5
+    Shared Read Blocks: 1
     Shared Dirtied Blocks: 0
     Shared Written Blocks: 0
     Local Hit Blocks: 0
@@ -258,9 +265,9 @@ SELECT '### '||'yaml-short       '||title||E'\n'||
     Local Written Blocks: 0
     Temp Read Blocks: 0
     Temp Written Blocks: 0
-  Planning Time: 0.214
+  Planning Time: 0.122
   Triggers:
-  Execution Time: 16.001
+  Execution Time: 6.407
 ##################
 SELECT '### '||'xml-short        '||title||E'\n'||
   pg_store_plans_xmlplan(splan)
@@ -272,18 +279,19 @@ SELECT '### '||'xml-short        '||title||E'\n'||
       <Node-Type>ModifyTable</Node-Type>
       <Operation>Insert</Operation>
       <Parallel-Aware>false</Parallel-Aware>
+      <Async-Capable>false</Async-Capable>
       <Relation-Name>tt1</Relation-Name>
       <Schema>public</Schema>
       <Alias>tt1</Alias>
       <Startup-Cost>0.00</Startup-Cost>
       <Total-Cost>100.01</Total-Cost>
-      <Plan-Rows>10001</Plan-Rows>
-      <Plan-Width>40</Plan-Width>
-      <Actual-Startup-Time>307.054</Actual-Startup-Time>
-      <Actual-Total-Time>307.055</Actual-Total-Time>
+      <Plan-Rows>0</Plan-Rows>
+      <Plan-Width>0</Plan-Width>
+      <Actual-Startup-Time>131.502</Actual-Startup-Time>
+      <Actual-Total-Time>131.503</Actual-Total-Time>
       <Actual-Rows>0</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
-      <Shared-Hit-Blocks>29736</Shared-Hit-Blocks>
+      <Shared-Hit-Blocks>29749</Shared-Hit-Blocks>
       <Shared-Read-Blocks>3</Shared-Read-Blocks>
       <Shared-Dirtied-Blocks>85</Shared-Dirtied-Blocks>
       <Shared-Written-Blocks>84</Shared-Written-Blocks>
@@ -296,8 +304,9 @@ SELECT '### '||'xml-short        '||title||E'\n'||
       <Plans>
         <Plan>
           <Node-Type>Function Scan</Node-Type>
-          <Parent-Relationship>Member</Parent-Relationship>
+          <Parent-Relationship>Outer</Parent-Relationship>
           <Parallel-Aware>false</Parallel-Aware>
+          <Async-Capable>false</Async-Capable>
           <Function-Name>generate_series</Function-Name>
           <Schema>pg_catalog</Schema>
           <Alias>a</Alias>
@@ -305,8 +314,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
           <Total-Cost>100.01</Total-Cost>
           <Plan-Rows>10001</Plan-Rows>
           <Plan-Width>40</Plan-Width>
-          <Actual-Startup-Time>3.739</Actual-Startup-Time>
-          <Actual-Total-Time>12.801</Actual-Total-Time>
+          <Actual-Startup-Time>1.451</Actual-Startup-Time>
+          <Actual-Total-Time>5.136</Actual-Total-Time>
           <Actual-Rows>10001</Actual-Rows>
           <Actual-Loops>1</Actual-Loops>
           <Output>
@@ -328,6 +337,7 @@ SELECT '### '||'xml-short        '||title||E'\n'||
         </Plan>
       </Plans>
     </Plan>
+    <Query-Identifier>1567994068167988335</Query-Identifier>
     <Planning>
       <Shared-Hit-Blocks>0</Shared-Hit-Blocks>
       <Shared-Read-Blocks>0</Shared-Read-Blocks>
@@ -340,22 +350,22 @@ SELECT '### '||'xml-short        '||title||E'\n'||
       <Temp-Read-Blocks>0</Temp-Read-Blocks>
       <Temp-Written-Blocks>0</Temp-Written-Blocks>
     </Planning>
-    <Planning-Time>0.064</Planning-Time>
+    <Planning-Time>0.056</Planning-Time>
     <Triggers>
       <Trigger>
         <Trigger-Name>tt1_trig_1</Trigger-Name>
         <Relation>tt1</Relation>
-        <Time>80.641</Time>
+        <Time>31.186</Time>
         <Calls>10001</Calls>
       </Trigger>
       <Trigger>
         <Trigger-Name>tt1_trig_2</Trigger-Name>
         <Relation>tt1</Relation>
-        <Time>63.621</Time>
+        <Time>27.673</Time>
         <Calls>10001</Calls>
       </Trigger>
     </Triggers>
-    <Execution-Time>308.848</Execution-Time>
+    <Execution-Time>132.086</Execution-Time>
   </Query>
 </explain>
 
@@ -367,12 +377,13 @@ SELECT '### '||'xml-short        '||title||E'\n'||
     <Plan>
       <Node-Type>Result</Node-Type>
       <Parallel-Aware>false</Parallel-Aware>
+      <Async-Capable>false</Async-Capable>
       <Startup-Cost>0.00</Startup-Cost>
       <Total-Cost>743.05</Total-Cost>
       <Plan-Rows>20002</Plan-Rows>
       <Plan-Width>12</Plan-Width>
-      <Actual-Startup-Time>3.022</Actual-Startup-Time>
-      <Actual-Total-Time>32.256</Actual-Total-Time>
+      <Actual-Startup-Time>1.520</Actual-Startup-Time>
+      <Actual-Total-Time>12.093</Actual-Total-Time>
       <Actual-Rows>20002</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
       <Output>
@@ -395,12 +406,13 @@ SELECT '### '||'xml-short        '||title||E'\n'||
           <Node-Type>Append</Node-Type>
           <Parent-Relationship>Outer</Parent-Relationship>
           <Parallel-Aware>false</Parallel-Aware>
+          <Async-Capable>false</Async-Capable>
           <Startup-Cost>0.00</Startup-Cost>
           <Total-Cost>543.03</Total-Cost>
           <Plan-Rows>20002</Plan-Rows>
           <Plan-Width>8</Plan-Width>
-          <Actual-Startup-Time>3.020</Actual-Startup-Time>
-          <Actual-Total-Time>21.682</Actual-Total-Time>
+          <Actual-Startup-Time>1.518</Actual-Startup-Time>
+          <Actual-Total-Time>8.587</Actual-Total-Time>
           <Actual-Rows>20002</Actual-Rows>
           <Actual-Loops>1</Actual-Loops>
           <Shared-Hit-Blocks>218</Shared-Hit-Blocks>
@@ -419,6 +431,7 @@ SELECT '### '||'xml-short        '||title||E'\n'||
               <Node-Type>Seq Scan</Node-Type>
               <Parent-Relationship>Member</Parent-Relationship>
               <Parallel-Aware>false</Parallel-Aware>
+              <Async-Capable>false</Async-Capable>
               <Relation-Name>tt1</Relation-Name>
               <Schema>public</Schema>
               <Alias>tt1</Alias>
@@ -426,8 +439,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
               <Total-Cost>288.01</Total-Cost>
               <Plan-Rows>10001</Plan-Rows>
               <Plan-Width>8</Plan-Width>
-              <Actual-Startup-Time>3.018</Actual-Startup-Time>
-              <Actual-Total-Time>9.898</Actual-Total-Time>
+              <Actual-Startup-Time>1.517</Actual-Startup-Time>
+              <Actual-Total-Time>4.120</Actual-Total-Time>
               <Actual-Rows>10001</Actual-Rows>
               <Actual-Loops>1</Actual-Loops>
               <Output>
@@ -449,6 +462,7 @@ SELECT '### '||'xml-short        '||title||E'\n'||
               <Node-Type>Seq Scan</Node-Type>
               <Parent-Relationship>Member</Parent-Relationship>
               <Parallel-Aware>false</Parallel-Aware>
+              <Async-Capable>false</Async-Capable>
               <Relation-Name>tt2</Relation-Name>
               <Schema>public</Schema>
               <Alias>tt2</Alias>
@@ -456,8 +470,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
               <Total-Cost>155.01</Total-Cost>
               <Plan-Rows>10001</Plan-Rows>
               <Plan-Width>8</Plan-Width>
-              <Actual-Startup-Time>0.021</Actual-Startup-Time>
-              <Actual-Total-Time>6.514</Actual-Total-Time>
+              <Actual-Startup-Time>0.009</Actual-Startup-Time>
+              <Actual-Total-Time>2.418</Actual-Total-Time>
               <Actual-Rows>10001</Actual-Rows>
               <Actual-Loops>1</Actual-Loops>
               <Output>
@@ -479,6 +493,7 @@ SELECT '### '||'xml-short        '||title||E'\n'||
         </Plan>
       </Plans>
     </Plan>
+    <Query-Identifier>-5943002168847026231</Query-Identifier>
     <Planning>
       <Shared-Hit-Blocks>28</Shared-Hit-Blocks>
       <Shared-Read-Blocks>0</Shared-Read-Blocks>
@@ -491,10 +506,10 @@ SELECT '### '||'xml-short        '||title||E'\n'||
       <Temp-Read-Blocks>0</Temp-Read-Blocks>
       <Temp-Written-Blocks>0</Temp-Written-Blocks>
     </Planning>
-    <Planning-Time>0.447</Planning-Time>
+    <Planning-Time>0.375</Planning-Time>
     <Triggers>
     </Triggers>
-    <Execution-Time>36.229</Execution-Time>
+    <Execution-Time>13.503</Execution-Time>
   </Query>
 </explain>
 
@@ -506,6 +521,7 @@ SELECT '### '||'xml-short        '||title||E'\n'||
     <Plan>
       <Node-Type>Index Scan</Node-Type>
       <Parallel-Aware>false</Parallel-Aware>
+      <Async-Capable>false</Async-Capable>
       <Scan-Direction>Forward</Scan-Direction>
       <Index-Name>i_tt1</Index-Name>
       <Relation-Name>tt1</Relation-Name>
@@ -515,8 +531,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
       <Total-Cost>21.21</Total-Cost>
       <Plan-Rows>4</Plan-Rows>
       <Plan-Width>12</Plan-Width>
-      <Actual-Startup-Time>0.067</Actual-Startup-Time>
-      <Actual-Total-Time>0.215</Actual-Total-Time>
+      <Actual-Startup-Time>0.020</Actual-Startup-Time>
+      <Actual-Total-Time>0.070</Actual-Total-Time>
       <Actual-Rows>4</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
       <Output>
@@ -526,7 +542,7 @@ SELECT '### '||'xml-short        '||title||E'\n'||
       </Output>
       <Index-Cond>("x""y".a = ANY ('{50,120,300,500}'::integer[]))</Index-Cond>
       <Rows-Removed-by-Index-Recheck>0</Rows-Removed-by-Index-Recheck>
-      <Shared-Hit-Blocks>27</Shared-Hit-Blocks>
+      <Shared-Hit-Blocks>24</Shared-Hit-Blocks>
       <Shared-Read-Blocks>0</Shared-Read-Blocks>
       <Shared-Dirtied-Blocks>0</Shared-Dirtied-Blocks>
       <Shared-Written-Blocks>0</Shared-Written-Blocks>
@@ -537,6 +553,7 @@ SELECT '### '||'xml-short        '||title||E'\n'||
       <Temp-Read-Blocks>0</Temp-Read-Blocks>
       <Temp-Written-Blocks>0</Temp-Written-Blocks>
     </Plan>
+    <Query-Identifier>-450526332138847496</Query-Identifier>
     <Planning>
       <Shared-Hit-Blocks>6</Shared-Hit-Blocks>
       <Shared-Read-Blocks>0</Shared-Read-Blocks>
@@ -549,10 +566,10 @@ SELECT '### '||'xml-short        '||title||E'\n'||
       <Temp-Read-Blocks>0</Temp-Read-Blocks>
       <Temp-Written-Blocks>0</Temp-Written-Blocks>
     </Planning>
-    <Planning-Time>0.371</Planning-Time>
+    <Planning-Time>0.128</Planning-Time>
     <Triggers>
     </Triggers>
-    <Execution-Time>0.414</Execution-Time>
+    <Execution-Time>0.161</Execution-Time>
   </Query>
 </explain>
 
@@ -564,12 +581,13 @@ SELECT '### '||'xml-short        '||title||E'\n'||
     <Plan>
       <Node-Type>Limit</Node-Type>
       <Parallel-Aware>false</Parallel-Aware>
+      <Async-Capable>false</Async-Capable>
       <Startup-Cost>819.75</Startup-Cost>
       <Total-Cost>820.68</Total-Cost>
       <Plan-Rows>10</Plan-Rows>
       <Plan-Width>12</Plan-Width>
-      <Actual-Startup-Time>24.438</Actual-Startup-Time>
-      <Actual-Total-Time>24.440</Actual-Total-Time>
+      <Actual-Startup-Time>9.725</Actual-Startup-Time>
+      <Actual-Total-Time>9.726</Actual-Total-Time>
       <Actual-Rows>0</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
       <Output>
@@ -592,13 +610,14 @@ SELECT '### '||'xml-short        '||title||E'\n'||
           <Node-Type>Merge Join</Node-Type>
           <Parent-Relationship>Outer</Parent-Relationship>
           <Parallel-Aware>false</Parallel-Aware>
+          <Async-Capable>false</Async-Capable>
           <Join-Type>Inner</Join-Type>
           <Startup-Cost>819.75</Startup-Cost>
           <Total-Cost>1746.80</Total-Cost>
           <Plan-Rows>10001</Plan-Rows>
           <Plan-Width>12</Plan-Width>
-          <Actual-Startup-Time>24.436</Actual-Startup-Time>
-          <Actual-Total-Time>24.437</Actual-Total-Time>
+          <Actual-Startup-Time>9.723</Actual-Startup-Time>
+          <Actual-Total-Time>9.724</Actual-Total-Time>
           <Actual-Rows>0</Actual-Rows>
           <Actual-Loops>1</Actual-Loops>
           <Output>
@@ -623,6 +642,7 @@ SELECT '### '||'xml-short        '||title||E'\n'||
               <Node-Type>Index Scan</Node-Type>
               <Parent-Relationship>Outer</Parent-Relationship>
               <Parallel-Aware>false</Parallel-Aware>
+              <Async-Capable>false</Async-Capable>
               <Scan-Direction>Backward</Scan-Direction>
               <Index-Name>i_tt1</Index-Name>
               <Relation-Name>tt1</Relation-Name>
@@ -632,8 +652,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
               <Total-Cost>652.30</Total-Cost>
               <Plan-Rows>10001</Plan-Rows>
               <Plan-Width>12</Plan-Width>
-              <Actual-Startup-Time>0.030</Actual-Startup-Time>
-              <Actual-Total-Time>0.030</Actual-Total-Time>
+              <Actual-Startup-Time>0.017</Actual-Startup-Time>
+              <Actual-Total-Time>0.018</Actual-Total-Time>
               <Actual-Rows>1</Actual-Rows>
               <Actual-Loops>1</Actual-Loops>
               <Output>
@@ -656,12 +676,13 @@ SELECT '### '||'xml-short        '||title||E'\n'||
               <Node-Type>Sort</Node-Type>
               <Parent-Relationship>Inner</Parent-Relationship>
               <Parallel-Aware>false</Parallel-Aware>
+              <Async-Capable>false</Async-Capable>
               <Startup-Cost>819.47</Startup-Cost>
               <Total-Cost>844.47</Total-Cost>
               <Plan-Rows>10001</Plan-Rows>
               <Plan-Width>4</Plan-Width>
-              <Actual-Startup-Time>19.091</Actual-Startup-Time>
-              <Actual-Total-Time>20.771</Actual-Total-Time>
+              <Actual-Startup-Time>7.200</Actual-Startup-Time>
+              <Actual-Total-Time>7.982</Actual-Total-Time>
               <Actual-Rows>10001</Actual-Rows>
               <Actual-Loops>1</Actual-Loops>
               <Output>
@@ -689,6 +710,7 @@ SELECT '### '||'xml-short        '||title||E'\n'||
                   <Node-Type>Seq Scan</Node-Type>
                   <Parent-Relationship>Outer</Parent-Relationship>
                   <Parallel-Aware>false</Parallel-Aware>
+                  <Async-Capable>false</Async-Capable>
                   <Relation-Name>tt2</Relation-Name>
                   <Schema>public</Schema>
                   <Alias>y</Alias>
@@ -696,8 +718,8 @@ SELECT '### '||'xml-short        '||title||E'\n'||
                   <Total-Cost>155.01</Total-Cost>
                   <Plan-Rows>10001</Plan-Rows>
                   <Plan-Width>4</Plan-Width>
-                  <Actual-Startup-Time>0.022</Actual-Startup-Time>
-                  <Actual-Total-Time>7.774</Actual-Total-Time>
+                  <Actual-Startup-Time>0.012</Actual-Startup-Time>
+                  <Actual-Total-Time>2.721</Actual-Total-Time>
                   <Actual-Rows>10001</Actual-Rows>
                   <Actual-Loops>1</Actual-Loops>
                   <Output>
@@ -721,6 +743,7 @@ SELECT '### '||'xml-short        '||title||E'\n'||
         </Plan>
       </Plans>
     </Plan>
+    <Query-Identifier>6257524984457724553</Query-Identifier>
     <Planning>
       <Shared-Hit-Blocks>14</Shared-Hit-Blocks>
       <Shared-Read-Blocks>0</Shared-Read-Blocks>
@@ -733,10 +756,10 @@ SELECT '### '||'xml-short        '||title||E'\n'||
       <Temp-Read-Blocks>0</Temp-Read-Blocks>
       <Temp-Written-Blocks>0</Temp-Written-Blocks>
     </Planning>
-    <Planning-Time>0.441</Planning-Time>
+    <Planning-Time>0.232</Planning-Time>
     <Triggers>
     </Triggers>
-    <Execution-Time>25.592</Execution-Time>
+    <Execution-Time>10.187</Execution-Time>
   </Query>
 </explain>
 
@@ -745,520 +768,520 @@ SELECT '### '||'TEXT-short       '||title||E'\n'||
   pg_store_plans_textplan(splan)
   FROM plans WHERE id >= 0 ORDER BY id;
 ### TEXT-short       ###### Plan 1: Insert, Trigger
-Insert on public.tt1  (cost=0.00..100.01 rows=10001 width=40) (actual time=307.054..307.055 rows=0 loops=1)
-  Buffers: shared hit=29736 read=3 dirtied=85 written=84
-  ->  Function Scan on pg_catalog.generate_series a  (cost=0.00..100.01 rows=10001 width=40) (actual time=3.739..12.801 rows=10001 loops=1)
+Insert on public.tt1  (cost=0.00..100.01 rows=0 width=0) (actual time=131.502..131.503 rows=0 loops=1)
+  Buffers: shared hit=29749 read=3 dirtied=85 written=84
+  ->  Function Scan on pg_catalog.generate_series a  (cost=0.00..100.01 rows=10001 width=40) (actual time=1.451..5.136 rows=10001 loops=1)
         Output: a.a, NULL::integer, NULL::text
         Function Call: generate_series(0, 10000)
-Planning Time: 0.064 ms
-Trigger tt1_trig_1: time=80.641 calls=10001
-Trigger tt1_trig_2: time=63.621 calls=10001
-Execution Time: 308.848 ms
+Planning Time: 0.056 ms
+Trigger tt1_trig_1: time=31.186 calls=10001
+Trigger tt1_trig_2: time=27.673 calls=10001
+Execution Time: 132.086 ms
 
 =======
 ### TEXT-short       ###### Plan 2: Update, Trigger
-Update on public.tt1  (cost=0.00..137.50 rows=6600 width=46) (actual time=491.114..491.115 rows=0 loops=1)
-  Buffers: shared hit=50222 dirtied=81 written=81
-  ->  Seq Scan on public.tt1  (cost=0.00..137.50 rows=6600 width=46) (actual time=0.052..20.371 rows=10001 loops=1)
-        Output: (a + 1), b, c, ctid
+Update on public.tt1  (cost=0.00..137.50 rows=0 width=0) (actual time=194.493..194.494 rows=0 loops=1)
+  Buffers: shared hit=60223 dirtied=81 written=81
+  ->  Seq Scan on public.tt1  (cost=0.00..137.50 rows=6600 width=10) (actual time=0.029..5.658 rows=10001 loops=1)
+        Output: (a + 1), ctid
         Buffers: shared hit=55
-Planning Time: 0.220 ms
-Trigger tt1_trig_1: time=95.170 calls=10001
-Trigger tt1_trig_2: time=72.762 calls=10001
-Execution Time: 492.534 ms
+Planning Time: 0.135 ms
+Trigger tt1_trig_1: time=36.363 calls=10001
+Trigger tt1_trig_2: time=28.519 calls=10001
+Execution Time: 195.015 ms
 
 =======
 ### TEXT-short       ###### Plan 3: Delete
-Delete on public.tt1  (cost=0.00..305.20 rows=65 width=6) (actual time=15.676..15.678 rows=0 loops=1)
+Delete on public.tt1  (cost=0.00..305.20 rows=0 width=0) (actual time=6.289..6.290 rows=0 loops=1)
   Buffers: shared hit=1109
-  ->  Seq Scan on public.tt1  (cost=0.00..305.20 rows=65 width=6) (actual time=4.301..12.640 rows=1000 loops=1)
+  ->  Seq Scan on public.tt1  (cost=0.00..305.20 rows=65 width=6) (actual time=2.415..5.097 rows=1000 loops=1)
         Output: ctid
         Filter: ((tt1.a % 10) = 0)
         Rows Removed by Filter: 9001
         Buffers: shared hit=109
-Planning Time: 0.214 ms
-Execution Time: 16.001 ms
+Planning Time: 0.122 ms
+Execution Time: 6.407 ms
 
 =======
 ### TEXT-short       ###### Plan 4: Result, Append Seq Scan
-Result  (cost=0.00..743.05 rows=20002 width=12) (actual time=3.022..32.256 rows=20002 loops=1)
+Result  (cost=0.00..743.05 rows=20002 width=12) (actual time=1.520..12.093 rows=20002 loops=1)
   Output: ((tt1.a + 1)), (3), 1
   Buffers: shared hit=218
-  ->  Append  (cost=0.00..543.03 rows=20002 width=8) (actual time=3.020..21.682 rows=20002 loops=1)
+  ->  Append  (cost=0.00..543.03 rows=20002 width=8) (actual time=1.518..8.587 rows=20002 loops=1)
         Subplans Removed: 0
         Buffers: shared hit=218
-        ->  Seq Scan on public.tt1  (cost=0.00..288.01 rows=10001 width=8) (actual time=3.018..9.898 rows=10001 loops=1)
+        ->  Seq Scan on public.tt1  (cost=0.00..288.01 rows=10001 width=8) (actual time=1.517..4.120 rows=10001 loops=1)
               Output: (tt1.a + 1), 3
               Buffers: shared hit=163
-        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=8) (actual time=0.021..6.514 rows=10001 loops=1)
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=8) (actual time=0.009..2.418 rows=10001 loops=1)
               Output: tt2.a, 4
               Buffers: shared hit=55
-Planning Time: 0.447 ms
-Execution Time: 36.229 ms
+Planning Time: 0.375 ms
+Execution Time: 13.503 ms
 
 =======
 ### TEXT-short       ###### Plan 5: Index scan (forward) ANY, array in expr, escape
-Index Scan using i_tt1 on public.tt1 "x""y"  (cost=0.29..21.21 rows=4 width=12) (actual time=0.067..0.215 rows=4 loops=1)
+Index Scan using i_tt1 on public.tt1 "x""y"  (cost=0.29..21.21 rows=4 width=12) (actual time=0.020..0.070 rows=4 loops=1)
   Output: a, b, c
   Index Cond: ("x""y".a = ANY ('{50,120,300,500}'::integer[]))
-  Buffers: shared hit=27
-Planning Time: 0.371 ms
-Execution Time: 0.414 ms
+  Buffers: shared hit=24
+Planning Time: 0.128 ms
+Execution Time: 0.161 ms
 
 =======
 ### TEXT-short       ###### Plan 6: Index scan (backward), MergeJoin, Sort, quicksort, alias
-Limit  (cost=819.75..820.68 rows=10 width=12) (actual time=24.438..24.440 rows=0 loops=1)
+Limit  (cost=819.75..820.68 rows=10 width=12) (actual time=9.725..9.726 rows=0 loops=1)
   Output: x.b, x.c, x.a
   Buffers: shared hit=59
-  ->  Merge Join  (cost=819.75..1746.80 rows=10001 width=12) (actual time=24.436..24.437 rows=0 loops=1)
+  ->  Merge Join  (cost=819.75..1746.80 rows=10001 width=12) (actual time=9.723..9.724 rows=0 loops=1)
         Output: x.b, x.c, x.a
         Merge Cond: (x.a = (((- y.b) * 3)))
         Buffers: shared hit=59
-        ->  Index Scan Backward using i_tt1 on public.tt1 x  (cost=0.29..652.30 rows=10001 width=12) (actual time=0.030..0.030 rows=1 loops=1)
+        ->  Index Scan Backward using i_tt1 on public.tt1 x  (cost=0.29..652.30 rows=10001 width=12) (actual time=0.017..0.018 rows=1 loops=1)
               Output: x.a, x.b, x.c
               Buffers: shared hit=4
-        ->  Sort  (cost=819.47..844.47 rows=10001 width=4) (actual time=19.091..20.771 rows=10001 loops=1)
+        ->  Sort  (cost=819.47..844.47 rows=10001 width=4) (actual time=7.200..7.982 rows=10001 loops=1)
               Output: y.b, (((- y.b) * 3))
               Sort Key: (((- y.b) * 3)) DESC
               Sort Method: quicksort  Memory: 855kB
               Buffers: shared hit=55
-              ->  Seq Scan on public.tt2 y  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.022..7.774 rows=10001 loops=1)
+              ->  Seq Scan on public.tt2 y  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.012..2.721 rows=10001 loops=1)
                     Output: y.b, ((- y.b) * 3)
                     Buffers: shared hit=55
-Planning Time: 0.441 ms
-Execution Time: 25.592 ms
+Planning Time: 0.232 ms
+Execution Time: 10.187 ms
 
 =======
 ### TEXT-short       ###### Plan 7: IndexOnlyScan
-Index Only Scan using i_tt1 on public.tt1  (cost=0.29..8.46 rows=10 width=4) (actual time=0.062..0.352 rows=10 loops=1)
+Index Only Scan using i_tt1 on public.tt1  (cost=0.29..8.46 rows=10 width=4) (actual time=0.010..0.130 rows=10 loops=1)
   Output: a
   Index Cond: (tt1.a < 10)
   Heap Fetches: 29
   Buffers: shared hit=31
-Planning Time: 0.206 ms
-Execution Time: 0.491 ms
+Planning Time: 0.166 ms
+Execution Time: 0.212 ms
 
 =======
 ### TEXT-short       ###### Plan 8: Plain Aggregate, CTE, Recursive Union, WorkTable Scan, CTE Scan
-Aggregate  (cost=3.65..3.66 rows=1 width=8) (actual time=0.062..0.064 rows=1 loops=1)
+Aggregate  (cost=3.65..3.66 rows=1 width=8) (actual time=0.037..0.038 rows=1 loops=1)
   Output: sum(cte1.a)
   CTE cte1
-    ->  Recursive Union  (cost=0.00..2.95 rows=31 width=4) (actual time=0.003..0.037 rows=10 loops=1)
-        ->  Result  (cost=0.00..0.01 rows=1 width=4) (actual time=0.002..0.003 rows=1 loops=1)
+    ->  Recursive Union  (cost=0.00..2.95 rows=31 width=4) (actual time=0.003..0.025 rows=10 loops=1)
+        ->  Result  (cost=0.00..0.01 rows=1 width=4) (actual time=0.002..0.002 rows=1 loops=1)
               Output: 1
         ->  WorkTable Scan on cte1 cte1_1  (cost=0.00..0.23 rows=3 width=4) (actual time=0.001..0.001 rows=1 loops=10)
               Output: (cte1_1.a + 1)
               Filter: (cte1_1.a < 10)
-  ->  CTE Scan on cte1  (cost=0.00..0.62 rows=31 width=4) (actual time=0.005..0.045 rows=10 loops=1)
+  ->  CTE Scan on cte1  (cost=0.00..0.62 rows=31 width=4) (actual time=0.004..0.030 rows=10 loops=1)
         Output: cte1.a
-Planning Time: 0.209 ms
-Execution Time: 0.518 ms
+Planning Time: 0.107 ms
+Execution Time: 0.237 ms
 
 =======
 ### TEXT-short       ###### Plan 9: FunctionScan, Hash/HashJoin, Nested Loop
-Hash Left Join  (cost=1.09..2.37 rows=100 width=64) (actual time=0.207..0.222 rows=6 loops=1)
+Hash Left Join  (cost=1.02..2.30 rows=100 width=64) (actual time=0.084..0.092 rows=6 loops=1)
   Output: d.datname
   Hash Cond: (s.datid = d.oid)
   Buffers: shared hit=1
-  ->  Function Scan on pg_catalog.pg_stat_get_activity s  (cost=0.00..1.00 rows=100 width=8) (actual time=0.122..0.127 rows=6 loops=1)
-        Output: s.datid, s.pid, s.usesysid, s.application_name, s.state, s.query, s.wait_event_type, s.wait_event, s.xact_start, s.query_start, s.backend_start, s.state_change, s.client_addr, s.client_hostname, s.client_port, s.backend_xid, s.backend_xmin, s.backend_type, s.ssl, s.sslversion, s.sslcipher, s.sslbits, s.sslcompression, s.ssl_client_dn, s.ssl_client_serial, s.ssl_issuer_dn, s.gss_auth, s.gss_princ, s.gss_enc, s.leader_pid
+  ->  Function Scan on pg_catalog.pg_stat_get_activity s  (cost=0.00..1.00 rows=100 width=8) (actual time=0.063..0.066 rows=6 loops=1)
+        Output: s.datid, s.pid, s.usesysid, s.application_name, s.state, s.query, s.wait_event_type, s.wait_event, s.xact_start, s.query_start, s.backend_start, s.state_change, s.client_addr, s.client_hostname, s.client_port, s.backend_xid, s.backend_xmin, s.backend_type, s.ssl, s.sslversion, s.sslcipher, s.sslbits, s.ssl_client_dn, s.ssl_client_serial, s.ssl_issuer_dn, s.gss_auth, s.gss_princ, s.gss_enc, s.leader_pid, s.query_id
         Function Call: pg_stat_get_activity(NULL::integer)
-  ->  Hash  (cost=1.04..1.04 rows=4 width=68) (actual time=0.027..0.028 rows=4 loops=1)
+  ->  Hash  (cost=1.01..1.01 rows=1 width=68) (actual time=0.015..0.015 rows=5 loops=1)
         Output: d.datname, d.oid
         Buckets: 1024  Batches: 1  Memory Usage: 9kB
         Buffers: shared hit=1
-        ->  Seq Scan on pg_catalog.pg_database d  (cost=0.00..1.04 rows=4 width=68) (actual time=0.017..0.020 rows=4 loops=1)
+        ->  Seq Scan on pg_catalog.pg_database d  (cost=0.00..1.01 rows=1 width=68) (actual time=0.008..0.010 rows=5 loops=1)
               Output: d.datname, d.oid
               Buffers: shared hit=1
-Planning Time: 1.071 ms
-Execution Time: 0.904 ms
+Planning Time: 0.349 ms
+Execution Time: 0.358 ms
 
 =======
 ### TEXT-short       ###### Plan 10: MergeAppend, Values
-Merge Append  (cost=0.36..852.43 rows=10004 width=4) (actual time=0.108..133.185 rows=10004 loops=1)
+Merge Append  (cost=0.36..852.43 rows=10004 width=4) (actual time=0.059..57.419 rows=10004 loops=1)
   Sort Key: tt1.a
   Subplans Removed: 0
   Buffers: shared hit=30076
-  ->  Index Only Scan using i_tt1 on public.tt1  (cost=0.29..652.30 rows=10001 width=4) (actual time=0.078..129.755 rows=10001 loops=1)
+  ->  Index Only Scan using i_tt1 on public.tt1  (cost=0.29..652.30 rows=10001 width=4) (actual time=0.045..56.140 rows=10001 loops=1)
         Output: tt1.a
         Heap Fetches: 29996
         Buffers: shared hit=30076
-  ->  Sort  (cost=0.06..0.07 rows=3 width=4) (actual time=0.028..0.030 rows=3 loops=1)
+  ->  Sort  (cost=0.06..0.07 rows=3 width=4) (actual time=0.012..0.014 rows=3 loops=1)
         Output: "*VALUES*".column1
         Sort Key: "*VALUES*".column1
         Sort Method: quicksort  Memory: 25kB
-        ->  Values Scan on "*VALUES*"  (cost=0.00..0.04 rows=3 width=4) (actual time=0.005..0.009 rows=3 loops=1)
+        ->  Values Scan on "*VALUES*"  (cost=0.00..0.04 rows=3 width=4) (actual time=0.003..0.005 rows=3 loops=1)
               Output: "*VALUES*".column1
-Planning Time: 0.281 ms
-Execution Time: 135.846 ms
+Planning Time: 0.188 ms
+Execution Time: 58.291 ms
 
 =======
 ### TEXT-short       ###### Plan 11: Append, HashAggregate
-HashAggregate  (cost=1793.16..2149.44 rows=20002 width=4) (actual time=39.362..60.508 rows=20002 loops=1)
+HashAggregate  (cost=1793.16..2149.44 rows=20002 width=4) (actual time=17.143..26.779 rows=20002 loops=1)
   Output: tt1.a
   Group Key: tt1.a
   Planned Partitions: 4
   HashAgg Batches: 5
   Disk Usage: 248
   Buffers: shared hit=218, temp read=29 written=52
-  ->  Append  (cost=0.00..718.05 rows=20002 width=4) (actual time=0.216..16.983 rows=20002 loops=1)
+  ->  Append  (cost=0.00..718.05 rows=20002 width=4) (actual time=0.141..7.230 rows=20002 loops=1)
         Subplans Removed: 0
         Buffers: shared hit=218
-        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.215..6.705 rows=10001 loops=1)
+        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.140..2.580 rows=10001 loops=1)
               Output: tt1.a
               Buffers: shared hit=163
-        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.024..5.101 rows=10001 loops=1)
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.009..2.470 rows=10001 loops=1)
               Output: tt2.b
               Buffers: shared hit=55
-Planning Time: 0.150 ms
-Execution Time: 64.034 ms
+Planning Time: 0.094 ms
+Execution Time: 28.356 ms
 
 =======
 ### TEXT-short       ###### Plan 12: GroupAggregate
-GroupAggregate  (cost=1067.47..1242.49 rows=10001 width=12) (actual time=27.917..65.682 rows=10001 loops=1)
+GroupAggregate  (cost=1067.47..1242.49 rows=10001 width=12) (actual time=8.799..18.467 rows=10001 loops=1)
   Output: sum(a), b
   Group Key: tt1.b
   Buffers: shared hit=163, temp read=44 written=56
-  ->  Sort  (cost=1067.47..1092.47 rows=10001 width=8) (actual time=27.901..34.159 rows=10001 loops=1)
+  ->  Sort  (cost=1067.47..1092.47 rows=10001 width=8) (actual time=8.791..10.707 rows=10001 loops=1)
         Output: b, a
         Sort Key: tt1.b
         Sort Method: external merge  Disk: 208kB
         Buffers: shared hit=163, temp read=44 written=56
-        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=8) (actual time=0.210..7.632 rows=10001 loops=1)
+        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=8) (actual time=0.183..2.660 rows=10001 loops=1)
               Output: b, a
               Buffers: shared hit=163
-Planning Time: 0.095 ms
-Execution Time: 69.397 ms
+Planning Time: 0.072 ms
+Execution Time: 19.721 ms
 
 =======
 ### TEXT-short       ###### Plan 13: Group
-Group  (cost=1067.47..1117.47 rows=10001 width=4) (actual time=23.168..37.399 rows=10001 loops=1)
+Group  (cost=1067.47..1117.47 rows=10001 width=4) (actual time=8.419..14.134 rows=10001 loops=1)
   Output: b
   Group Key: tt1.b
   Buffers: shared hit=163, temp read=36 written=44
-  ->  Sort  (cost=1067.47..1092.47 rows=10001 width=4) (actual time=23.165..27.281 rows=10001 loops=1)
+  ->  Sort  (cost=1067.47..1092.47 rows=10001 width=4) (actual time=8.417..10.131 rows=10001 loops=1)
         Output: b
         Sort Key: tt1.b
         Sort Method: external merge  Disk: 168kB
         Buffers: shared hit=163, temp read=36 written=44
-        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.177..5.974 rows=10001 loops=1)
+        ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.136..2.557 rows=10001 loops=1)
               Output: b
               Buffers: shared hit=163
-Planning Time: 0.078 ms
-Execution Time: 39.587 ms
+Planning Time: 0.056 ms
+Execution Time: 14.948 ms
 
 =======
-### TEXT-short       ###### Plan 14: SetOp intersect, SbuqueryScan
-Sort  (cost=1432.51..1457.52 rows=10001 width=8) (actual time=44.942..44.945 rows=0 loops=1)
+### TEXT-short       ###### Plan 14: SetOp intersect, SubqueryScan
+Sort  (cost=1432.51..1457.52 rows=10001 width=8) (actual time=17.002..17.003 rows=0 loops=1)
   Output: "*SELECT* 1".a, (0)
   Sort Key: "*SELECT* 1".a
   Sort Method: quicksort  Memory: 25kB
   Buffers: shared hit=218
-  ->  HashSetOp Intersect  (cost=0.00..768.05 rows=10001 width=8) (actual time=44.934..44.936 rows=0 loops=1)
+  ->  HashSetOp Intersect  (cost=0.00..768.05 rows=10001 width=8) (actual time=16.998..16.999 rows=0 loops=1)
         Output: "*SELECT* 1".a, (0)
         Buffers: shared hit=218
-        ->  Append  (cost=0.00..718.05 rows=20002 width=8) (actual time=0.278..29.908 rows=20002 loops=1)
+        ->  Append  (cost=0.00..718.05 rows=20002 width=8) (actual time=0.138..10.332 rows=20002 loops=1)
               Subplans Removed: 0
               Buffers: shared hit=218
-              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=8) (actual time=0.277..10.485 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=8) (actual time=0.137..4.326 rows=10001 loops=1)
                     Output: "*SELECT* 1".a, 0
                     Buffers: shared hit=163
-                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.273..5.540 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.135..2.558 rows=10001 loops=1)
                           Output: tt1.a
                           Buffers: shared hit=163
-              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=8) (actual time=0.022..12.693 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=8) (actual time=0.010..3.929 rows=10001 loops=1)
                     Output: "*SELECT* 2".b, 1
                     Buffers: shared hit=55
-                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.020..6.760 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.009..2.322 rows=10001 loops=1)
                           Output: tt2.b
                           Buffers: shared hit=55
-Planning Time: 0.204 ms
-Execution Time: 46.074 ms
+Planning Time: 0.127 ms
+Execution Time: 17.692 ms
 
 =======
 ### TEXT-short       ###### Plan 15: Sorted SetOp, Sort on Disk
-SetOp Intersect  (cost=2423.48..2523.49 rows=10001 width=8) (actual time=85.013..85.017 rows=0 loops=1)
+SetOp Intersect  (cost=2423.48..2523.49 rows=10001 width=8) (actual time=32.742..32.744 rows=0 loops=1)
   Output: "*SELECT* 1".a, (0)
   Buffers: shared hit=218, temp read=109 written=134
-  ->  Sort  (cost=2423.48..2473.48 rows=20002 width=8) (actual time=59.500..68.824 rows=20002 loops=1)
+  ->  Sort  (cost=2423.48..2473.48 rows=20002 width=8) (actual time=22.483..26.311 rows=20002 loops=1)
         Output: "*SELECT* 1".a, (0)
         Sort Key: "*SELECT* 1".a
         Sort Method: external merge  Disk: 376kB
         Buffers: shared hit=218, temp read=109 written=134
-        ->  Append  (cost=0.00..718.05 rows=20002 width=8) (actual time=0.206..27.164 rows=20002 loops=1)
+        ->  Append  (cost=0.00..718.05 rows=20002 width=8) (actual time=0.140..10.325 rows=20002 loops=1)
               Subplans Removed: 0
               Buffers: shared hit=218
-              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=8) (actual time=0.205..11.202 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=8) (actual time=0.140..4.178 rows=10001 loops=1)
                     Output: "*SELECT* 1".a, 0
                     Buffers: shared hit=163
-                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.202..5.926 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.138..2.473 rows=10001 loops=1)
                           Output: tt1.a
                           Buffers: shared hit=163
-              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=8) (actual time=0.024..10.268 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=8) (actual time=0.010..4.072 rows=10001 loops=1)
                     Output: "*SELECT* 2".b, 1
                     Buffers: shared hit=55
-                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.022..5.398 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.009..2.391 rows=10001 loops=1)
                           Output: tt2.b
                           Buffers: shared hit=55
-Planning Time: 0.185 ms
-Execution Time: 85.810 ms
+Planning Time: 0.116 ms
+Execution Time: 33.124 ms
 
 =======
 ### TEXT-short       ###### Plan 16: HashSetOp intersect All, SubqueryScan
-Sort  (cost=1432.51..1457.52 rows=10001 width=8) (actual time=41.088..41.091 rows=0 loops=1)
+Sort  (cost=1432.51..1457.52 rows=10001 width=8) (actual time=17.126..17.128 rows=0 loops=1)
   Output: "*SELECT* 1".a, (0)
   Sort Key: "*SELECT* 1".a
   Sort Method: quicksort  Memory: 25kB
   Buffers: shared hit=218
-  ->  HashSetOp Intersect All  (cost=0.00..768.05 rows=10001 width=8) (actual time=41.081..41.083 rows=0 loops=1)
+  ->  HashSetOp Intersect All  (cost=0.00..768.05 rows=10001 width=8) (actual time=17.122..17.123 rows=0 loops=1)
         Output: "*SELECT* 1".a, (0)
         Buffers: shared hit=218
-        ->  Append  (cost=0.00..718.05 rows=20002 width=8) (actual time=0.221..27.530 rows=20002 loops=1)
+        ->  Append  (cost=0.00..718.05 rows=20002 width=8) (actual time=0.145..10.403 rows=20002 loops=1)
               Subplans Removed: 0
               Buffers: shared hit=218
-              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=8) (actual time=0.220..11.527 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=8) (actual time=0.144..4.386 rows=10001 loops=1)
                     Output: "*SELECT* 1".a, 0
                     Buffers: shared hit=163
-                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.217..6.389 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.142..2.596 rows=10001 loops=1)
                           Output: tt1.a
                           Buffers: shared hit=163
-              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=8) (actual time=0.025..10.452 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=8) (actual time=0.010..3.948 rows=10001 loops=1)
                     Output: "*SELECT* 2".b, 1
                     Buffers: shared hit=55
-                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.023..5.465 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.009..2.311 rows=10001 loops=1)
                           Output: tt2.b
                           Buffers: shared hit=55
-Planning Time: 0.239 ms
-Execution Time: 43.479 ms
+Planning Time: 0.101 ms
+Execution Time: 18.100 ms
 
 =======
 ### TEXT-short       ###### Plan 17: HashSetOp except, SubqueryScan
-Sort  (cost=1432.51..1457.52 rows=10001 width=8) (actual time=46.663..48.678 rows=10001 loops=1)
+Sort  (cost=1432.51..1457.52 rows=10001 width=8) (actual time=21.705..22.602 rows=10001 loops=1)
   Output: "*SELECT* 1".a, (0)
   Sort Key: "*SELECT* 1".a
   Sort Method: quicksort  Memory: 855kB
   Buffers: shared hit=218
-  ->  HashSetOp Except  (cost=0.00..768.05 rows=10001 width=8) (actual time=35.260..37.531 rows=10001 loops=1)
+  ->  HashSetOp Except  (cost=0.00..768.05 rows=10001 width=8) (actual time=16.498..17.825 rows=10001 loops=1)
         Output: "*SELECT* 1".a, (0)
         Buffers: shared hit=218
-        ->  Append  (cost=0.00..718.05 rows=20002 width=8) (actual time=0.295..24.671 rows=20002 loops=1)
+        ->  Append  (cost=0.00..718.05 rows=20002 width=8) (actual time=0.136..10.383 rows=20002 loops=1)
               Subplans Removed: 0
               Buffers: shared hit=218
-              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=8) (actual time=0.293..9.504 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=8) (actual time=0.136..4.328 rows=10001 loops=1)
                     Output: "*SELECT* 1".a, 0
                     Buffers: shared hit=163
-                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.290..5.273 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.134..2.593 rows=10001 loops=1)
                           Output: tt1.a
                           Buffers: shared hit=163
-              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=8) (actual time=0.020..9.883 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=8) (actual time=0.010..4.015 rows=10001 loops=1)
                     Output: "*SELECT* 2".b, 1
                     Buffers: shared hit=55
-                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.018..5.317 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.009..2.348 rows=10001 loops=1)
                           Output: tt2.b
                           Buffers: shared hit=55
-Planning Time: 0.206 ms
-Execution Time: 53.924 ms
+Planning Time: 0.117 ms
+Execution Time: 24.848 ms
 
 =======
 ### TEXT-short       ###### Plan 18: HashSetOp except all, SubqueryScan
-Sort  (cost=1432.51..1457.52 rows=10001 width=8) (actual time=48.922..51.025 rows=10001 loops=1)
+Sort  (cost=1432.51..1457.52 rows=10001 width=8) (actual time=21.586..22.448 rows=10001 loops=1)
   Output: "*SELECT* 1".a, (0)
   Sort Key: "*SELECT* 1".a
   Sort Method: quicksort  Memory: 855kB
   Buffers: shared hit=218
-  ->  HashSetOp Except All  (cost=0.00..768.05 rows=10001 width=8) (actual time=34.965..38.291 rows=10001 loops=1)
+  ->  HashSetOp Except All  (cost=0.00..768.05 rows=10001 width=8) (actual time=16.445..17.697 rows=10001 loops=1)
         Output: "*SELECT* 1".a, (0)
         Buffers: shared hit=218
-        ->  Append  (cost=0.00..718.05 rows=20002 width=8) (actual time=0.244..24.592 rows=20002 loops=1)
+        ->  Append  (cost=0.00..718.05 rows=20002 width=8) (actual time=0.147..10.332 rows=20002 loops=1)
               Subplans Removed: 0
               Buffers: shared hit=218
-              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=8) (actual time=0.243..10.070 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..363.02 rows=10001 width=8) (actual time=0.147..4.353 rows=10001 loops=1)
                     Output: "*SELECT* 1".a, 0
                     Buffers: shared hit=163
-                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.240..5.278 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.145..2.609 rows=10001 loops=1)
                           Output: tt1.a
                           Buffers: shared hit=163
-              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=8) (actual time=0.022..9.503 rows=10001 loops=1)
+              ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..255.02 rows=10001 width=8) (actual time=0.010..3.944 rows=10001 loops=1)
                     Output: "*SELECT* 2".b, 1
                     Buffers: shared hit=55
-                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.020..5.101 rows=10001 loops=1)
+                    ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.009..2.310 rows=10001 loops=1)
                           Output: tt2.b
                           Buffers: shared hit=55
-Planning Time: 0.146 ms
-Execution Time: 58.119 ms
+Planning Time: 0.144 ms
+Execution Time: 24.701 ms
 
 =======
 ### TEXT-short       ###### Plan 19: merge LEFT join
-Merge Left Join  (cost=0.71..3860.52 rows=33557 width=4) (actual time=0.105..226.400 rows=60003 loops=1)
+Merge Left Join  (cost=0.71..3885.83 rows=33212 width=4) (actual time=0.036..94.773 rows=60003 loops=1)
   Output: x.b
   Merge Cond: (x.a = y.a)
   Buffers: shared hit=35794
-  ->  Index Scan using i_tt1 on public.tt1 x  (cost=0.29..652.30 rows=10001 width=8) (actual time=0.055..100.454 rows=10001 loops=1)
+  ->  Index Scan using i_tt1 on public.tt1 x  (cost=0.29..652.30 rows=10001 width=8) (actual time=0.016..39.522 rows=10001 loops=1)
         Output: x.a, x.b, x.c
         Buffers: shared hit=15484
-  ->  Index Only Scan using i_tt3_a on public.tt3 y  (cost=0.42..8175.04 rows=180003 width=4) (actual time=0.046..80.236 rows=60004 loops=1)
+  ->  Index Only Scan using i_tt3_a on public.tt3 y  (cost=0.42..8170.03 rows=180003 width=4) (actual time=0.015..37.189 rows=60004 loops=1)
         Output: y.a
         Heap Fetches: 60004
         Buffers: shared hit=20310
-Planning Time: 0.775 ms
-Execution Time: 238.174 ms
+Planning Time: 0.469 ms
+Execution Time: 99.021 ms
 
 =======
 ### TEXT-short       ###### Plan 20: hash FULL join
-Hash Full Join  (cost=280.02..680.55 rows=10001 width=4) (actual time=10.794..25.225 rows=17001 loops=1)
+Hash Full Join  (cost=280.02..680.55 rows=10001 width=4) (actual time=5.330..12.032 rows=17001 loops=1)
   Output: x.b
   Hash Cond: (x.a = y.a)
   Buffers: shared hit=218
-  ->  Seq Scan on public.tt1 x  (cost=0.00..263.01 rows=10001 width=8) (actual time=0.171..3.347 rows=10001 loops=1)
+  ->  Seq Scan on public.tt1 x  (cost=0.00..263.01 rows=10001 width=8) (actual time=0.123..1.615 rows=10001 loops=1)
         Output: x.a, x.b, x.c
         Buffers: shared hit=163
-  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=10.580..10.583 rows=10001 loops=1)
+  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=5.199..5.199 rows=10001 loops=1)
         Output: y.a
         Buckets: 16384  Batches: 1  Memory Usage: 480kB
         Buffers: shared hit=55
-        ->  Seq Scan on public.tt2 y  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.131..4.929 rows=10001 loops=1)
+        ->  Seq Scan on public.tt2 y  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.014..2.362 rows=10001 loops=1)
               Output: y.a
               Buffers: shared hit=55
-Planning Time: 0.318 ms
-Execution Time: 28.549 ms
+Planning Time: 0.128 ms
+Execution Time: 13.311 ms
 
 =======
 ### TEXT-short       ###### Plan 21: hash SEMI join
-Hash Semi Join  (cost=280.02..680.55 rows=10001 width=12) (actual time=20.909..20.912 rows=0 loops=1)
+Hash Semi Join  (cost=280.02..680.55 rows=10001 width=12) (actual time=9.136..9.138 rows=0 loops=1)
   Output: tt1.a, tt1.b, tt1.c
   Hash Cond: (tt1.a = tt2.b)
   Buffers: shared hit=218
-  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=12) (actual time=0.188..3.024 rows=10001 loops=1)
+  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=12) (actual time=0.167..1.585 rows=10001 loops=1)
         Output: tt1.a, tt1.b, tt1.c
         Buffers: shared hit=163
-  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=13.797..13.798 rows=10001 loops=1)
+  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=5.283..5.284 rows=10001 loops=1)
         Output: tt2.b
         Buckets: 16384  Batches: 1  Memory Usage: 480kB
         Buffers: shared hit=55
-        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.015..6.167 rows=10001 loops=1)
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.010..2.423 rows=10001 loops=1)
               Output: tt2.b
               Buffers: shared hit=55
-Planning Time: 0.570 ms
-Execution Time: 21.391 ms
+Planning Time: 0.311 ms
+Execution Time: 9.325 ms
 
 =======
 ### TEXT-short       ###### Plan 22: Hash Anti Join
-Hash Anti Join  (cost=280.02..580.54 rows=1 width=12) (actual time=14.232..27.140 rows=10001 loops=1)
+Hash Anti Join  (cost=280.02..580.54 rows=1 width=12) (actual time=5.556..10.806 rows=10001 loops=1)
   Output: tt1.a, tt1.b, tt1.c
   Hash Cond: (tt1.a = tt2.b)
   Buffers: shared hit=218
-  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=12) (actual time=0.294..3.730 rows=10001 loops=1)
+  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=12) (actual time=0.136..1.632 rows=10001 loops=1)
         Output: tt1.a, tt1.b, tt1.c
         Buffers: shared hit=163
-  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=13.916..13.919 rows=10001 loops=1)
+  ->  Hash  (cost=155.01..155.01 rows=10001 width=4) (actual time=5.410..5.411 rows=10001 loops=1)
         Output: tt2.b
         Buckets: 16384  Batches: 1  Memory Usage: 480kB
         Buffers: shared hit=55
-        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.023..6.598 rows=10001 loops=1)
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.010..2.494 rows=10001 loops=1)
               Output: tt2.b
               Buffers: shared hit=55
-Planning Time: 0.677 ms
-Execution Time: 29.567 ms
+Planning Time: 0.247 ms
+Execution Time: 11.610 ms
 
 =======
 ### TEXT-short       ###### Plan 23: WindowAgg
-WindowAgg  (cost=952.47..1152.49 rows=10001 width=8) (actual time=12.556..42.738 rows=10001 loops=1)
+WindowAgg  (cost=952.47..1152.49 rows=10001 width=8) (actual time=5.010..15.829 rows=10001 loops=1)
   Output: first_value(a) OVER (?), ((a / 10))
   Buffers: shared hit=163
-  ->  Sort  (cost=952.47..977.47 rows=10001 width=8) (actual time=12.544..14.802 rows=10001 loops=1)
+  ->  Sort  (cost=952.47..977.47 rows=10001 width=8) (actual time=5.003..5.829 rows=10001 loops=1)
         Output: ((a / 10)), a
         Sort Key: ((tt1.a / 10))
         Sort Method: quicksort  Memory: 855kB
         Buffers: shared hit=163
-        ->  Seq Scan on public.tt1  (cost=0.00..288.01 rows=10001 width=8) (actual time=0.361..7.458 rows=10001 loops=1)
+        ->  Seq Scan on public.tt1  (cost=0.00..288.01 rows=10001 width=8) (actual time=0.131..2.604 rows=10001 loops=1)
               Output: (a / 10), a
               Buffers: shared hit=163
-Planning Time: 0.128 ms
-Execution Time: 46.257 ms
+Planning Time: 0.075 ms
+Execution Time: 17.305 ms
 
 =======
 ### TEXT-short       ###### Plan 24: Unique
-Unique  (cost=0.29..677.30 rows=10001 width=4) (actual time=0.089..129.670 rows=10001 loops=1)
+Unique  (cost=0.29..677.30 rows=10001 width=4) (actual time=0.040..45.457 rows=10001 loops=1)
   Output: a
   Buffers: shared hit=15403
-  ->  Index Only Scan using i_tt1 on public.tt1  (cost=0.29..652.30 rows=10001 width=4) (actual time=0.087..118.564 rows=10001 loops=1)
+  ->  Index Only Scan using i_tt1 on public.tt1  (cost=0.29..652.30 rows=10001 width=4) (actual time=0.038..40.986 rows=10001 loops=1)
         Output: a
         Heap Fetches: 20208
         Buffers: shared hit=15403
-Planning Time: 0.153 ms
-Execution Time: 131.893 ms
+Planning Time: 0.078 ms
+Execution Time: 46.309 ms
 
 =======
 ### TEXT-short       ###### Plan 25: PlainAggregate
-Aggregate  (cost=288.01..288.02 rows=1 width=8) (actual time=6.445..6.446 rows=1 loops=1)
+Aggregate  (cost=288.01..288.02 rows=1 width=8) (actual time=3.150..3.151 rows=1 loops=1)
   Output: sum(a)
   Buffers: shared hit=163
-  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.190..2.847 rows=10001 loops=1)
+  ->  Seq Scan on public.tt1  (cost=0.00..263.01 rows=10001 width=4) (actual time=0.167..1.544 rows=10001 loops=1)
         Output: a, b, c
         Buffers: shared hit=163
-Planning Time: 0.205 ms
-Execution Time: 6.684 ms
+Planning Time: 0.120 ms
+Execution Time: 3.250 ms
 
 =======
 ### TEXT-short       ###### Plan 26: BitmapIndexScan/BitmapHeapScan, BitmapOr, lossy
-Bitmap Heap Scan on public.tt3  (cost=3947.41..7170.40 rows=179999 width=12) (actual time=55.836..128.723 rows=180000 loops=1)
+Bitmap Heap Scan on public.tt3  (cost=3947.41..7170.40 rows=179999 width=12) (actual time=23.177..55.323 rows=180000 loops=1)
   Output: a, b, c
   Recheck Cond: (tt3.b > '-99998'::integer)
   Heap Blocks: exact=973
   Buffers: shared hit=1609
-  ->  Bitmap Index Scan using i_tt3_b  (cost=0.00..3902.41 rows=179999 width=0) (actual time=55.082..55.082 rows=180000 loops=1)
+  ->  Bitmap Index Scan using i_tt3_b  (cost=0.00..3902.41 rows=179999 width=0) (actual time=22.881..22.882 rows=180000 loops=1)
         Index Cond: (tt3.b > '-99998'::integer)
         Buffers: shared hit=636
-Planning Time: 0.181 ms
-Execution Time: 156.537 ms
+Planning Time: 0.146 ms
+Execution Time: 66.308 ms
 
 =======
 ### TEXT-short       ###### Plan 27: Join Filter
-Limit  (cost=0.00..21.52 rows=100 width=12) (actual time=18.516..18.804 rows=100 loops=1)
+Limit  (cost=0.00..21.52 rows=100 width=12) (actual time=6.149..6.271 rows=100 loops=1)
   Output: tt2.a, tt2.b, tt2.c
   Buffers: shared hit=40, temp written=12
-  ->  Nested Loop  (cost=0.00..43048282.11 rows=200023334 width=12) (actual time=18.514..18.773 rows=100 loops=1)
+  ->  Nested Loop  (cost=0.00..43048282.11 rows=200023334 width=12) (actual time=6.147..6.258 rows=100 loops=1)
         Output: tt2.a, tt2.b, tt2.c
         Join Filter: ((tt2.a < tt3.a) AND ((tt3.a + tt2.a) < 100000))
         Rows Removed by Join Filter: 7001
         Buffers: shared hit=40, temp written=12
-        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=12) (actual time=0.041..0.042 rows=1 loops=1)
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=12) (actual time=0.011..0.011 rows=1 loops=1)
               Output: tt2.a, tt2.b, tt2.c
               Buffers: shared hit=1
-        ->  Materialize  (cost=0.00..4377.05 rows=180003 width=4) (actual time=0.024..15.020 rows=7101 loops=1)
+        ->  Materialize  (cost=0.00..4377.05 rows=180003 width=4) (actual time=0.012..5.044 rows=7101 loops=1)
               Output: tt3.a
               Buffers: shared hit=39, temp written=12
-              ->  Seq Scan on public.tt3  (cost=0.00..2773.03 rows=180003 width=4) (actual time=0.019..4.949 rows=7101 loops=1)
+              ->  Seq Scan on public.tt3  (cost=0.00..2773.03 rows=180003 width=4) (actual time=0.009..1.743 rows=7101 loops=1)
                     Output: tt3.a
                     Buffers: shared hit=39
-Planning Time: 0.410 ms
-Execution Time: 19.629 ms
+Planning Time: 0.178 ms
+Execution Time: 6.606 ms
 
 =======
 ### TEXT-short       ###### Plan 28: TidScan
-Tid Scan on public.tt3  (cost=0.00..4.01 rows=1 width=12) (actual time=0.006..0.007 rows=1 loops=1)
+Tid Scan on public.tt3  (cost=0.00..4.01 rows=1 width=12) (actual time=0.005..0.006 rows=1 loops=1)
   Output: a, b, c
   Tid Cond: (tt3.ctid = '(0,28)'::tid)
   Buffers: shared hit=1
-Planning Time: 0.126 ms
-Execution Time: 0.171 ms
+Planning Time: 0.095 ms
+Execution Time: 0.070 ms
 
 =======
 ### TEXT-short       ###### Plan 29: LockRows
-LockRows  (cost=0.00..313.51 rows=50 width=10) (actual time=0.194..9.193 rows=1001 loops=1)
+LockRows  (cost=0.00..313.51 rows=50 width=10) (actual time=0.193..3.521 rows=1001 loops=1)
   Output: a, ctid
   Buffers: shared hit=1164
-  ->  Seq Scan on public.tt1  (cost=0.00..313.01 rows=50 width=10) (actual time=0.174..6.703 rows=1001 loops=1)
+  ->  Seq Scan on public.tt1  (cost=0.00..313.01 rows=50 width=10) (actual time=0.163..2.262 rows=1001 loops=1)
         Output: a, ctid
         Filter: ((tt1.a % 10) = 0)
         Rows Removed by Filter: 9000
         Buffers: shared hit=163
-Planning Time: 0.090 ms
-Execution Time: 9.816 ms
+Planning Time: 0.043 ms
+Execution Time: 3.740 ms
 
 =======
 ### TEXT-short       ###### Plan 30: Materialize
-Seq Scan on public.tt1  (cost=0.00..1150490.52 rows=5000 width=12) (actual time=283.105..283.171 rows=0 loops=1)
+Seq Scan on public.tt1  (cost=0.00..1150490.52 rows=5000 width=12) (actual time=96.802..96.804 rows=0 loops=1)
   Output: tt1.a, tt1.b, tt1.c
   Filter: (SubPlan 1)
   Rows Removed by Filter: 10001
@@ -1267,205 +1290,214 @@ Seq Scan on public.tt1  (cost=0.00..1150490.52 rows=5000 width=12) (actual time=
     ->  Materialize  (cost=0.00..205.01 rows=10001 width=4) (actual time=0.000..0.000 rows=1 loops=10001)
           Output: tt2.b
           Buffers: shared hit=1
-        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.042..0.043 rows=1 loops=1)
+        ->  Seq Scan on public.tt2  (cost=0.00..155.01 rows=10001 width=4) (actual time=0.032..0.033 rows=1 loops=1)
               Output: tt2.b
               Buffers: shared hit=1
-Planning Time: 0.226 ms
-Execution Time: 324.140 ms
+Planning Time: 0.070 ms
+Execution Time: 115.408 ms
 
 =======
 ### TEXT-short       ###### Plan 31: Update on partitioned tables
-Update on public.p  (cost=0.00..3691.07 rows=200006 width=18) (actual time=6593.618..6593.620 rows=0 loops=1)
-  Update on public.p
-  Update on public.tt1 p_1
-  Update on public.tt2 p_2
-  Update on public.tt3 p_3
-  Buffers: shared hit=1533945 dirtied=1554 written=1554
-  ->  Seq Scan on public.p  (cost=0.00..0.00 rows=1 width=46) (actual time=0.005..0.005 rows=0 loops=1)
-        Output: p.a, (p.b + 1), p.c, p.ctid
-  ->  Seq Scan on public.tt1 p_1  (cost=0.00..288.01 rows=10001 width=18) (actual time=0.194..19.441 rows=10001 loops=1)
-        Output: p_1.a, (p_1.b + 1), p_1.c, p_1.ctid
-        Buffers: shared hit=163
-  ->  Seq Scan on public.tt2 p_2  (cost=0.00..180.01 rows=10001 width=18) (actual time=0.036..12.870 rows=10001 loops=1)
-        Output: p_2.a, (p_2.b + 1), p_2.c, p_2.ctid
-        Buffers: shared hit=55
-  ->  Seq Scan on public.tt3 p_3  (cost=0.00..3223.04 rows=180003 width=18) (actual time=0.023..215.144 rows=180003 loops=1)
-        Output: p_3.a, (p_3.b + 1), p_3.c, p_3.ctid
-        Buffers: shared hit=973
-Planning Time: 0.837 ms
-Trigger tt1_trig_1: time=89.516 calls=10001
-Trigger tt1_trig_2: time=69.948 calls=10001
-Execution Time: 6594.881 ms
+Update on public.p  (cost=0.00..6691.16 rows=0 width=0) (actual time=3925.378..3925.380 rows=0 loops=1)
+  Update on public.p p_1
+  Update on public.tt1 p_2
+  Update on public.tt2 p_3
+  Update on public.tt3 p_4
+  Buffers: shared hit=1736974 dirtied=1553 written=1553
+  ->  Result  (cost=0.00..6691.16 rows=200006 width=14) (actual time=0.138..169.642 rows=200005 loops=1)
+        Output: (p.b + 1), p.tableoid, p.ctid
+        Buffers: shared hit=1191
+        ->  Append  (cost=0.00..4191.08 rows=200006 width=14) (actual time=0.136..113.690 rows=200005 loops=1)
+              Subplans Removed: 0
+              Buffers: shared hit=1191
+              ->  Seq Scan on public.p p_1  (cost=0.00..0.00 rows=1 width=14) (actual time=0.002..0.002 rows=0 loops=1)
+                    Output: p_1.b, p_1.tableoid, p_1.ctid
+              ->  Seq Scan on public.tt1 p_2  (cost=0.00..263.01 rows=10001 width=14) (actual time=0.134..5.226 rows=10001 loops=1)
+                    Output: p_2.b, p_2.tableoid, p_2.ctid
+                    Buffers: shared hit=163
+              ->  Seq Scan on public.tt2 p_3  (cost=0.00..155.01 rows=10001 width=14) (actual time=0.012..3.931 rows=10001 loops=1)
+                    Output: p_3.b, p_3.tableoid, p_3.ctid
+                    Buffers: shared hit=55
+              ->  Seq Scan on public.tt3 p_4  (cost=0.00..2773.03 rows=180003 width=14) (actual time=0.011..74.083 rows=180003 loops=1)
+                    Output: p_4.b, p_4.tableoid, p_4.ctid
+                    Buffers: shared hit=973
+Planning Time: 0.216 ms
+Trigger tt1_trig_1: time=34.590 calls=10001
+Trigger tt1_trig_2: time=27.237 calls=10001
+Execution Time: 3926.101 ms
 
 =======
 ### TEXT-short       ###### Plan 32: Delete on partitioned tables
-Delete on public.p  (cost=0.00..32.80 rows=6 width=6) (actual time=0.580..0.581 rows=0 loops=1)
-  Delete on public.p
-  Delete on public.tt1 p_1
-  Delete on public.tt2 p_2
-  Delete on public.tt3 p_3
-  Buffers: shared hit=18
-  ->  Seq Scan on public.p  (cost=0.00..0.00 rows=1 width=6) (actual time=0.009..0.009 rows=0 loops=1)
-        Output: p.ctid
-        Filter: (p.a = 100)
-  ->  Index Scan using i_tt1 on public.tt1 p_1  (cost=0.29..8.30 rows=1 width=6) (actual time=0.326..0.335 rows=1 loops=1)
-        Output: p_1.ctid
-        Index Cond: (p_1.a = 100)
-        Buffers: shared hit=5
-  ->  Index Scan using i_tt2 on public.tt2 p_2  (cost=0.29..8.30 rows=1 width=6) (actual time=0.015..0.015 rows=0 loops=1)
-        Output: p_2.ctid
-        Index Cond: (p_2.a = 100)
-        Buffers: shared hit=2
-  ->  Index Scan using i_tt3_a on public.tt3 p_3  (cost=0.42..16.20 rows=3 width=6) (actual time=0.160..0.175 rows=2 loops=1)
-        Output: p_3.ctid
-        Index Cond: (p_3.a = 100)
-        Buffers: shared hit=8
-Planning Time: 0.577 ms
-Execution Time: 1.330 ms
+Delete on public.p  (cost=0.00..32.82 rows=0 width=0) (actual time=0.270..0.271 rows=0 loops=1)
+  Delete on public.p p_1
+  Delete on public.tt1 p_2
+  Delete on public.tt2 p_3
+  Delete on public.tt3 p_4
+  Buffers: shared hit=18 dirtied=5
+  ->  Append  (cost=0.00..32.82 rows=6 width=10) (actual time=0.127..0.252 rows=3 loops=1)
+        Subplans Removed: 0
+        Buffers: shared hit=15 dirtied=5
+        ->  Seq Scan on public.p p_1  (cost=0.00..0.00 rows=1 width=10) (actual time=0.003..0.003 rows=0 loops=1)
+              Output: p_1.tableoid, p_1.ctid
+              Filter: (p_1.a = 100)
+        ->  Index Scan using i_tt1 on public.tt1 p_2  (cost=0.29..8.30 rows=1 width=10) (actual time=0.123..0.125 rows=1 loops=1)
+              Output: p_2.tableoid, p_2.ctid
+              Index Cond: (p_2.a = 100)
+              Buffers: shared hit=5 dirtied=2
+        ->  Index Scan using i_tt2 on public.tt2 p_3  (cost=0.29..8.30 rows=1 width=10) (actual time=0.007..0.007 rows=0 loops=1)
+              Output: p_3.tableoid, p_3.ctid
+              Index Cond: (p_3.a = 100)
+              Buffers: shared hit=2
+        ->  Index Scan using i_tt3_a on public.tt3 p_4  (cost=0.42..16.18 rows=3 width=10) (actual time=0.106..0.114 rows=2 loops=1)
+              Output: p_4.tableoid, p_4.ctid
+              Index Cond: (p_4.a = 100)
+              Buffers: shared hit=8 dirtied=3
+Planning Time: 0.231 ms
+Execution Time: 0.627 ms
 
 =======
 ### TEXT-short       ###### Plan 33: ON CONFLICT
-Insert on public.ct1  (cost=0.00..0.01 rows=1 width=8) (actual time=0.088..0.089 rows=0 loops=1)
+Insert on public.ct1  (cost=0.00..0.01 rows=0 width=0) (actual time=0.052..0.052 rows=0 loops=1)
   Conflict Resolution: UPDATE
   Conflict Arbiter Indexes: ct1_a_key
   Tuples Inserted: 0
   Conflicting Tuples: 1
   Buffers: shared hit=5
-  ->  Result  (cost=0.00..0.01 rows=1 width=8) (actual time=0.003..0.004 rows=1 loops=1)
+  ->  Result  (cost=0.00..0.01 rows=1 width=8) (actual time=0.002..0.002 rows=1 loops=1)
         Output: 1, 1
-Planning Time: 0.133 ms
-Execution Time: 0.533 ms
+Planning Time: 0.070 ms
+Execution Time: 0.170 ms
 
 =======
 ### TEXT-short       ###### Plan 34: GROUP BY
-HashAggregate  (cost=450.00..583.13 rows=13314 width=40) (actual time=25.192..34.691 rows=10000 loops=1)
+HashAggregate  (cost=450.00..583.13 rows=13314 width=40) (actual time=12.227..16.534 rows=10000 loops=1)
   Output: a, b, max(c)
   Group Key: tt1.a, tt1.b
   Planned Partitions: 0
   HashAgg Batches: 1
   Disk Usage: 0
-  Buffers: shared hit=217
-  ->  Seq Scan on public.tt1  (cost=0.00..350.14 rows=13314 width=12) (actual time=0.271..9.164 rows=10000 loops=1)
+  Buffers: shared hit=217 dirtied=107
+  ->  Seq Scan on public.tt1  (cost=0.00..350.14 rows=13314 width=12) (actual time=0.124..4.691 rows=10000 loops=1)
         Output: a, b, c
-        Buffers: shared hit=217
-Planning Time: 0.184 ms
-Execution Time: 37.008 ms
+        Buffers: shared hit=217 dirtied=107
+Planning Time: 0.108 ms
+Execution Time: 17.627 ms
 
 =======
 ### TEXT-short       ###### Plan 35: GROUPING SETS
-MixedAggregate  (cost=0.29..1155.42 rows=26629 width=40) (actual time=0.078..174.931 rows=20001 loops=1)
+MixedAggregate  (cost=0.00..782.86 rows=26629 width=40) (actual time=15.844..24.353 rows=20001 loops=1)
   Output: a, b, max(c)
+  Hash Key: tt1.a
   Hash Key: tt1.b
-  Group Key: tt1.a
   Group Key: ()
   Planned Partitions: 0
   HashAgg Batches: 1
   Disk Usage: 0
-  Buffers: shared hit=30354
-  ->  Index Scan using i_tt1 on public.tt1  (cost=0.29..755.99 rows=13314 width=12) (actual time=0.057..121.202 rows=10000 loops=1)
+  Buffers: shared hit=217
+  ->  Seq Scan on public.tt1  (cost=0.00..350.14 rows=13314 width=12) (actual time=0.148..1.808 rows=10000 loops=1)
         Output: a, b, c
-        Buffers: shared hit=30354
-Planning Time: 0.187 ms
-Execution Time: 179.709 ms
+        Buffers: shared hit=217
+Planning Time: 0.109 ms
+Execution Time: 26.446 ms
 
 =======
 ### TEXT-short       ###### Plan 36: Table sample
-Sample Scan  (cost=0.00..9.33 rows=133 width=12) (actual time=0.030..0.122 rows=185 loops=1)
+Sample Scan  (cost=0.00..9.33 rows=133 width=12) (actual time=0.016..0.064 rows=185 loops=1)
   Output: a, b, c
   Sampling: system ('1'::real) REPEATABLE ('1'::double precision)
   Buffers: shared hit=1
-Planning Time: 0.081 ms
-Execution Time: 0.265 ms
+Planning Time: 0.064 ms
+Execution Time: 0.137 ms
 
 =======
 ### TEXT-short       ###### Plan 37: Project Set
-Table Function Scan  (cost=0.00..1.00 rows=100 width=32) (actual time=0.069..0.070 rows=2 loops=1)
+Table Function Scan  (cost=0.00..1.00 rows=100 width=32) (actual time=0.049..0.050 rows=2 loops=1)
   Output: name
   Table Function Call: XMLTABLE(('//towns/town'::text) PASSING ('<towns><town><name>Toronto</name></town><town><name>Ottawa</name></town></towns>'::xml) COLUMNS name text)
-Planning Time: 0.026 ms
-Execution Time: 0.314 ms
+Planning Time: 0.016 ms
+Execution Time: 0.102 ms
 
 =======
 ### TEXT-short       ###### Plan 38: Incremental Sort
-Limit  (cost=67.50..69.11 rows=31 width=8) (actual time=2.004..2.021 rows=31 loops=1)
+Limit  (cost=67.50..69.11 rows=31 width=8) (actual time=0.697..0.703 rows=31 loops=1)
   Output: (((i.i / 100) + 1)), ((i.i + 1))
-  ->  Incremental Sort  (cost=67.50..119.38 rows=1000 width=8) (actual time=2.003..2.010 rows=31 loops=1)
+  ->  Incremental Sort  (cost=67.50..119.38 rows=1000 width=8) (actual time=0.695..0.698 rows=31 loops=1)
         Output: (((i.i / 100) + 1)), ((i.i + 1))
         Sort Key: (((i.i / 100) + 1)), ((i.i + 1))
-        ->  Sort  (cost=67.33..69.83 rows=1000 width=8) (actual time=1.760..1.779 rows=101 loops=1)
+        ->  Sort  (cost=67.33..69.83 rows=1000 width=8) (actual time=0.624..0.633 rows=101 loops=1)
               Output: (((i.i / 100) + 1)), ((i.i + 1))
               Sort Key: (((i.i / 100) + 1))
               Sort Method: quicksort  Memory: 79kB
-              ->  Function Scan on pg_catalog.generate_series i  (cost=0.00..17.50 rows=1000 width=8) (actual time=0.287..1.104 rows=1000 loops=1)
+              ->  Function Scan on pg_catalog.generate_series i  (cost=0.00..17.50 rows=1000 width=8) (actual time=0.158..0.392 rows=1000 loops=1)
                     Output: ((i.i / 100) + 1), (i.i + 1)
                     Function Call: generate_series(0, 999)
-Planning Time: 0.162 ms
-Execution Time: 3.038 ms
+Planning Time: 0.117 ms
+Execution Time: 1.039 ms
 
 =======
 ### TEXT-short       ###### Plan 39: Named Tuplestore Scan
 Aggregate  (cost=0.02..0.03 rows=1 width=8) (actual time=0.007..0.008 rows=1 loops=1)
-  ->  Named Tuplestore Scan  (cost=0.00..0.02 rows=1 width=4) (actual time=0.001..0.002 rows=1 loops=1)
+  ->  Named Tuplestore Scan  (cost=0.00..0.02 rows=1 width=4) (actual time=0.002..0.002 rows=1 loops=1)
 
 =======
 ### TEXT-short       ###### Plan 40: Parallel Seq Scan
-Gather  (cost=0.00..21845.68 rows=1814322 width=36) (actual time=1.231..147.766 rows=100000 loops=1)
+Gather  (cost=0.00..21845.68 rows=1814322 width=36) (actual time=0.371..61.113 rows=100000 loops=1)
   Output: a, b
   Workers Planned: 2
   Workers Launched: 2
   Single Copy: false
-  Buffers: shared hit=14286
-  ->  Parallel Seq Scan on public.lt1  (cost=0.00..21845.68 rows=755968 width=36) (actual time=0.023..45.673 rows=33333 loops=3)
+  Buffers: shared hit=14285 read=1 dirtied=2183
+  ->  Parallel Seq Scan on public.lt1  (cost=0.00..21845.68 rows=755968 width=36) (actual time=0.022..18.848 rows=33333 loops=3)
         Output: a, b
-        Buffers: shared hit=14286
-        Worker 0 (actual time=0.027..45.602 rows=28364 loops=1)
-          Buffers: shared hit=4052
-        Worker 1 (actual time=0.029..45.180 rows=28040 loops=1)
-          Buffers: shared hit=4006
-Planning Time: 0.426 ms
-Execution Time: 169.896 ms
+        Buffers: shared hit=14285 read=1 dirtied=2183
+        Worker 0 (actual time=0.019..13.633 rows=19131 loops=1)
+          Buffers: shared hit=2733
+        Worker 1 (actual time=0.015..17.810 rows=36883 loops=1)
+          Buffers: shared hit=5269
+Planning Time: 0.128 ms
+Execution Time: 71.384 ms
 
 =======
 ### TEXT-short       ###### Plan 41: Parallel Index Scan
-Gather  (cost=0.29..12.05 rows=132 width=12) (actual time=0.595..54.680 rows=100 loops=1)
+Gather  (cost=0.29..12.05 rows=132 width=12) (actual time=0.192..26.598 rows=100 loops=1)
   Output: a, b, c
   Workers Planned: 1
   Workers Launched: 1
   Single Copy: false
-  Buffers: shared hit=368
-  ->  Parallel Index Scan using i_tt1 on public.tt1  (cost=0.29..12.05 rows=78 width=12) (actual time=0.049..1.496 rows=50 loops=2)
+  Buffers: shared hit=163 dirtied=1
+  ->  Parallel Index Scan using i_tt1 on public.tt1  (cost=0.29..12.05 rows=78 width=12) (actual time=0.016..0.076 rows=50 loops=2)
         Output: a, b, c
         Index Cond: (tt1.a < 100)
-        Buffers: shared hit=368
-        Worker 0 (actual time=0.003..0.003 rows=0 loops=1)
-Planning Time: 0.437 ms
-Execution Time: 55.017 ms
+        Buffers: shared hit=163 dirtied=1
+        Worker 0 (actual time=0.002..0.002 rows=0 loops=1)
+Planning Time: 0.127 ms
+Execution Time: 26.746 ms
 
 =======
 ### TEXT-short       ###### Plan 42: Gather Merge
-Gather Merge  (cost=617.52..747.07 rows=11096 width=4) (actual time=52.306..58.163 rows=10000 loops=1)
+Gather Merge  (cost=617.52..747.07 rows=11096 width=4) (actual time=24.349..27.001 rows=10000 loops=1)
   Output: a
   Workers Planned: 2
   Workers Launched: 2
-  Buffers: shared hit=331
-  ->  Sort  (cost=617.50..631.37 rows=5548 width=4) (actual time=4.948..5.669 rows=3333 loops=3)
+  Buffers: shared hit=330 read=1
+  ->  Sort  (cost=617.50..631.37 rows=5548 width=4) (actual time=2.408..2.747 rows=3333 loops=3)
         Output: a
         Sort Key: tt1.a
         Sort Method: quicksort  Memory: 931kB
-        Buffers: shared hit=331
-        Worker 0 (actual time=0.443..0.443 rows=0 loops=1)
+        Buffers: shared hit=330 read=1
+        Worker 0 (actual time=0.215..0.216 rows=0 loops=1)
           Sort Method: quicksort  Memory: 25kB
           Buffers: shared hit=57
-        Worker 1 (actual time=0.443..0.444 rows=0 loops=1)
+        Worker 1 (actual time=0.265..0.266 rows=0 loops=1)
           Sort Method: quicksort  Memory: 25kB
-          Buffers: shared hit=57
-        ->  Parallel Seq Scan on public.tt1  (cost=0.00..272.48 rows=5548 width=4) (actual time=0.108..2.529 rows=3333 loops=3)
+          Buffers: shared hit=56 read=1
+        ->  Parallel Seq Scan on public.tt1  (cost=0.00..272.48 rows=5548 width=4) (actual time=0.058..1.191 rows=3333 loops=3)
               Output: a
               Buffers: shared hit=217
-              Worker 0 (actual time=0.002..0.002 rows=0 loops=1)
+              Worker 0 (actual time=0.001..0.001 rows=0 loops=1)
               Worker 1 (actual time=0.002..0.002 rows=0 loops=1)
-Planning Time: 0.109 ms
-Execution Time: 61.122 ms
+Planning Time: 0.086 ms
+Execution Time: 28.298 ms
 ###### long-json-as-a-source test
 SELECT '### '||'yaml-long JSON   '||title||E'\n'||
   pg_store_plans_yamlplan(lplan)
@@ -1475,18 +1507,19 @@ SELECT '### '||'yaml-long JSON   '||title||E'\n'||
     Node Type: "ModifyTable"
     Operation: "Insert"
     Parallel Aware: false
+    Async Capable: false
     Relation Name: "tt1"
     Schema: "public"
     Alias: "tt1"
     Startup Cost: 0.00
     Total Cost: 100.01
-    Plan Rows: 10001
-    Plan Width: 40
-    Actual Startup Time: 307.054
-    Actual Total Time: 307.055
+    Plan Rows: 0
+    Plan Width: 0
+    Actual Startup Time: 131.502
+    Actual Total Time: 131.503
     Actual Rows: 0
     Actual Loops: 1
-    Shared Hit Blocks: 29736
+    Shared Hit Blocks: 29749
     Shared Read Blocks: 3
     Shared Dirtied Blocks: 85
     Shared Written Blocks: 84
@@ -1498,8 +1531,9 @@ SELECT '### '||'yaml-long JSON   '||title||E'\n'||
     Temp Written Blocks: 0
     Plans:
       - Node Type: "Function Scan"
-        Parent Relationship: "Member"
+        Parent Relationship: "Outer"
         Parallel Aware: false
+        Async Capable: false
         Function Name: "generate_series"
         Schema: "pg_catalog"
         Alias: "a"
@@ -1507,8 +1541,8 @@ SELECT '### '||'yaml-long JSON   '||title||E'\n'||
         Total Cost: 100.01
         Plan Rows: 10001
         Plan Width: 40
-        Actual Startup Time: 3.739
-        Actual Total Time: 12.801
+        Actual Startup Time: 1.451
+        Actual Total Time: 5.136
         Actual Rows: 10001
         Actual Loops: 1
         Output:
@@ -1526,6 +1560,7 @@ SELECT '### '||'yaml-long JSON   '||title||E'\n'||
         Local Written Blocks: 0
         Temp Read Blocks: 0
         Temp Written Blocks: 0
+  Query Identifier: 1567994068167988335
   
 - Planning:
     Shared Hit Blocks: 0
@@ -1538,17 +1573,17 @@ SELECT '### '||'yaml-long JSON   '||title||E'\n'||
     Local Written Blocks: 0
     Temp Read Blocks: 0
     Temp Written Blocks: 0
-  Planning Time: 0.064
+  Planning Time: 0.056
   Triggers:
     - Trigger Name: "tt1_trig_1"
       Relation: "tt1"
-      Time: 80.641
+      Time: 31.186
       Calls: 10001
     - Trigger Name: "tt1_trig_2"
       Relation: "tt1"
-      Time: 63.621
+      Time: 27.673
       Calls: 10001
-  Execution Time: 308.848
+  Execution Time: 132.086
 ##################
 SELECT '### '||'xml-long JSON    '||title||E'\n'||
   pg_store_plans_xmlplan(lplan)
@@ -1560,18 +1595,19 @@ SELECT '### '||'xml-long JSON    '||title||E'\n'||
       <Node-Type>ModifyTable</Node-Type>
       <Operation>Insert</Operation>
       <Parallel-Aware>false</Parallel-Aware>
+      <Async-Capable>false</Async-Capable>
       <Relation-Name>tt1</Relation-Name>
       <Schema>public</Schema>
       <Alias>tt1</Alias>
       <Startup-Cost>0.00</Startup-Cost>
       <Total-Cost>100.01</Total-Cost>
-      <Plan-Rows>10001</Plan-Rows>
-      <Plan-Width>40</Plan-Width>
-      <Actual-Startup-Time>307.054</Actual-Startup-Time>
-      <Actual-Total-Time>307.055</Actual-Total-Time>
+      <Plan-Rows>0</Plan-Rows>
+      <Plan-Width>0</Plan-Width>
+      <Actual-Startup-Time>131.502</Actual-Startup-Time>
+      <Actual-Total-Time>131.503</Actual-Total-Time>
       <Actual-Rows>0</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
-      <Shared-Hit-Blocks>29736</Shared-Hit-Blocks>
+      <Shared-Hit-Blocks>29749</Shared-Hit-Blocks>
       <Shared-Read-Blocks>3</Shared-Read-Blocks>
       <Shared-Dirtied-Blocks>85</Shared-Dirtied-Blocks>
       <Shared-Written-Blocks>84</Shared-Written-Blocks>
@@ -1584,8 +1620,9 @@ SELECT '### '||'xml-long JSON    '||title||E'\n'||
       <Plans>
         <Item>
           <Node-Type>Function Scan</Node-Type>
-          <Parent-Relationship>Member</Parent-Relationship>
+          <Parent-Relationship>Outer</Parent-Relationship>
           <Parallel-Aware>false</Parallel-Aware>
+          <Async-Capable>false</Async-Capable>
           <Function-Name>generate_series</Function-Name>
           <Schema>pg_catalog</Schema>
           <Alias>a</Alias>
@@ -1593,8 +1630,8 @@ SELECT '### '||'xml-long JSON    '||title||E'\n'||
           <Total-Cost>100.01</Total-Cost>
           <Plan-Rows>10001</Plan-Rows>
           <Plan-Width>40</Plan-Width>
-          <Actual-Startup-Time>3.739</Actual-Startup-Time>
-          <Actual-Total-Time>12.801</Actual-Total-Time>
+          <Actual-Startup-Time>1.451</Actual-Startup-Time>
+          <Actual-Total-Time>5.136</Actual-Total-Time>
           <Actual-Rows>10001</Actual-Rows>
           <Actual-Loops>1</Actual-Loops>
           <Output>
@@ -1616,6 +1653,7 @@ SELECT '### '||'xml-long JSON    '||title||E'\n'||
         </Item>
       </Plans>
     </Plan>
+    <Query-Identifier>1567994068167988335</Query-Identifier>
     <Planning>
       <Shared-Hit-Blocks>0</Shared-Hit-Blocks>
       <Shared-Read-Blocks>0</Shared-Read-Blocks>
@@ -1628,22 +1666,22 @@ SELECT '### '||'xml-long JSON    '||title||E'\n'||
       <Temp-Read-Blocks>0</Temp-Read-Blocks>
       <Temp-Written-Blocks>0</Temp-Written-Blocks>
     </Planning>
-    <Planning-Time>0.064</Planning-Time>
+    <Planning-Time>0.056</Planning-Time>
     <Triggers>
       <Item>
         <Trigger-Name>tt1_trig_1</Trigger-Name>
         <Relation>tt1</Relation>
-        <Time>80.641</Time>
+        <Time>31.186</Time>
         <Calls>10001</Calls>
       </Item>
       <Item>
         <Trigger-Name>tt1_trig_2</Trigger-Name>
         <Relation>tt1</Relation>
-        <Time>63.621</Time>
+        <Time>27.673</Time>
         <Calls>10001</Calls>
       </Item>
     </Triggers>
-    <Execution-Time>308.848</Execution-Time>
+    <Execution-Time>132.086</Execution-Time>
   </Query>
 </explain>
 
@@ -1658,18 +1696,19 @@ SELECT '### '||'text-long JSON   '||title||E'\n'||
       <Node-Type>ModifyTable</Node-Type>
       <Operation>Insert</Operation>
       <Parallel-Aware>false</Parallel-Aware>
+      <Async-Capable>false</Async-Capable>
       <Relation-Name>tt1</Relation-Name>
       <Schema>public</Schema>
       <Alias>tt1</Alias>
       <Startup-Cost>0.00</Startup-Cost>
       <Total-Cost>100.01</Total-Cost>
-      <Plan-Rows>10001</Plan-Rows>
-      <Plan-Width>40</Plan-Width>
-      <Actual-Startup-Time>307.054</Actual-Startup-Time>
-      <Actual-Total-Time>307.055</Actual-Total-Time>
+      <Plan-Rows>0</Plan-Rows>
+      <Plan-Width>0</Plan-Width>
+      <Actual-Startup-Time>131.502</Actual-Startup-Time>
+      <Actual-Total-Time>131.503</Actual-Total-Time>
       <Actual-Rows>0</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
-      <Shared-Hit-Blocks>29736</Shared-Hit-Blocks>
+      <Shared-Hit-Blocks>29749</Shared-Hit-Blocks>
       <Shared-Read-Blocks>3</Shared-Read-Blocks>
       <Shared-Dirtied-Blocks>85</Shared-Dirtied-Blocks>
       <Shared-Written-Blocks>84</Shared-Written-Blocks>
@@ -1682,8 +1721,9 @@ SELECT '### '||'text-long JSON   '||title||E'\n'||
       <Plans>
         <Item>
           <Node-Type>Function Scan</Node-Type>
-          <Parent-Relationship>Member</Parent-Relationship>
+          <Parent-Relationship>Outer</Parent-Relationship>
           <Parallel-Aware>false</Parallel-Aware>
+          <Async-Capable>false</Async-Capable>
           <Function-Name>generate_series</Function-Name>
           <Schema>pg_catalog</Schema>
           <Alias>a</Alias>
@@ -1691,8 +1731,8 @@ SELECT '### '||'text-long JSON   '||title||E'\n'||
           <Total-Cost>100.01</Total-Cost>
           <Plan-Rows>10001</Plan-Rows>
           <Plan-Width>40</Plan-Width>
-          <Actual-Startup-Time>3.739</Actual-Startup-Time>
-          <Actual-Total-Time>12.801</Actual-Total-Time>
+          <Actual-Startup-Time>1.451</Actual-Startup-Time>
+          <Actual-Total-Time>5.136</Actual-Total-Time>
           <Actual-Rows>10001</Actual-Rows>
           <Actual-Loops>1</Actual-Loops>
           <Output>
@@ -1714,6 +1754,7 @@ SELECT '### '||'text-long JSON   '||title||E'\n'||
         </Item>
       </Plans>
     </Plan>
+    <Query-Identifier>1567994068167988335</Query-Identifier>
     <Planning>
       <Shared-Hit-Blocks>0</Shared-Hit-Blocks>
       <Shared-Read-Blocks>0</Shared-Read-Blocks>
@@ -1726,22 +1767,22 @@ SELECT '### '||'text-long JSON   '||title||E'\n'||
       <Temp-Read-Blocks>0</Temp-Read-Blocks>
       <Temp-Written-Blocks>0</Temp-Written-Blocks>
     </Planning>
-    <Planning-Time>0.064</Planning-Time>
+    <Planning-Time>0.056</Planning-Time>
     <Triggers>
       <Item>
         <Trigger-Name>tt1_trig_1</Trigger-Name>
         <Relation>tt1</Relation>
-        <Time>80.641</Time>
+        <Time>31.186</Time>
         <Calls>10001</Calls>
       </Item>
       <Item>
         <Trigger-Name>tt1_trig_2</Trigger-Name>
         <Relation>tt1</Relation>
-        <Time>63.621</Time>
+        <Time>27.673</Time>
         <Calls>10001</Calls>
       </Item>
     </Triggers>
-    <Execution-Time>308.848</Execution-Time>
+    <Execution-Time>132.086</Execution-Time>
   </Query>
 </explain>
 
@@ -1754,12 +1795,13 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
   "Plan": {
     "Node Type": "Sort",
     "Parallel Aware": false,
+    "Async Capable": false,
     "Startup Cost": 1432.51,
     "Total Cost": 1457.52,
     "Plan Rows": 10001,
     "Plan Width": 8,
-    "Actual Startup Time": 41.088,
-    "Actual Total Time": 41.091,
+    "Actual Startup Time": 17.126,
+    "Actual Total Time": 17.128,
     "Actual Rows": 0,
     "Actual Loops": 1,
     "Output": ["\"*SELECT* 1\".a", "(0)"],
@@ -1783,13 +1825,14 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
         "Strategy": "Hashed",
         "Parent Relationship": "Outer",
         "Parallel Aware": false,
+        "Async Capable": false,
         "Command": "Intersect All",
         "Startup Cost": 0.00,
         "Total Cost": 768.05,
         "Plan Rows": 10001,
         "Plan Width": 8,
-        "Actual Startup Time": 41.081,
-        "Actual Total Time": 41.083,
+        "Actual Startup Time": 17.122,
+        "Actual Total Time": 17.123,
         "Actual Rows": 0,
         "Actual Loops": 1,
         "Output": ["\"*SELECT* 1\".a", "(0)"],
@@ -1808,12 +1851,13 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
             "Node Type": "Append",
             "Parent Relationship": "Outer",
             "Parallel Aware": false,
+            "Async Capable": false,
             "Startup Cost": 0.00,
             "Total Cost": 718.05,
             "Plan Rows": 20002,
             "Plan Width": 8,
-            "Actual Startup Time": 0.221,
-            "Actual Total Time": 
+            "Actual Startup Time": 0.145,
+            "Actual Total Time": 10.40
 <truncated>
 
 =======
@@ -1822,12 +1866,13 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
   "Plan": {
     "Node Type": "Sort",
     "Parallel Aware": false,
+    "Async Capable": false,
     "Startup Cost": 1432.51,
     "Total Cost": 1457.52,
     "Plan Rows": 10001,
     "Plan Width": 8,
-    "Actual Startup Time": 46.663,
-    "Actual Total Time": 48.678,
+    "Actual Startup Time": 21.705,
+    "Actual Total Time": 22.602,
     "Actual Rows": 10001,
     "Actual Loops": 1,
     "Output": ["\"*SELECT* 1\".a", "(0)"],
@@ -1851,13 +1896,14 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
         "Strategy": "Hashed",
         "Parent Relationship": "Outer",
         "Parallel Aware": false,
+        "Async Capable": false,
         "Command": "Except",
         "Startup Cost": 0.00,
         "Total Cost": 768.05,
         "Plan Rows": 10001,
         "Plan Width": 8,
-        "Actual Startup Time": 35.260,
-        "Actual Total Time": 37.531,
+        "Actual Startup Time": 16.498,
+        "Actual Total Time": 17.825,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["\"*SELECT* 1\".a", "(0)"],
@@ -1876,11 +1922,12 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
             "Node Type": "Append",
             "Parent Relationship": "Outer",
             "Parallel Aware": false,
+            "Async Capable": false,
             "Startup Cost": 0.00,
             "Total Cost": 718.05,
             "Plan Rows": 20002,
             "Plan Width": 8,
-            "Actual Startup Time": 0.2
+            "Actual Startup Time": 0.136
 <truncated>
 
 =======
@@ -1889,12 +1936,13 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
   "Plan": {
     "Node Type": "Sort",
     "Parallel Aware": false,
+    "Async Capable": false,
     "Startup Cost": 1432.51,
     "Total Cost": 1457.52,
     "Plan Rows": 10001,
     "Plan Width": 8,
-    "Actual Startup Time": 48.922,
-    "Actual Total Time": 51.025,
+    "Actual Startup Time": 21.586,
+    "Actual Total Time": 22.448,
     "Actual Rows": 10001,
     "Actual Loops": 1,
     "Output": ["\"*SELECT* 1\".a", "(0)"],
@@ -1918,13 +1966,14 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
         "Strategy": "Hashed",
         "Parent Relationship": "Outer",
         "Parallel Aware": false,
+        "Async Capable": false,
         "Command": "Except All",
         "Startup Cost": 0.00,
         "Total Cost": 768.05,
         "Plan Rows": 10001,
         "Plan Width": 8,
-        "Actual Startup Time": 34.965,
-        "Actual Total Time": 38.291,
+        "Actual Startup Time": 16.445,
+        "Actual Total Time": 17.697,
         "Actual Rows": 10001,
         "Actual Loops": 1,
         "Output": ["\"*SELECT* 1\".a", "(0)"],
@@ -1943,11 +1992,12 @@ SELECT '### '||'inflate-chopped  '||title||E'\n'||
             "Node Type": "Append",
             "Parent Relationship": "Outer",
             "Parallel Aware": false,
+            "Async Capable": false,
             "Startup Cost": 0.00,
             "Total Cost": 718.05,
             "Plan Rows": 20002,
             "Plan Width": 8,
-            "Actual Startup Time": 0.2
+            "Actual Startup Time": 0.147
 <truncated>
 ##################
 SELECT '### '||'yaml-chopped     '||title||E'\n'||
@@ -1957,13 +2007,14 @@ SELECT '### '||'yaml-chopped     '||title||E'\n'||
 - Plan:
     Node Type: "Merge Join"
     Parallel Aware: false
+    Async Capable: false
     Join Type: "Left"
     Startup Cost: 0.71
-    Total Cost: 3860.52
-    Plan Rows: 33557
+    Total Cost: 3885.83
+    Plan Rows: 33212
     Plan Width: 4
-    Actual Startup Time: 0.105
-    Actual Total Time: 226.400
+    Actual Startup Time: 0.036
+    Actual Total Time: 94.773
     Actual Rows: 60003
     Actual Loops: 1
     Output:
@@ -1984,6 +2035,7 @@ SELECT '### '||'yaml-chopped     '||title||E'\n'||
       - Node Type: "Index Scan"
         Parent Relationship: "Outer"
         Parallel Aware: false
+        Async Capable: false
         Scan Direction: "Forward"
         Index Name: "i_tt1"
 <truncated>
@@ -1993,13 +2045,14 @@ SELECT '### '||'yaml-chopped     '||title||E'\n'||
 - Plan:
     Node Type: "Hash Join"
     Parallel Aware: false
+    Async Capable: false
     Join Type: "Full"
     Startup Cost: 280.02
     Total Cost: 680.55
     Plan Rows: 10001
     Plan Width: 4
-    Actual Startup Time: 10.794
-    Actual Total Time: 25.225
+    Actual Startup Time: 5.330
+    Actual Total Time: 12.032
     Actual Rows: 17001
     Actual Loops: 1
     Output:
@@ -2020,6 +2073,7 @@ SELECT '### '||'yaml-chopped     '||title||E'\n'||
       - Node Type: "Seq Scan"
         Parent Relationship: "Outer"
         Parallel Aware: false
+        Async Capable: false
         Relation Name: "tt1"
         Schema: "public"
         Alias: "x"
@@ -2027,7 +2081,8 @@ SELECT '### '||'yaml-chopped     '||title||E'\n'||
         Total Cost: 263.01
         Plan Rows: 10001
         Plan Width: 8
-        Actual Startup Time: 0.171
+        Actual Startup Time: 0.123
+        Actual Total Time: 1.6
 <truncated>
 
 =======
@@ -2035,13 +2090,14 @@ SELECT '### '||'yaml-chopped     '||title||E'\n'||
 - Plan:
     Node Type: "Hash Join"
     Parallel Aware: false
+    Async Capable: false
     Join Type: "Semi"
     Startup Cost: 280.02
     Total Cost: 680.55
     Plan Rows: 10001
     Plan Width: 12
-    Actual Startup Time: 20.909
-    Actual Total Time: 20.912
+    Actual Startup Time: 9.136
+    Actual Total Time: 9.138
     Actual Rows: 0
     Actual Loops: 1
     Output:
@@ -2064,6 +2120,7 @@ SELECT '### '||'yaml-chopped     '||title||E'\n'||
       - Node Type: "Seq Scan"
         Parent Relationship: "Outer"
         Parallel Aware: false
+        Async Capable: false
         Relation Name: "tt1"
         Schema: "public"
         Alias: "tt1"
@@ -2071,6 +2128,7 @@ SELECT '### '||'yaml-chopped     '||title||E'\n'||
         Total Cost: 263.01
         Plan Rows: 10001
         Plan Width: 12
+        Actual Startup Time: 0.1
 <truncated>
 ##################
 SELECT '### '||'xml-chopped      '||title||E'\n'||
@@ -2082,13 +2140,14 @@ SELECT '### '||'xml-chopped      '||title||E'\n'||
     <Plan>
       <Node-Type>Hash Join</Node-Type>
       <Parallel-Aware>false</Parallel-Aware>
+      <Async-Capable>false</Async-Capable>
       <Join-Type>Anti</Join-Type>
       <Startup-Cost>280.02</Startup-Cost>
       <Total-Cost>580.54</Total-Cost>
       <Plan-Rows>1</Plan-Rows>
       <Plan-Width>12</Plan-Width>
-      <Actual-Startup-Time>14.232</Actual-Startup-Time>
-      <Actual-Total-Time>27.140</Actual-Total-Time>
+      <Actual-Startup-Time>5.556</Actual-Startup-Time>
+      <Actual-Total-Time>10.806</Actual-Total-Time>
       <Actual-Rows>10001</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
       <Output>
@@ -2113,6 +2172,7 @@ SELECT '### '||'xml-chopped      '||title||E'\n'||
           <Node-Type>Seq Scan</Node-Type>
           <Parent-Relationship>Outer</Parent-Relationship>
           <Parallel-Aware>false</Parallel-Aware>
+          <Async-Capable>false</Async-Capable>
           <Relation-Name>tt1</Relation-Name>
           <Schema>public</Schema>
           <Alias>tt1</Alias>
@@ -2120,6 +2180,7 @@ SELECT '### '||'xml-chopped      '||title||E'\n'||
           <Total-Cost>263.01</Total-Cost>
           <Plan-Rows>10001</Plan-Rows>
           <Plan-Width>12</Plan-Width>
+          <Actual-Startup-Time>0.1</Actual-Startup-Time>
 <truncated>
 
 =======
@@ -2129,12 +2190,13 @@ SELECT '### '||'xml-chopped      '||title||E'\n'||
     <Plan>
       <Node-Type>WindowAgg</Node-Type>
       <Parallel-Aware>false</Parallel-Aware>
+      <Async-Capable>false</Async-Capable>
       <Startup-Cost>952.47</Startup-Cost>
       <Total-Cost>1152.49</Total-Cost>
       <Plan-Rows>10001</Plan-Rows>
       <Plan-Width>8</Plan-Width>
-      <Actual-Startup-Time>12.556</Actual-Startup-Time>
-      <Actual-Total-Time>42.738</Actual-Total-Time>
+      <Actual-Startup-Time>5.010</Actual-Startup-Time>
+      <Actual-Total-Time>15.829</Actual-Total-Time>
       <Actual-Rows>10001</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
       <Output>
@@ -2156,8 +2218,9 @@ SELECT '### '||'xml-chopped      '||title||E'\n'||
           <Node-Type>Sort</Node-Type>
           <Parent-Relationship>Outer</Parent-Relationship>
           <Parallel-Aware>false</Parallel-Aware>
+          <Async-Capable>false</Async-Capable>
           <Startup-Cost>952.47</Startup-Cost>
-          <Total-Cost>977</Total-Cost>
+          <Total-Cost>977.4</Total-Cost>
 <truncated>
 
 =======
@@ -2167,12 +2230,13 @@ SELECT '### '||'xml-chopped      '||title||E'\n'||
     <Plan>
       <Node-Type>Unique</Node-Type>
       <Parallel-Aware>false</Parallel-Aware>
+      <Async-Capable>false</Async-Capable>
       <Startup-Cost>0.29</Startup-Cost>
       <Total-Cost>677.30</Total-Cost>
       <Plan-Rows>10001</Plan-Rows>
       <Plan-Width>4</Plan-Width>
-      <Actual-Startup-Time>0.089</Actual-Startup-Time>
-      <Actual-Total-Time>129.670</Actual-Total-Time>
+      <Actual-Startup-Time>0.040</Actual-Startup-Time>
+      <Actual-Total-Time>45.457</Actual-Total-Time>
       <Actual-Rows>10001</Actual-Rows>
       <Actual-Loops>1</Actual-Loops>
       <Output>
@@ -2188,217 +2252,222 @@ SELECT '### '||'xml-chopped      '||title||E'\n'||
       <Local-Written-Blocks>0</Local-Written-Blocks>
       <Temp-Read-Blocks>0</Temp-Read-Blocks>
       <Temp-Written-Blocks>0</Temp-Written-Blocks>
+      <Plans>
+        <Plan>
 <truncated>
 ##################
 SELECT '### '||'text-chopped     '||title||E'\n'||
   pg_store_plans_textplan(substring(splan from 1 for char_length(splan) / 3))
   FROM plans WHERE id BETWEEN 25 AND 27 ORDER BY id;
 ### text-chopped     ###### Plan 25: PlainAggregate
-Aggregate  (cost=288.01..288.02 rows=1 width=8) (actual time=6.445..6.446 rows=1 loops=1)
+Aggregate  (cost=288.01..288.02 rows=1 width=8) (actual time=3.150..3.151 rows=1 loops=1)
   Output: sum(a)
   Buffers: shared hit=163
 <truncated>
 
 =======
 ### text-chopped     ###### Plan 26: BitmapIndexScan/BitmapHeapScan, BitmapOr, lossy
-Bitmap Heap Scan on public.tt3  (cost=3947.41..7170.40 rows=179999 width=12) (actual time=55.836..128.723 rows=180000 loops=1)
+Bitmap Heap Scan on public.tt3  (cost=3947.41..7170.40 rows=179999 width=12) (actual time=23.177..55.323 rows=180000 loops=1)
   Output: a, b, c
   Recheck Cond: (tt3.b > '-99998'::integer)
+  Heap Blocks: exact=973
 <truncated>
 
 =======
 ### text-chopped     ###### Plan 27: Join Filter
-Limit  (cost=0.00..21.52 rows=100 width=12) (actual time=18.516..18.804 rows=100 loops=1)
+Limit  (cost=0.00..21.52 rows=100 width=12) (actual time=6.149..6.271 rows=100 loops=1)
   Output: tt2.a, tt2.b, tt2.c
   Buffers: shared hit=40, temp written=12
-  ->  Nested Loop  (cost=0.00..43048282.11 rows=200023334 width=12) (actual time=18.514..18.773 rows=100 loops=1)
+  ->  Nested Loop  (cost=0.00..43048282.11 rows=200023334 width=12) (actual time=6.147..6.258 rows=100 loops=1)
         Output: tt2.a, tt2.b, tt2.c
+        Join Filter: ((tt2.a < tt3.a) AND ((tt3.a + tt2.a) < 100000))
+        Rows Removed by Join Filter: 700
 <truncated>
 ###### shorten test
 SELECT '### '||'shorten          '||title||E'\n'||
   pg_store_plans_shorten(lplan)
   FROM plans WHERE id = -2 ORDER BY id;
 ### shorten          ###### Plan -2: all properties 2/2
-{"V":0,"W":0,"X":0,"Y":0,"Z":0,"z":0,"#":0,"$":0,"&":0,"(":0,")":0,"_":"dummy","%":"NOTHING","@":"ia","^":123,"+":234,":":"system",";":["'10'::real"],"<":"'0'::double precision","[":"dummy","]":0}
+{"V":0,"W":0,"X":0,"Y":0,"Z":0,"z":0,"#":0,"$":0,"&":0,"(":0,")":0,"_":"dummy","%":"NOTHING","@":"ia","^":123,"+":234,":":"system",";":["'10'::real"],"<":"'0'::double precision","[":"dummy","]":0,"ac":"false"}
 ###### normalize test
 SELECT '### '||'normalize        '||title||E'\n'||
   pg_store_plans_normalize(lplan)
   FROM plans ORDER BY id;
 ### normalize        ###### Plan -3: some properties plus unknown key
-{"p":0,"l":0,"t":"a","t":"b","t":"c","t":"d","t":"e","t":"f","t":"g","t":"h","t":"i","t":"j","t":"k","t":"l","t":"m","t":"n","t":"o","t":"p","t":"q","t":"r","t":"s","t":"t","t":"u","t":"v","t":"w","t":"x","t":"y","t":"z","t":"0","t":"1","t":"2","t":"3","t":"4","t":"5","t":"B","t":"6","t":"7","t":"8","t":"9","t":"A","h":"o","h":"i","h":"s","h":"m","h":"I","h":"S","d":"b","d":"n","d":"f","i":0,"n":0,"f":0,"c":0,"s":0,"a":0,"o":"[]","m":"a","g":"p","g":"s","g":"h","g":"m","j":"i","j":"l","j":"f","j":"r","j":"s","j":"a","b":"i","b":"I","b":"e","b":"E","e":"h","e":"q","e":"e","e":"E","e":"s","k":"a","-":"a","=":"a","\\":"a","~":"a","|":"a","`":"true","{":"0","}":"0","5":"a","6":"a","7":"a","8":"a","9":"a","0":"a","!":"i","!":"d","!":"u","q":"a","r":0,"u":0,"v":0,"w":0,"x":0}
+{"p":0,"l":0,"t":"a","t":"b","t":"c","t":"d","t":"e","t":"f","t":"g","t":"h","t":"i","t":"j","t":"k","t":"l","t":"m","t":"n","t":"o","t":"p","t":"q","t":"r","t":"s","t":"t","t":"u","t":"v","t":"w","t":"x","t":"y","t":"z","t":"0","t":"1","t":"2","t":"3","t":"4","t":"5","t":"B","t":"6","t":"7","t":"8","t":"9","t":"A","h":"o","h":"i","h":"s","h":"m","h":"I","h":"S","d":"b","d":"n","d":"f","i":0,"n":0,"f":0,"c":0,"s":0,"a":0,"o":"[]","m":"a","g":"p","g":"s","g":"h","g":"m","j":"i","j":"l","j":"f","j":"r","j":"s","j":"a","b":"i","b":"I","b":"e","b":"E","e":"h","e":"q","e":"e","e":"E","e":"s","k":"a","-":"a","=":"a","\\":"a","~":"a","|":"a","`":"true","{":"0","}":"0","ac":"false","5":"a","6":"a","7":"a","8":"a","9":"a","0":"a","!":"i","!":"d","!":"u","q":"a","r":0,"u":0,"v":0,"w":0,"x":0}
 
 =======
 ### normalize        ###### Plan -2: all properties 2/2
-{[]}
+{[]"ac":"false"}
 
 =======
 ### normalize        ###### Plan -1: all properties 1/2
-{"p":0,"l":0,"t":"a","t":"b","t":"c","t":"d","t":"e","t":"f","t":"g","t":"h","t":"i","t":"j","t":"k","t":"l","t":"m","t":"n","t":"o","t":"p","t":"q","t":"r","t":"s","t":"t","t":"u","t":"v","t":"w","t":"x","t":"y","t":"z","t":"0","t":"1","t":"2","t":"3","t":"4","t":"5","t":"B","t":"6","t":"7","t":"8","t":"9","t":"A","h":"o","h":"i","h":"s","h":"m","h":"I","h":"S","d":"b","d":"n","d":"f","i":0,"n":0,"f":0,"c":0,"s":0,"a":0,"o":"[]","m":"a","g":"p","g":"s","g":"h","g":"m","j":"i","j":"l","j":"f","j":"r","j":"s","j":"a","b":"i","b":"I","b":"e","b":"E","e":"h","e":"q","e":"e","e":"E","e":"s","k":"a","-":"a","=":"a","\\":"a","~":"a","|":"a","`":"true","{":"0","}":"0","5":"a","6":"a","7":"a","8":"a","9":"a","0":"a","!":"i","!":"d","!":"u","q":"a","r":0,"u":0,"v":0,"w":0,"x":0}
+{"p":0,"l":0,"t":"a","t":"b","t":"c","t":"d","t":"e","t":"f","t":"g","t":"h","t":"i","t":"j","t":"k","t":"l","t":"m","t":"n","t":"o","t":"p","t":"q","t":"r","t":"s","t":"t","t":"u","t":"v","t":"w","t":"x","t":"y","t":"z","t":"0","t":"1","t":"2","t":"3","t":"4","t":"5","t":"B","t":"6","t":"7","t":"8","t":"9","t":"A","h":"o","h":"i","h":"s","h":"m","h":"I","h":"S","d":"b","d":"n","d":"f","i":0,"n":0,"f":0,"c":0,"s":0,"a":0,"o":"[]","m":"a","g":"p","g":"s","g":"h","g":"m","j":"i","j":"l","j":"f","j":"r","j":"s","j":"a","b":"i","b":"I","b":"e","b":"E","e":"h","e":"q","e":"e","e":"E","e":"s","k":"a","-":"a","=":"a","\\":"a","~":"a","|":"a","`":"true","{":"0","}":"0","ac":"false","5":"a","6":"a","7":"a","8":"a","9":"a","0":"a","!":"i","!":"d","!":"u","q":"a","r":0,"u":0,"v":0,"w":0,"x":0}
 
 =======
 ### normalize        ###### Plan 1: Insert, Trigger
-{"p":{"t":"b","!":"i","`":false,"n":"tt1","s":"public","a":"tt1","l":[{"t":"o","h":"m","`":false,"f":"generate_series","s":"pg_catalog","a":"a","o":["a.a","?::INTEGER","?::TEXT"]}]}{},"r":[{"v":"tt1_trig_1","w":"tt1"}{"v":"tt1_trig_2","w":"tt1"}]}
+{"p":{"t":"b","!":"i","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","l":[{"t":"o","h":"o","`":false,"ac":false,"f":"generate_series","s":"pg_catalog","a":"a","o":["a.a","?::INTEGER","?::TEXT"]}]}{},"r":[{"v":"tt1_trig_1","w":"tt1"}{"v":"tt1_trig_2","w":"tt1"}]}
 
 =======
 ### normalize        ###### Plan 2: Update, Trigger
-{"p":{"t":"b","!":"u","`":false,"n":"tt1","s":"public","a":"tt1","l":[{"t":"h","h":"m","`":false,"n":"tt1","s":"public","a":"tt1","o":["(a + ?)","b","c","ctid"]}]}{},"r":[{"v":"tt1_trig_1","w":"tt1"}{"v":"tt1_trig_2","w":"tt1"}]}
+{"p":{"t":"b","!":"u","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["(a + ?)","ctid"]}]}{},"r":[{"v":"tt1_trig_1","w":"tt1"}{"v":"tt1_trig_2","w":"tt1"}]}
 
 =======
 ### normalize        ###### Plan 3: Delete
-{"p":{"t":"b","!":"d","`":false,"n":"tt1","s":"public","a":"tt1","l":[{"t":"h","h":"m","`":false,"n":"tt1","s":"public","a":"tt1","o":["ctid"],"5":"((tt1.a % ?) = ?)"}]}{},"r":[]}
+{"p":{"t":"b","!":"d","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["ctid"],"5":"((tt1.a % ?) = ?)"}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 4: Result, Append Seq Scan
-{"p":{"t":"a","`":false,"o":["((tt1.a + ?))","?","?"],"l":[{"t":"c","h":"o","`":false,"l":[{"t":"h","h":"m","`":false,"n":"tt1","s":"public","a":"tt1","o":["(tt1.a + ?)","?"]}{"t":"h","h":"m","`":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.a","?"]}]}]}{},"r":[]}
+{"p":{"t":"a","`":false,"ac":false,"o":["((tt1.a + ?))","?","?"],"l":[{"t":"c","h":"o","`":false,"ac":false,"l":[{"t":"h","h":"m","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["(tt1.a + ?)","?"]}{"t":"h","h":"m","`":false,"ac":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.a","?"]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 5: Index scan (forward) ANY, array in expr, escape
-{"p":{"t":"i","`":false,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"x\"y","o":["a","b","c"],"8":"(\"x\"\"y\".a = ANY (?::INTEGER[]))"}{},"r":[]}
+{"p":{"t":"i","`":false,"ac":false,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"x\"y","o":["a","b","c"],"8":"(\"x\"\"y\".a = ANY (?::INTEGER[]))"}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 6: Index scan (backward), MergeJoin, Sort, quicksort, alias
-{"p":{"t":"5","`":false,"o":["x.b","x.c","x.a"],"l":[{"t":"u","h":"o","`":false,"j":"i","o":["x.b","x.c","x.a"],"?":false,"m":"(x.a = (((y.b) * ?)))","l":[{"t":"i","h":"o","`":false,"d":"b","i":"i_tt1","n":"tt1","s":"public","a":"x","o":["x.a","x.b","x.c"]}{"t":"x","h":"i","`":false,"o":["y.b","(((y.b) * ?))"],"k":["(((y.b) * ?)) DESC"],"e":"q","l":[{"t":"h","h":"o","`":false,"n":"tt2","s":"public","a":"y","o":["y.b","((y.b) * ?)"]}]}]}]}{},"r":[]}
+{"p":{"t":"5","`":false,"ac":false,"o":["x.b","x.c","x.a"],"l":[{"t":"u","h":"o","`":false,"ac":false,"j":"i","o":["x.b","x.c","x.a"],"?":false,"m":"(x.a = (((y.b) * ?)))","l":[{"t":"i","h":"o","`":false,"ac":false,"d":"b","i":"i_tt1","n":"tt1","s":"public","a":"x","o":["x.a","x.b","x.c"]}{"t":"x","h":"i","`":false,"ac":false,"o":["y.b","(((y.b) * ?))"],"k":["(((y.b) * ?)) DESC"],"e":"q","l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt2","s":"public","a":"y","o":["y.b","((y.b) * ?)"]}]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 7: IndexOnlyScan
-{"p":{"t":"j","`":false,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"tt1","o":["a"],"8":"(tt1.a < ?)"}{},"r":[]}
+{"p":{"t":"j","`":false,"ac":false,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"tt1","o":["a"],"8":"(tt1.a < ?)"}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 8: Plain Aggregate, CTE, Recursive Union, WorkTable Scan, CTE Scan
-{"p":{"t":"z","g":"p",">":"s","`":false,"o":["sum(cte1.a)"],"l":[{"t":"e","h":"I","q":"CTE cte1","`":false,"l":[{"t":"a","h":"o","`":false,"o":["?"]}{"t":"r","h":"i","`":false,"c":"cte1","a":"cte1_1","o":["(cte1_1.a + ?)"],"5":"(cte1_1.a < ?)"}]}{"t":"q","h":"o","`":false,"c":"cte1","a":"cte1","o":["cte1.a"]}]}{},"r":[]}
+{"p":{"t":"z","g":"p",">":"s","`":false,"ac":false,"o":["sum(cte1.a)"],"l":[{"t":"e","h":"I","q":"CTE cte1","`":false,"ac":false,"l":[{"t":"a","h":"o","`":false,"ac":false,"o":["?"]}{"t":"r","h":"i","`":false,"ac":false,"c":"cte1","a":"cte1_1","o":["(cte1_1.a + ?)"],"5":"(cte1_1.a < ?)"}]}{"t":"q","h":"o","`":false,"ac":false,"c":"cte1","a":"cte1","o":["cte1.a"]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 9: FunctionScan, Hash/HashJoin, Nested Loop
-{"p":{"t":"v","`":false,"j":"l","o":["d.datname"],"?":true,"7":"(s.datid = d.oid)","l":[{"t":"o","h":"o","`":false,"f":"pg_stat_get_activity","s":"pg_catalog","a":"s","o":["s.datid","s.pid","s.usesysid","s.application_name","s.state","s.query","s.wait_event_type","s.wait_event","s.xact_start","s.query_start","s.backend_start","s.state_change","s.client_addr","s.client_hostname","s.client_port","s.backend_xid","s.backend_xmin","s.backend_type","s.ssl","s.sslversion","s.sslcipher","s.sslbits","s.sslcompression","s.ssl_client_dn","s.ssl_client_serial","s.ssl_issuer_dn","s.gss_auth","s.gss_princ","s.gss_enc","s.leader_pid"]}{"t":"2","h":"i","`":false,"o":["d.datname","d.oid"],"l":[{"t":"h","h":"o","`":false,"n":"pg_database","s":"pg_catalog","a":"d","o":["d.datname","d.oid"]}]}]}{},"r":[]}
+{"p":{"t":"v","`":false,"ac":false,"j":"l","o":["d.datname"],"?":true,"7":"(s.datid = d.oid)","l":[{"t":"o","h":"o","`":false,"ac":false,"f":"pg_stat_get_activity","s":"pg_catalog","a":"s","o":["s.datid","s.pid","s.usesysid","s.application_name","s.state","s.query","s.wait_event_type","s.wait_event","s.xact_start","s.query_start","s.backend_start","s.state_change","s.client_addr","s.client_hostname","s.client_port","s.backend_xid","s.backend_xmin","s.backend_type","s.ssl","s.sslversion","s.sslcipher","s.sslbits","s.ssl_client_dn","s.ssl_client_serial","s.ssl_issuer_dn","s.gss_auth","s.gss_princ","s.gss_enc","s.leader_pid","s.query_id"]}{"t":"2","h":"i","`":false,"ac":false,"o":["d.datname","d.oid"],"l":[{"t":"h","h":"o","`":false,"ac":false,"n":"pg_database","s":"pg_catalog","a":"d","o":["d.datname","d.oid"]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 10: MergeAppend, Values
-{"p":{"t":"d","`":false,"k":["tt1.a"],"l":[{"t":"j","h":"m","`":false,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}{"t":"x","h":"m","`":false,"o":["\"*VALUES*\".column1"],"k":["\"*VALUES*\".column1"],"e":"q","l":[{"t":"p","h":"o","`":false,"a":"*VALUES*","o":["\"*VALUES*\".column1"]}]}]}{},"r":[]}
+{"p":{"t":"d","`":false,"ac":false,"k":["tt1.a"],"l":[{"t":"j","h":"m","`":false,"ac":false,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}{"t":"x","h":"m","`":false,"ac":false,"o":["\"*VALUES*\".column1"],"k":["\"*VALUES*\".column1"],"e":"q","l":[{"t":"p","h":"o","`":false,"ac":false,"a":"*VALUES*","o":["\"*VALUES*\".column1"]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 11: Append, HashAggregate
-{"p":{"t":"z","g":"h",">":"s","`":false,"o":["tt1.a"],"-":["tt1.a"],"l":[{"t":"c","h":"o","`":false,"l":[{"t":"h","h":"m","`":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}{"t":"h","h":"m","`":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}{},"r":[]}
+{"p":{"t":"z","g":"h",">":"s","`":false,"ac":false,"o":["tt1.a"],"-":["tt1.a"],"l":[{"t":"c","h":"o","`":false,"ac":false,"l":[{"t":"h","h":"m","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}{"t":"h","h":"m","`":false,"ac":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 12: GroupAggregate
-{"p":{"t":"z","g":"s",">":"s","`":false,"o":["sum(a)","b"],"-":["tt1.b"],"l":[{"t":"x","h":"o","`":false,"o":["b","a"],"k":["tt1.b"],"e":"E","l":[{"t":"h","h":"o","`":false,"n":"tt1","s":"public","a":"tt1","o":["b","a"]}]}]}{},"r":[]}
+{"p":{"t":"z","g":"s",">":"s","`":false,"ac":false,"o":["sum(a)","b"],"-":["tt1.b"],"l":[{"t":"x","h":"o","`":false,"ac":false,"o":["b","a"],"k":["tt1.b"],"e":"E","l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["b","a"]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 13: Group
-{"p":{"t":"y","`":false,"o":["b"],"-":["tt1.b"],"l":[{"t":"x","h":"o","`":false,"o":["b"],"k":["tt1.b"],"e":"E","l":[{"t":"h","h":"o","`":false,"n":"tt1","s":"public","a":"tt1","o":["b"]}]}]}{},"r":[]}
+{"p":{"t":"y","`":false,"ac":false,"o":["b"],"-":["tt1.b"],"l":[{"t":"x","h":"o","`":false,"ac":false,"o":["b"],"k":["tt1.b"],"e":"E","l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["b"]}]}]}{},"r":[]}
 
 =======
-### normalize        ###### Plan 14: SetOp intersect, SbuqueryScan
-{"p":{"t":"x","`":false,"o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","`":false,"b":"i","o":["\"*SELECT* .a","?"],"l":[{"t":"c","h":"o","`":false,"l":[{"t":"n","h":"m","`":false,"a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","`":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","`":false,"a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","`":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]}{},"r":[]}
+### normalize        ###### Plan 14: SetOp intersect, SubqueryScan
+{"p":{"t":"x","`":false,"ac":false,"o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","`":false,"ac":false,"b":"i","o":["\"*SELECT* .a","?"],"l":[{"t":"c","h":"o","`":false,"ac":false,"l":[{"t":"n","h":"m","`":false,"ac":false,"a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","`":false,"ac":false,"a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","`":false,"ac":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 15: Sorted SetOp, Sort on Disk
-{"p":{"t":"3","g":"s","`":false,"b":"i","o":["\"*SELECT* .a","?"],"l":[{"t":"x","h":"o","`":false,"o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"E","l":[{"t":"c","h":"o","`":false,"l":[{"t":"n","h":"m","`":false,"a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","`":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","`":false,"a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","`":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]}{},"r":[]}
+{"p":{"t":"3","g":"s","`":false,"ac":false,"b":"i","o":["\"*SELECT* .a","?"],"l":[{"t":"x","h":"o","`":false,"ac":false,"o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"E","l":[{"t":"c","h":"o","`":false,"ac":false,"l":[{"t":"n","h":"m","`":false,"ac":false,"a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","`":false,"ac":false,"a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","`":false,"ac":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 16: HashSetOp intersect All, SubqueryScan
-{"p":{"t":"x","`":false,"o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","`":false,"b":"I","o":["\"*SELECT* .a","?"],"l":[{"t":"c","h":"o","`":false,"l":[{"t":"n","h":"m","`":false,"a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","`":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","`":false,"a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","`":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]}{},"r":[]}
+{"p":{"t":"x","`":false,"ac":false,"o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","`":false,"ac":false,"b":"I","o":["\"*SELECT* .a","?"],"l":[{"t":"c","h":"o","`":false,"ac":false,"l":[{"t":"n","h":"m","`":false,"ac":false,"a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","`":false,"ac":false,"a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","`":false,"ac":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 17: HashSetOp except, SubqueryScan
-{"p":{"t":"x","`":false,"o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","`":false,"b":"e","o":["\"*SELECT* .a","?"],"l":[{"t":"c","h":"o","`":false,"l":[{"t":"n","h":"m","`":false,"a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","`":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","`":false,"a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","`":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]}{},"r":[]}
+{"p":{"t":"x","`":false,"ac":false,"o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","`":false,"ac":false,"b":"e","o":["\"*SELECT* .a","?"],"l":[{"t":"c","h":"o","`":false,"ac":false,"l":[{"t":"n","h":"m","`":false,"ac":false,"a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","`":false,"ac":false,"a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","`":false,"ac":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 18: HashSetOp except all, SubqueryScan
-{"p":{"t":"x","`":false,"o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","`":false,"b":"E","o":["\"*SELECT* .a","?"],"l":[{"t":"c","h":"o","`":false,"l":[{"t":"n","h":"m","`":false,"a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","`":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","`":false,"a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","`":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]}{},"r":[]}
+{"p":{"t":"x","`":false,"ac":false,"o":["\"*SELECT* .a","?"],"k":["\"*SELECT* .a"],"e":"q","l":[{"t":"3","g":"h","h":"o","`":false,"ac":false,"b":"E","o":["\"*SELECT* .a","?"],"l":[{"t":"c","h":"o","`":false,"ac":false,"l":[{"t":"n","h":"m","`":false,"ac":false,"a":"*SELECT* 1","o":["\"*SELECT* .a","?"],"l":[{"t":"h","h":"s","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a"]}]}{"t":"n","h":"m","`":false,"ac":false,"a":"*SELECT* 2","o":["\"*SELECT* .b","?"],"l":[{"t":"h","h":"s","`":false,"ac":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 19: merge LEFT join
-{"p":{"t":"u","`":false,"j":"l","o":["x.b"],"?":false,"m":"(x.a = y.a)","l":[{"t":"i","h":"o","`":false,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"x","o":["x.a","x.b","x.c"]}{"t":"j","h":"i","`":false,"d":"f","i":"i_tt3_a","n":"tt3","s":"public","a":"y","o":["y.a"]}]}{},"r":[]}
+{"p":{"t":"u","`":false,"ac":false,"j":"l","o":["x.b"],"?":false,"m":"(x.a = y.a)","l":[{"t":"i","h":"o","`":false,"ac":false,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"x","o":["x.a","x.b","x.c"]}{"t":"j","h":"i","`":false,"ac":false,"d":"f","i":"i_tt3_a","n":"tt3","s":"public","a":"y","o":["y.a"]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 20: hash FULL join
-{"p":{"t":"v","`":false,"j":"f","o":["x.b"],"?":false,"7":"(x.a = y.a)","l":[{"t":"h","h":"o","`":false,"n":"tt1","s":"public","a":"x","o":["x.a","x.b","x.c"]}{"t":"2","h":"i","`":false,"o":["y.a"],"l":[{"t":"h","h":"o","`":false,"n":"tt2","s":"public","a":"y","o":["y.a"]}]}]}{},"r":[]}
+{"p":{"t":"v","`":false,"ac":false,"j":"f","o":["x.b"],"?":false,"7":"(x.a = y.a)","l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt1","s":"public","a":"x","o":["x.a","x.b","x.c"]}{"t":"2","h":"i","`":false,"ac":false,"o":["y.a"],"l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt2","s":"public","a":"y","o":["y.a"]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 21: hash SEMI join
-{"p":{"t":"v","`":false,"j":"s","o":["tt1.a","tt1.b","tt1.c"],"?":false,"7":"(tt1.a = tt2.b)","l":[{"t":"h","h":"o","`":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a","tt1.b","tt1.c"]}{"t":"2","h":"i","`":false,"o":["tt2.b"],"l":[{"t":"h","h":"o","`":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}{},"r":[]}
+{"p":{"t":"v","`":false,"ac":false,"j":"s","o":["tt1.a","tt1.b","tt1.c"],"?":false,"7":"(tt1.a = tt2.b)","l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a","tt1.b","tt1.c"]}{"t":"2","h":"i","`":false,"ac":false,"o":["tt2.b"],"l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 22: Hash Anti Join
-{"p":{"t":"v","`":false,"j":"a","o":["tt1.a","tt1.b","tt1.c"],"?":false,"7":"(tt1.a = tt2.b)","l":[{"t":"h","h":"o","`":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a","tt1.b","tt1.c"]}{"t":"2","h":"i","`":false,"o":["tt2.b"],"l":[{"t":"h","h":"o","`":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}{},"r":[]}
+{"p":{"t":"v","`":false,"ac":false,"j":"a","o":["tt1.a","tt1.b","tt1.c"],"?":false,"7":"(tt1.a = tt2.b)","l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a","tt1.b","tt1.c"]}{"t":"2","h":"i","`":false,"ac":false,"o":["tt2.b"],"l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 23: WindowAgg
-{"p":{"t":"0","`":false,"o":["first_value(a) OVER ?","((a / ?))"],"l":[{"t":"x","h":"o","`":false,"o":["((a / ?))","a"],"k":["((tt1.a / ?))"],"e":"q","l":[{"t":"h","h":"o","`":false,"n":"tt1","s":"public","a":"tt1","o":["(a / ?)","a"]}]}]}{},"r":[]}
+{"p":{"t":"0","`":false,"ac":false,"o":["first_value(a) OVER ?","((a / ?))"],"l":[{"t":"x","h":"o","`":false,"ac":false,"o":["((a / ?))","a"],"k":["((tt1.a / ?))"],"e":"q","l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["(a / ?)","a"]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 24: Unique
-{"p":{"t":"1","`":false,"o":["a"],"l":[{"t":"j","h":"o","`":false,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"tt1","o":["a"]}]}{},"r":[]}
+{"p":{"t":"1","`":false,"ac":false,"o":["a"],"l":[{"t":"j","h":"o","`":false,"ac":false,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"tt1","o":["a"]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 25: PlainAggregate
-{"p":{"t":"z","g":"p",">":"s","`":false,"o":["sum(a)"],"l":[{"t":"h","h":"o","`":false,"n":"tt1","s":"public","a":"tt1","o":["a","b","c"]}]}{},"r":[]}
+{"p":{"t":"z","g":"p",">":"s","`":false,"ac":false,"o":["sum(a)"],"l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["a","b","c"]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 26: BitmapIndexScan/BitmapHeapScan, BitmapOr, lossy
-{"p":{"t":"l","`":false,"n":"tt3","s":"public","a":"tt3","o":["a","b","c"],"0":"(tt3.b > ?::INTEGER)","l":[{"t":"k","h":"o","`":false,"i":"i_tt3_b","8":"(tt3.b > ?::INTEGER)"}]}{},"r":[]}
+{"p":{"t":"l","`":false,"ac":false,"n":"tt3","s":"public","a":"tt3","o":["a","b","c"],"0":"(tt3.b > ?::INTEGER)","l":[{"t":"k","h":"o","`":false,"ac":false,"i":"i_tt3_b","8":"(tt3.b > ?::INTEGER)"}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 27: Join Filter
-{"p":{"t":"5","`":false,"o":["tt2.a","tt2.b","tt2.c"],"l":[{"t":"t","h":"o","`":false,"j":"i","o":["tt2.a","tt2.b","tt2.c"],"?":false,"6":"((tt2.a < tt3.a) AND ((tt3.a + tt2.a) < ?))","l":[{"t":"h","h":"o","`":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.a","tt2.b","tt2.c"]}{"t":"w","h":"i","`":false,"o":["tt3.a"],"l":[{"t":"h","h":"o","`":false,"n":"tt3","s":"public","a":"tt3","o":["tt3.a"]}]}]}]}{},"r":[]}
+{"p":{"t":"5","`":false,"ac":false,"o":["tt2.a","tt2.b","tt2.c"],"l":[{"t":"t","h":"o","`":false,"ac":false,"j":"i","o":["tt2.a","tt2.b","tt2.c"],"?":false,"6":"((tt2.a < tt3.a) AND ((tt3.a + tt2.a) < ?))","l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.a","tt2.b","tt2.c"]}{"t":"w","h":"i","`":false,"ac":false,"o":["tt3.a"],"l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt3","s":"public","a":"tt3","o":["tt3.a"]}]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 28: TidScan
-{"p":{"t":"m","`":false,"n":"tt3","s":"public","a":"tt3","o":["a","b","c"],"9":"(tt3.ctid = ?::tid)"}{},"r":[]}
+{"p":{"t":"m","`":false,"ac":false,"n":"tt3","s":"public","a":"tt3","o":["a","b","c"],"9":"(tt3.ctid = ?::tid)"}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 29: LockRows
-{"p":{"t":"4","`":false,"o":["a","ctid"],"l":[{"t":"h","h":"o","`":false,"n":"tt1","s":"public","a":"tt1","o":["a","ctid"],"5":"((tt1.a % ?) = ?)"}]}{},"r":[]}
+{"p":{"t":"4","`":false,"ac":false,"o":["a","ctid"],"l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["a","ctid"],"5":"((tt1.a % ?) = ?)"}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 30: Materialize
-{"p":{"t":"h","`":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a","tt1.b","tt1.c"],"5":"(SubPlan ?)","l":[{"t":"w","h":"S","q":"SubPlan 1","`":false,"o":["tt2.b"],"l":[{"t":"h","h":"o","`":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}{},"r":[]{{}{}}}
+{"p":{"t":"h","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["tt1.a","tt1.b","tt1.c"],"5":"(SubPlan ?)","l":[{"t":"w","h":"S","q":"SubPlan 1","`":false,"ac":false,"o":["tt2.b"],"l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt2","s":"public","a":"tt2","o":["tt2.b"]}]}]}{},"r":[]{{}{}}}
 
 =======
 ### normalize        ###### Plan 31: Update on partitioned tables
-{"p":{"t":"b","!":"u","`":false,"n":"p","s":"public","a":"p"[{"n":"p","s":"public","a":"p"},{"n":"tt1","s":"public","a":"p_1"},{"n":"tt2","s":"public","a":"p_2"},{"n":"tt3","s":"public","a":"p_3"}],"l":[{"t":"h","h":"m","`":false,"n":"p","s":"public","a":"p","o":["p.a","(p.b + ?)","p.c","p.ctid"]}{"t":"h","h":"m","`":false,"n":"tt1","s":"public","a":"p_1","o":["p_1.a","(p_1.b + ?)","p_1.c","p_1.ctid"]}{"t":"h","h":"m","`":false,"n":"tt2","s":"public","a":"p_2","o":["p_2.a","(p_2.b + ?)","p_2.c","p_2.ctid"]}{"t":"h","h":"m","`":false,"n":"tt3","s":"public","a":"p_3","o":["p_3.a","(p_3.b + ?)","p_3.c","p_3.ctid"]}]}{},"r":[{"v":"tt1_trig_1","w":"tt1"}{"v":"tt1_trig_2","w":"tt1"}]}
+{"p":{"t":"b","!":"u","`":false,"ac":false,"n":"p","s":"public","a":"p"[{"n":"p","s":"public","a":"p_1"},{"n":"tt1","s":"public","a":"p_2"},{"n":"tt2","s":"public","a":"p_3"},{"n":"tt3","s":"public","a":"p_4"}],"l":[{"t":"a","h":"o","`":false,"ac":false,"o":["(p.b + ?)","p.tableoid","p.ctid"],"l":[{"t":"c","h":"o","`":false,"ac":false,"l":[{"t":"h","h":"m","`":false,"ac":false,"n":"p","s":"public","a":"p_1","o":["p_1.b","p_1.tableoid","p_1.ctid"]}{"t":"h","h":"m","`":false,"ac":false,"n":"tt1","s":"public","a":"p_2","o":["p_2.b","p_2.tableoid","p_2.ctid"]}{"t":"h","h":"m","`":false,"ac":false,"n":"tt2","s":"public","a":"p_3","o":["p_3.b","p_3.tableoid","p_3.ctid"]}{"t":"h","h":"m","`":false,"ac":false,"n":"tt3","s":"public","a":"p_4","o":["p_4.b","p_4.tableoid","p_4.ctid"]}]}]}]}{},"r":[{"v":"tt1_trig_1","w":"tt1"}{"v":"tt1_trig_2","w":"tt1"}]}
 
 =======
 ### normalize        ###### Plan 32: Delete on partitioned tables
-{"p":{"t":"b","!":"d","`":false,"n":"p","s":"public","a":"p"[{"n":"p","s":"public","a":"p"},{"n":"tt1","s":"public","a":"p_1"},{"n":"tt2","s":"public","a":"p_2"},{"n":"tt3","s":"public","a":"p_3"}],"l":[{"t":"h","h":"m","`":false,"n":"p","s":"public","a":"p","o":["p.ctid"],"5":"(p.a = ?)"}{"t":"i","h":"m","`":false,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"p_1","o":["p_1.ctid"],"8":"(p_1.a = ?)"}{"t":"i","h":"m","`":false,"d":"f","i":"i_tt2","n":"tt2","s":"public","a":"p_2","o":["p_2.ctid"],"8":"(p_2.a = ?)"}{"t":"i","h":"m","`":false,"d":"f","i":"i_tt3_a","n":"tt3","s":"public","a":"p_3","o":["p_3.ctid"],"8":"(p_3.a = ?)"}]}{},"r":[]}
+{"p":{"t":"b","!":"d","`":false,"ac":false,"n":"p","s":"public","a":"p"[{"n":"p","s":"public","a":"p_1"},{"n":"tt1","s":"public","a":"p_2"},{"n":"tt2","s":"public","a":"p_3"},{"n":"tt3","s":"public","a":"p_4"}],"l":[{"t":"c","h":"o","`":false,"ac":false,"l":[{"t":"h","h":"m","`":false,"ac":false,"n":"p","s":"public","a":"p_1","o":["p_1.tableoid","p_1.ctid"],"5":"(p_1.a = ?)"}{"t":"i","h":"m","`":false,"ac":false,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"p_2","o":["p_2.tableoid","p_2.ctid"],"8":"(p_2.a = ?)"}{"t":"i","h":"m","`":false,"ac":false,"d":"f","i":"i_tt2","n":"tt2","s":"public","a":"p_3","o":["p_3.tableoid","p_3.ctid"],"8":"(p_3.a = ?)"}{"t":"i","h":"m","`":false,"ac":false,"d":"f","i":"i_tt3_a","n":"tt3","s":"public","a":"p_4","o":["p_4.tableoid","p_4.ctid"],"8":"(p_4.a = ?)"}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 33: ON CONFLICT
-{"p":{"t":"b","!":"i","`":false,"n":"ct1","s":"public","a":"ct1"[],"l":[{"t":"a","h":"m","`":false,"o":["?","?"]}]}{},"r":[]}
+{"p":{"t":"b","!":"i","`":false,"ac":false,"n":"ct1","s":"public","a":"ct1"[],"l":[{"t":"a","h":"o","`":false,"ac":false,"o":["?","?"]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 34: GROUP BY
-{"p":{"t":"z","g":"h",">":"s","`":false,"o":["a","b","max(c)"],"-":["tt1.a","tt1.b"],"l":[{"t":"h","h":"o","`":false,"n":"tt1","s":"public","a":"tt1","o":["a","b","c"]}]}{},"r":[]}
+{"p":{"t":"z","g":"h",">":"s","`":false,"ac":false,"o":["a","b","max(c)"],"-":["tt1.a","tt1.b"],"l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["a","b","c"]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 35: GROUPING SETS
-{"p":{"t":"z","g":"m",">":"s","`":false,"o":["a","b","max(c)"],"=":[{"~":[["tt1.b"]]},{"\\":[["tt1.a"],[]]}],"l":[{"t":"i","h":"o","`":false,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"tt1","o":["a","b","c"]}]}{},"r":[]}
+{"p":{"t":"z","g":"m",">":"s","`":false,"ac":false,"o":["a","b","max(c)"],"=":[{"~":[["tt1.a"]]},{"~":[["tt1.b"]]},{"\\":[[]]}],"l":[{"t":"h","h":"o","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["a","b","c"]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 36: Table sample
-{"p":{"t":"B","`":false,"n":"tt1","s":"public","a":"tt1","o":["a","b","c"][]}{},"r":[]}
+{"p":{"t":"B","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["a","b","c"][]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 37: Project Set
-{"p":{"t":"8","`":false,"a":"xmltable","o":["NAME"]}{},"r":[]}
+{"p":{"t":"8","`":false,"ac":false,"a":"xmltable","o":["NAME"]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 38: Incremental Sort
-{"p":{"t":"5","`":false,"o":["(((i.i / ?) + ?))","((i.i + ?))"],"l":[{"t":"C","h":"o","`":false,"o":["(((i.i / ?) + ?))","((i.i + ?))"],"k":["(((i.i / ?) + ?))","((i.i + ?))"][]{[]{}}{[]{}},"l":[{"t":"x","h":"o","`":false,"o":["(((i.i / ?) + ?))","((i.i + ?))"],"k":["(((i.i / ?) + ?))"],"e":"q","l":[{"t":"o","h":"o","`":false,"f":"generate_series","s":"pg_catalog","a":"i","o":["((i.i / ?) + ?)","(i.i + ?)"]}]}]}]}{},"r":[]}
+{"p":{"t":"5","`":false,"ac":false,"o":["(((i.i / ?) + ?))","((i.i + ?))"],"l":[{"t":"C","h":"o","`":false,"ac":false,"o":["(((i.i / ?) + ?))","((i.i + ?))"],"k":["(((i.i / ?) + ?))","((i.i + ?))"][]{[]{}}{[]{}},"l":[{"t":"x","h":"o","`":false,"ac":false,"o":["(((i.i / ?) + ?))","((i.i + ?))"],"k":["(((i.i / ?) + ?))"],"e":"q","l":[{"t":"o","h":"o","`":false,"ac":false,"f":"generate_series","s":"pg_catalog","a":"i","o":["((i.i / ?) + ?)","(i.i + ?)"]}]}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 39: Named Tuplestore Scan
-{"p":{"t":"z","g":"p",">":"s","`":false,"l":[{"t":"9","h":"o","`":false}]}}
+{"p":{"t":"z","g":"p",">":"s","`":false,"ac":false,"l":[{"t":"9","h":"o","`":false,"ac":false}]}}
 
 =======
 ### normalize        ###### Plan 40: Parallel Seq Scan
-{"p":{"t":"6","`":false,"o":["a","b"],"{":2,"}":2,"l":[{"t":"h","h":"o","`":true,"n":"lt1","s":"public","a":"lt1","o":["a","b"][{}{}]}]}{},"r":[]}
+{"p":{"t":"6","`":false,"ac":false,"o":["a","b"],"{":2,"}":2,"l":[{"t":"h","h":"o","`":true,"ac":false,"n":"lt1","s":"public","a":"lt1","o":["a","b"][{}{}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 41: Parallel Index Scan
-{"p":{"t":"6","`":false,"o":["a","b","c"],"{":1,"}":1,"l":[{"t":"i","h":"o","`":true,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"tt1","o":["a","b","c"],"8":"(tt1.a < ?)"[{}]}]}{},"r":[]}
+{"p":{"t":"6","`":false,"ac":false,"o":["a","b","c"],"{":1,"}":1,"l":[{"t":"i","h":"o","`":true,"ac":false,"d":"f","i":"i_tt1","n":"tt1","s":"public","a":"tt1","o":["a","b","c"],"8":"(tt1.a < ?)"[{}]}]}{},"r":[]}
 
 =======
 ### normalize        ###### Plan 42: Gather Merge
-{"p":{"t":"A","`":false,"o":["a"],"{":2,"}":2,"l":[{"t":"x","h":"o","`":false,"o":["a"],"k":["tt1.a"],"e":"q"[{"e":"q"}{"e":"q"}],"l":[{"t":"h","h":"o","`":true,"n":"tt1","s":"public","a":"tt1","o":["a"][{}{}]}]}]}{},"r":[]}
+{"p":{"t":"A","`":false,"ac":false,"o":["a"],"{":2,"}":2,"l":[{"t":"x","h":"o","`":false,"ac":false,"o":["a"],"k":["tt1.a"],"e":"q"[{"e":"q"}{"e":"q"}],"l":[{"t":"h","h":"o","`":true,"ac":false,"n":"tt1","s":"public","a":"tt1","o":["a"][{}{}]}]}]}{},"r":[]}

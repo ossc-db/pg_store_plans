@@ -66,18 +66,46 @@ pgspExplainTriggers(ExplainState *es, QueryDesc *queryDesc)
 	{
 		ResultRelInfo *rInfo;
 		bool		show_relname;
-		int			numrels = queryDesc->estate->es_num_result_relations;
+#if PG_VERSION_NUM < 140000
+		int         numrels = queryDesc->estate->es_num_result_relations;
+		int         nr;
+#else
+		List       *resultrels;
+		List       *routerels;
+#endif
 		List	   *targrels = queryDesc->estate->es_trig_target_relations;
-		int			nr;
 		ListCell   *l;
+
+#if PG_VERSION_NUM >= 140000
+		resultrels = queryDesc->estate->es_opened_result_relations;
+		routerels = queryDesc->estate->es_tuple_routing_result_relations;
+		targrels = queryDesc->estate->es_trig_target_relations;
+#endif
 		
 		pgspExplainOpenGroup("Triggers", "Triggers", false, es);
-		
+
+#if PG_VERSION_NUM < 140000
 		show_relname = (numrels > 1 || targrels != NIL);
 		rInfo = queryDesc->estate->es_result_relations;
 		for (nr = 0; nr < numrels; rInfo++, nr++)
+#else
+		show_relname = (list_length(resultrels) > 1 ||
+						routerels != NIL || targrels != NIL);
+		foreach(l, resultrels)
+		{
+			rInfo = (ResultRelInfo *) lfirst(l);
+#endif
 			report_triggers(rInfo, show_relname, es);
-		
+#if PG_VERSION_NUM >= 140000
+		}
+
+		foreach(l, routerels)
+		{
+			rInfo = (ResultRelInfo *) lfirst(l);
+			report_triggers(rInfo, show_relname, es);
+		}
+#endif
+
 		foreach(l, targrels)
 		{
 			rInfo = (ResultRelInfo *) lfirst(l);
