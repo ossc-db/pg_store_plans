@@ -252,6 +252,7 @@ sub setplan0 {
   "Workers Launched": "0",
   "Workers": "x",
   "Worker Number": "0",
+  "Async Capable": "false",
   "Filter": "a",
   "Join Filter": "a",
   "Hash Cond": "a",
