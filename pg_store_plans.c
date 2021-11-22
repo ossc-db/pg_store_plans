@@ -81,16 +81,16 @@ static const uint32 store_plan_size = 5000;
  * and so we don't really need it to be in the key.  But that might not always
  * be true. Anyway it's notationally convenient to pass it as part of the key.
  */
-typedef struct EntryKey
+typedef struct pgspHashKey
 {
 	Oid			userid;			/* user OID */
 	Oid			dbid;			/* database OID */
 	uint32		queryid;		/* internal query identifier */
 	uint32		planid;			/* plan identifier */
-} EntryKey;
+} pgspHashKey;
 
 /*
- * The actual stats counters kept within StatEntry.
+ * The actual stats counters kept within pgspEntry.
  */
 typedef struct Counters
 {
@@ -129,9 +129,9 @@ typedef uint64 queryid_t;
  *
  * NB: see the file read/write code before changing field order here.
  */
-typedef struct StatEntry
+typedef struct pgspEntry
 {
-	EntryKey	key;			/* hash key of entry - MUST BE FIRST */
+	pgspHashKey	key;			/* hash key of entry - MUST BE FIRST */
 	queryid_t	queryid;		/* query identifier from stat_statements*/
 	Counters	counters;		/* the statistics for this query */
 	int			plan_len;		/* # of valid bytes in query string */
@@ -142,17 +142,17 @@ typedef struct StatEntry
 	 * Note: the allocated length of query[] is actually
 	 * shared_state->query_size
 	 */
-} StatEntry;
+} pgspEntry;
 
 /*
  * Global shared state
  */
-typedef struct SharedState
+typedef struct pgspSharedState
 {
 	LWLock	   *lock;			/* protects hashtable search/modification */
 	int			plan_size;		/* max query length in bytes */
 	double		cur_median_usage;	/* current median usage in hashtable */
-} SharedState;
+} pgspSharedState;
 
 /*---- Local variables ----*/
 
@@ -168,7 +168,7 @@ static ExecutorEnd_hook_type prev_ExecutorEnd = NULL;
 static ProcessUtility_hook_type prev_ProcessUtility = NULL;
 
 /* Links to shared memory state */
-static SharedState *shared_state = NULL;
+static pgspSharedState *shared_state = NULL;
 static HTAB *hash_table = NULL;
 
 /*---- GUC variables ----*/
@@ -275,11 +275,11 @@ static void pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
 					QueryEnvironment *queryEnv,
 					DestReceiver *dest, COMPTAG_TYPE *completionTag);
 static uint32 hash_query(const char* query);
-static void store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
+static void pgsp_store(char *plan, uint32 queryId, queryid_t queryId_pgss,
 		   double total_time, uint64 rows,
 		   const BufferUsage *bufusage);
 static Size shared_mem_size(void);
-static StatEntry *entry_alloc(EntryKey *key, const char *query,
+static pgspEntry *entry_alloc(pgspHashKey *key, const char *query,
 			int plan_len, bool sticky);
 static void entry_dealloc(void);
 static void entry_reset(void);
@@ -492,7 +492,7 @@ pgsp_shmem_startup(void)
 	LWLockAcquire(AddinShmemInitLock, LW_EXCLUSIVE);
 
 	shared_state = ShmemInitStruct("pg_store_plans",
-						   sizeof(SharedState),
+						   sizeof(pgspSharedState),
 						   &found);
 
 	if (!found)
@@ -507,8 +507,8 @@ pgsp_shmem_startup(void)
 	plan_size = shared_state->plan_size;
 
 	memset(&info, 0, sizeof(info));
-	info.keysize = sizeof(EntryKey);
-	info.entrysize = offsetof(StatEntry, plan) + plan_size;
+	info.keysize = sizeof(pgspHashKey);
+	info.entrysize = offsetof(pgspEntry, plan) + plan_size;
 	hash_table = ShmemInitHash("pg_store_plans hash",
 							  store_size, store_size,
 							  &info, HASH_ELEM |
@@ -552,10 +552,10 @@ pgsp_shmem_startup(void)
 
 	for (i = 0; i < num; i++)
 	{
-		StatEntry	temp;
-		StatEntry  *entry;
+		pgspEntry	temp;
+		pgspEntry  *entry;
 
-		if (fread(&temp, offsetof(StatEntry, mutex), 1, file) != 1)
+		if (fread(&temp, offsetof(pgspEntry, mutex), 1, file) != 1)
 			goto error;
 
 		/* Encoding is the only field we can easily sanity-check */
@@ -627,7 +627,7 @@ pgsp_shmem_shutdown(int code, Datum arg)
 	FILE	   *file;
 	HASH_SEQ_STATUS hash_seq;
 	int32		num_entries;
-	StatEntry  *entry;
+	pgspEntry  *entry;
 
 	/* Don't try to dump during a crash. */
 	if (code)
@@ -656,7 +656,7 @@ pgsp_shmem_shutdown(int code, Datum arg)
 	{
 		int			len = entry->plan_len;
 
-		if (fwrite(entry, offsetof(StatEntry, mutex), 1, file) != 1 ||
+		if (fwrite(entry, offsetof(pgspEntry, mutex), 1, file) != 1 ||
 			fwrite(entry->plan, 1, len, file) != len)
 			goto error;
 	}
@@ -815,7 +815,7 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
 			es_str->data[0] = '{';
 			es_str->data[es_str->len - 1] = '}';
 
-			store_entry(es_str->data,
+			pgsp_store(es_str->data,
 						hash_query(queryDesc->sourceText),
 						queryDesc->plannedstmt->queryId,
 						queryDesc->totaltime->total * 1000.0,	/* convert to msec */
@@ -889,21 +889,21 @@ hash_query(const char* query)
 /*
  * Store some statistics for a plan.
  *
- * Table entry is keyed with userid.queryId.planId. queryId_pgss just stores
- * queryId used to join with pg_stat_statements.
+ * Table entry is keyed with userid.dbid.queryId.planId. planId is the hash
+ * value of the given plan, which is calculated in ths function.
  */
 static void
-store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
+pgsp_store(char *plan, uint32 queryId, queryid_t queryId_pgss,
 		   double total_time, uint64 rows,
 		   const BufferUsage *bufusage)
 {
-	EntryKey key;
-	StatEntry  *entry;
+	pgspHashKey key;
+	pgspEntry  *entry;
 	char	   *norm_query = NULL;
 	int 		plan_len;
 	char	   *normalized_plan = NULL;
 	char	   *shorten_plan = NULL;
-	volatile StatEntry *e;
+	volatile pgspEntry *e;
 
 	Assert(plan != NULL);
 
@@ -937,7 +937,7 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	/* Look up the hash table entry with shared lock. */
 	LWLockAcquire(shared_state->lock, LW_SHARED);
 
-	entry = (StatEntry *) hash_search(hash_table, &key, HASH_FIND, NULL);
+	entry = (pgspEntry *) hash_search(hash_table, &key, HASH_FIND, NULL);
 
 	/* Create new entry, if not present */
 	if (!entry)
@@ -961,7 +961,7 @@ store_entry(char *plan, uint32 queryId, queryid_t queryId_pgss,
 	 * locking rules at the head of the file)
 	 */
 
-	e = (volatile StatEntry *) entry;
+	e = (volatile pgspEntry *) entry;
 	SpinLockAcquire(&e->mutex);
 
 	e->queryid = queryId_pgss;
@@ -1061,7 +1061,7 @@ pg_store_plans(PG_FUNCTION_ARGS)
 	Oid			userid = GetUserId();
 	bool		is_allowed_role = is_member_of_role(GetUserId(), ROLE_PG_READ_ALL_STATS);
 	HASH_SEQ_STATUS hash_seq;
-	StatEntry  *entry;
+	pgspEntry  *entry;
 
 	if (!shared_state || !hash_table)
 		ereport(ERROR,
@@ -1167,7 +1167,7 @@ pg_store_plans(PG_FUNCTION_ARGS)
 
 		/* copy counters to a local variable to keep locking time short */
 		{
-			volatile StatEntry *e = (volatile StatEntry *) entry;
+			volatile pgspEntry *e = (volatile pgspEntry *) entry;
 
 			SpinLockAcquire(&e->mutex);
 			tmp = e->counters;
@@ -1233,8 +1233,8 @@ shared_mem_size(void)
 	Size		size;
 	Size		entrysize;
 
-	size = MAXALIGN(sizeof(SharedState));
-	entrysize = offsetof(StatEntry, plan) +  store_plan_size;
+	size = MAXALIGN(sizeof(pgspSharedState));
+	entrysize = offsetof(pgspEntry, plan) +  store_plan_size;
 	size = add_size(size, hash_estimate_size(store_size, entrysize));
 
 	return size;
@@ -1253,14 +1253,14 @@ shared_mem_size(void)
  * would be difficult to demonstrate this even under artificial conditions.)
  *
  * Note: despite needing exclusive lock, it's not an error for the target
- * entry to already exist.	This is because store_entry releases and
+ * entry to already exist.	This is because pgsp_store releases and
  * reacquires lock after failing to find a match; so someone else could
  * have made the entry while we waited to get exclusive lock.
  */
-static StatEntry *
-entry_alloc(EntryKey *key, const char *plan, int plan_len, bool sticky)
+static pgspEntry *
+entry_alloc(pgspHashKey *key, const char *plan, int plan_len, bool sticky)
 {
-	StatEntry  *entry;
+	pgspEntry  *entry;
 	bool		found;
 
 	/* Make space if needed */
@@ -1268,7 +1268,7 @@ entry_alloc(EntryKey *key, const char *plan, int plan_len, bool sticky)
 		entry_dealloc();
 
 	/* Find or create an entry with desired hash code */
-	entry = (StatEntry *) hash_search(hash_table, key, HASH_ENTER, &found);
+	entry = (pgspEntry *) hash_search(hash_table, key, HASH_ENTER, &found);
 
 	if (!found)
 	{
@@ -1297,8 +1297,8 @@ entry_alloc(EntryKey *key, const char *plan, int plan_len, bool sticky)
 static int
 entry_cmp(const void *lhs, const void *rhs)
 {
-	double		l_usage = (*(StatEntry *const *) lhs)->counters.usage;
-	double		r_usage = (*(StatEntry *const *) rhs)->counters.usage;
+	double		l_usage = (*(pgspEntry *const *) lhs)->counters.usage;
+	double		r_usage = (*(pgspEntry *const *) rhs)->counters.usage;
 
 	if (l_usage < r_usage)
 		return -1;
@@ -1316,8 +1316,8 @@ static void
 entry_dealloc(void)
 {
 	HASH_SEQ_STATUS hash_seq;
-	StatEntry **entries;
-	StatEntry  *entry;
+	pgspEntry **entries;
+	pgspEntry  *entry;
 	int			nvictims;
 	int			i;
 
@@ -1327,7 +1327,7 @@ entry_dealloc(void)
 	 * values.
 	 */
 
-	entries = palloc(hash_get_num_entries(hash_table) * sizeof(StatEntry *));
+	entries = palloc(hash_get_num_entries(hash_table) * sizeof(pgspEntry *));
 
 	i = 0;
 	hash_seq_init(&hash_seq, hash_table);
@@ -1341,7 +1341,7 @@ entry_dealloc(void)
 			entry->counters.usage *= USAGE_DECREASE_FACTOR;
 	}
 
-	qsort(entries, i, sizeof(StatEntry *), entry_cmp);
+	qsort(entries, i, sizeof(pgspEntry *), entry_cmp);
 
 	/* Also, record the (approximate) median usage */
 	if (i > 0)
@@ -1365,7 +1365,7 @@ static void
 entry_reset(void)
 {
 	HASH_SEQ_STATUS hash_seq;
-	StatEntry  *entry;
+	pgspEntry  *entry;
 
 	LWLockAcquire(shared_state->lock, LW_EXCLUSIVE);
 
