@@ -32,6 +32,7 @@
  */
 #include "postgres.h"
 
+#include <sys/stat.h>
 #include <unistd.h>
 #include <dlfcn.h>
 #include <math.h>
@@ -43,6 +44,7 @@
 #include "funcapi.h"
 #include "mb/pg_wchar.h"
 #include "miscadmin.h"
+#include "pgstat.h"
 #include "storage/fd.h"
 #include "storage/ipc.h"
 #include "storage/lwlock.h"
@@ -63,15 +65,20 @@ PG_MODULE_MAGIC;
 
 /* Location of stats file */
 #define PGSP_DUMP_FILE	"global/pg_store_plans.stat"
+#define PGSP_TEXT_FILE	PG_STAT_TMP_DIR "/pgsp_plan_texts.stat"
+
+/* PostgreSQL major version number, changes in which invalidate all entries */
+static const uint32 PGSP_PG_MAJOR_VERSION = PG_VERSION_NUM / 100;
 
 /* This constant defines the magic number in the stats file header */
-static const uint32 PGSP_FILE_HEADER = 0x20180613;
+static const uint32 PGSP_FILE_HEADER = 0x20211125;
 static int max_plan_len = 5000;
 
 /* XXX: Should USAGE_EXEC reflect execution time and/or buffer usage? */
 #define USAGE_EXEC(duration)	(1.0)
 #define USAGE_INIT				(1.0)	/* including initial planning */
 #define ASSUMED_MEDIAN_INIT		(10.0)	/* initial assumed median usage */
+#define ASSUMED_LENGTH_INIT		1024	/* initial assumed mean query length */
 #define USAGE_DECREASE_FACTOR	(0.99)	/* decreased every entry_dealloc */
 #define STICKY_DECREASE_FACTOR	(0.50)	/* factor for sticky entries */
 #define USAGE_DEALLOC_PERCENT	5		/* free this % of entries at once */
@@ -149,14 +156,10 @@ typedef struct pgspEntry
 {
 	pgspHashKey	key;			/* hash key of entry - MUST BE FIRST */
 	Counters	counters;		/* the statistics for this query */
+	Size		plan_offset;	/* plan text offset in extern file */
 	int			plan_len;		/* # of valid bytes in query string */
 	int			encoding;		/* query encoding */
 	slock_t		mutex;			/* protects the counters only */
-	char		plan[1];		/* VARIABLE LENGTH ARRAY - MUST BE LAST */
-	/*
-	 * Note: the allocated length of query[] is actually
-	 * shared_state->query_size
-	 */
 } pgspEntry;
 
 /*
@@ -167,6 +170,11 @@ typedef struct pgspSharedState
 	LWLock	   *lock;			/* protects hashtable search/modification */
 	int			plan_size;		/* max query length in bytes */
 	double		cur_median_usage;	/* current median usage in hashtable */
+	Size		mean_plan_len;	/* current mean entry text length */
+	slock_t		mutex;			/* protects following fields only: */
+	Size		extent;			/* current extent of plan file */
+	int			n_writers;		/* number of active writers to query file */
+	int			gc_count;		/* plan file garbage collection cycle count */
 } pgspSharedState;
 
 /*---- Local variables ----*/
@@ -310,8 +318,15 @@ static void pgsp_store(char *plan, queryid_t queryId,
 static void pg_store_plans_internal(FunctionCallInfo fcinfo,
 									pgspVersion api_version);
 static Size shared_mem_size(void);
-static pgspEntry *entry_alloc(pgspHashKey *key, const char *query,
-			int plan_len, bool sticky);
+static pgspEntry *entry_alloc(pgspHashKey *key, Size plan_offset, int plan_len,
+							  bool sticky);
+static bool ptext_store(const char *plan, int plan_len, Size *plan_offset,
+						int *gc_count);
+static char *ptext_load_file(Size *buffer_size);
+static char *ptext_fetch(Size plan_offset, int plan_len, char *buffer,
+						 Size buffer_size);
+static bool need_gc_ptexts(void);
+static void gc_ptexts(void);
 static void entry_dealloc(void);
 static void entry_reset(void);
 
@@ -524,8 +539,10 @@ pgsp_shmem_startup(void)
 	bool		found;
 	HASHCTL		info;
 	FILE	   *file;
+	FILE	   *pfile = NULL;
 	uint32		header;
 	int32		num;
+	int32		pgver;
 	int32		i;
 	int			plan_size;
 	int			buffer_size;
@@ -553,6 +570,11 @@ pgsp_shmem_startup(void)
 		shared_state->lock = &(GetNamedLWLockTranche("pg_store_plans"))->lock;
 		shared_state->plan_size = max_plan_len;
 		shared_state->cur_median_usage = ASSUMED_MEDIAN_INIT;
+		shared_state->mean_plan_len = ASSUMED_LENGTH_INIT;
+		SpinLockInit(&shared_state->mutex);
+		shared_state->extent = 0;
+		shared_state->n_writers = 0;
+		shared_state->gc_count = 0;
 	}
 
 	/* Be sure everyone agrees on the hash table entry size */
@@ -560,7 +582,7 @@ pgsp_shmem_startup(void)
 
 	memset(&info, 0, sizeof(info));
 	info.keysize = sizeof(pgspHashKey);
-	info.entrysize = offsetof(pgspEntry, plan) + plan_size;
+	info.entrysize = sizeof(pgspEntry);
 	hash_table = ShmemInitHash("pg_store_plans hash",
 							  store_size, store_size,
 							  &info, HASH_ELEM |
@@ -576,43 +598,72 @@ pgsp_shmem_startup(void)
 		on_shmem_exit(pgsp_shmem_shutdown, (Datum) 0);
 
 	/*
-	 * Attempt to load old statistics from the dump file, if this is the first
-	 * time through and we weren't told not to.
+	 * Done if some other process already completed our initialization.
 	 */
-	if (found || !dump_on_shutdown)
+	if (found)
 		return;
 
 	/*
 	 * Note: we don't bother with locks here, because there should be no other
 	 * processes running when this code is reached.
 	 */
+
+	/* Unlink query text file possibly left over from crash */
+	unlink(PGSP_TEXT_FILE);
+
+	/* Allocate new query text temp file */
+	pfile = AllocateFile(PGSP_TEXT_FILE, PG_BINARY_W);
+	if (pfile == NULL)
+		goto write_error;
+
+	/*
+	 * If we were told not to load old statistics, we're done.  (Note we do
+	 * not try to unlink any old dump file in this case.  This seems a bit
+	 * questionable but it's the historical behavior.)
+	 */
+	if (!dump_on_shutdown)
+	{
+		FreeFile(pfile);
+		return;
+	}
+
+	/*
+	 * Attempt to load old statistics from the dump file.
+	 */
 	file = AllocateFile(PGSP_DUMP_FILE, PG_BINARY_R);
 	if (file == NULL)
 	{
 		if (errno == ENOENT)
 			return;				/* ignore not-found error */
-		goto error;
+		/* No existing persisted stats file, so we're done */
+		FreeFile(pfile);
+		goto read_error;
 	}
 
 	buffer_size = plan_size;
 	buffer = (char *) palloc(buffer_size);
 
 	if (fread(&header, sizeof(uint32), 1, file) != 1 ||
-		header != PGSP_FILE_HEADER ||
+		fread(&pgver, sizeof(uint32), 1, file) != 1 ||
 		fread(&num, sizeof(int32), 1, file) != 1)
-		goto error;
+		goto read_error;
+
+	if (header != PGSP_FILE_HEADER ||
+		pgver != PGSP_PG_MAJOR_VERSION)
+		goto data_error;
 
 	for (i = 0; i < num; i++)
 	{
 		pgspEntry	temp;
 		pgspEntry  *entry;
+		Size		plan_offset;
 
-		if (fread(&temp, offsetof(pgspEntry, mutex), 1, file) != 1)
-			goto error;
+		if (fread(&temp, sizeof(pgspEntry), 1, file) != 1)
+			goto read_error;
 
 		/* Encoding is the only field we can easily sanity-check */
 		if (!PG_VALID_BE_ENCODING(temp.encoding))
-			goto error;
+			goto data_error;
 
 		/* Previous incarnation might have had a larger plan_size */
 		if (temp.plan_len >= buffer_size)
@@ -621,9 +672,8 @@ pgsp_shmem_startup(void)
 			buffer_size = temp.plan_len + 1;
 		}
 
-		if (fread(buffer, 1, temp.plan_len, file) != temp.plan_len)
-			goto error;
-		buffer[temp.plan_len] = '\0';
+		if (fread(buffer, 1, temp.plan_len + 1, file) != temp.plan_len + 1)
+			goto read_error;
 
 		/* Skip loading "sticky" entries */
 		if (temp.counters.calls == 0)
@@ -636,8 +686,16 @@ pgsp_shmem_startup(void)
 												   temp.plan_len,
 												   plan_size - 1);
 
+		buffer[temp.plan_len] = '\0';
+
+		/* Store the plan text */
+		plan_offset = shared_state->extent;
+		if (fwrite(buffer, 1, temp.plan_len + 1, pfile) != temp.plan_len + 1)
+			goto write_error;
+		shared_state->extent += temp.plan_len + 1;
+
 		/* make the hashtable entry (discards old entries if too many) */
-		entry = entry_alloc(&temp.key, buffer, temp.plan_len, false);
+		entry = entry_alloc(&temp.key, plan_offset, temp.plan_len, false);
 
 		/* copy in the actual stats */
 		entry->counters = temp.counters;
@@ -645,6 +703,7 @@ pgsp_shmem_startup(void)
 
 	pfree(buffer);
 	FreeFile(file);
+	FreeFile(pfile);
 
 	/*
 	 * Remove the file so it's not included in backups/replication slaves,
@@ -654,17 +713,37 @@ pgsp_shmem_startup(void)
 
 	return;
 
-error:
+read_error:
 	ereport(LOG,
 			(errcode_for_file_access(),
-			 errmsg("could not read pg_stat_statement file \"%s\": %m",
+			 errmsg("could not read file \"%s\": %m",
 					PGSP_DUMP_FILE)));
+	goto fail;
+data_error:
+	ereport(LOG,
+			(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+			 errmsg("ignoring invalid data in file \"%s\"",
+					PGSP_DUMP_FILE)));
+	goto fail;
+write_error:
+	ereport(LOG,
+			(errcode_for_file_access(),
+			 errmsg("could not write file \"%s\": %m",
+					PGSP_TEXT_FILE)));
+fail:
 	if (buffer)
 		pfree(buffer);
 	if (file)
 		FreeFile(file);
+	if (pfile)
+		FreeFile(pfile);
 	/* If possible, throw away the bogus file; ignore any error */
 	unlink(PGSP_DUMP_FILE);
+
+	/*
+	 * Don't unlink PGSP_TEXT_FILE here; it should always be around while the
+	 * server is running with pg_stat_statements enabled
+	 */
 }
 
 /*
@@ -677,6 +756,8 @@ static void
 pgsp_shmem_shutdown(int code, Datum arg)
 {
 	FILE	   *file;
+	char	   *pbuffer = NULL;
+	Size		pbuffer_size = 0;
 	HASH_SEQ_STATUS hash_seq;
 	int32		num_entries;
 	pgspEntry  *entry;
@@ -699,18 +780,33 @@ pgsp_shmem_shutdown(int code, Datum arg)
 
 	if (fwrite(&PGSP_FILE_HEADER, sizeof(uint32), 1, file) != 1)
 		goto error;
+	if (fwrite(&PGSP_PG_MAJOR_VERSION, sizeof(uint32), 1, file) != 1)
+		goto error;
 	num_entries = hash_get_num_entries(hash_table);
 	if (fwrite(&num_entries, sizeof(int32), 1, file) != 1)
+		goto error;
+
+	pbuffer = ptext_load_file(&pbuffer_size);
+	if (pbuffer == NULL)
 		goto error;
 
 	hash_seq_init(&hash_seq, hash_table);
 	while ((entry = hash_seq_search(&hash_seq)) != NULL)
 	{
 		int			len = entry->plan_len;
+		char	   *pstr = ptext_fetch(entry->plan_offset, len,
+									   pbuffer, pbuffer_size);
 
-		if (fwrite(entry, offsetof(pgspEntry, mutex), 1, file) != 1 ||
-			fwrite(entry->plan, 1, len, file) != len)
+		if (pstr == NULL)
+			continue;			/* Ignore any entries with bogus texts */
+
+		if (fwrite(entry, sizeof(pgspEntry), 1, file) != 1 ||
+			fwrite(pstr, 1, len + 1, file) != len + 1)
+		{
+			/* note: we assume hash_seq_term won't change errno */
+			hash_seq_term(&hash_seq);
 			goto error;
+		}
 	}
 
 	if (FreeFile(file))
@@ -727,6 +823,9 @@ pgsp_shmem_shutdown(int code, Datum arg)
 				(errcode_for_file_access(),
 				 errmsg("could not rename pg_store_plans file \"%s\": %m",
 						PGSP_DUMP_FILE ".tmp")));
+
+	/* Unlink query-texts file; it's not needed while shutdown */
+	unlink(PGSP_TEXT_FILE);
 
 	return;
 
@@ -1020,16 +1119,44 @@ pgsp_store(char *plan, queryid_t queryId,
 	/* Create new entry, if not present */
 	if (!entry)
 	{
+		Size	plan_offset;
+		int		gc_count;
+		bool	stored;
+		bool	do_gc;
+
+		/* Append new plan text to file with only shared lock held */
+		stored = ptext_store(shorten_plan, plan_len, &plan_offset, &gc_count);
+
 		/*
-		 * We'll need exclusive lock to make a new entry.  There is no point
-		 * in holding shared lock while we normalize the string, though.
+		 * Determine whether we need to garbage collect external query texts
+		 * while the shared lock is still held.  This micro-optimization
+		 * avoids taking the time to decide this while holding exclusive lock.
 		 */
-		LWLockRelease(shared_state->lock);
+		do_gc = need_gc_ptexts();
 
 		/* Acquire exclusive lock as required by entry_alloc() */
+		LWLockRelease(shared_state->lock);
 		LWLockAcquire(shared_state->lock, LW_EXCLUSIVE);
 
-		entry = entry_alloc(&key, "", 0, false);
+		/*
+		 * A garbage collection may have occurred while we weren't holding the
+		 * lock.  In the unlikely event that this happens, the plan text we
+		 * stored above will have been garbage collected, so write it again.
+		 * This should be infrequent enough that doing it while holding
+		 * exclusive lock isn't a performance problem.
+		 */
+		if (!stored || shared_state->gc_count != gc_count)
+			stored = ptext_store(shorten_plan, plan_len, &plan_offset, NULL);
+
+		/* If we failed to write to the text file, give up */
+		if (!stored)
+			goto done;
+
+		entry = entry_alloc(&key, plan_offset, plan_len, false);
+
+		/* If needed, perform garbage collection while exclusive lock held */
+		if (do_gc)
+			gc_ptexts();
 	}
 
 	/* Increment the counts, except when jstate is not NULL */
@@ -1093,13 +1220,9 @@ pgsp_store(char *plan, queryid_t queryId,
 	e->counters.last_call = GetCurrentTimestamp();
 	e->counters.usage += USAGE_EXEC(total_time);
 
-	Assert(plan_len >= 0 && plan_len < shared_state->plan_size);
-	memcpy(entry->plan, shorten_plan, plan_len);
-	entry->plan_len = plan_len;
-	entry->plan[plan_len] = '\0';
-
 	SpinLockRelease(&e->mutex);
 
+done:
 	LWLockRelease(shared_state->lock);
 
 	/* We postpone this pfree until we're out of the lock */
@@ -1156,6 +1279,11 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 	MemoryContext oldcontext;
 	Oid			userid = GetUserId();
 	bool		is_allowed_role = is_member_of_role(GetUserId(), ROLE_PG_READ_ALL_STATS);
+	int			n_writers;
+	char	   *pbuffer = NULL;
+	Size		pbuffer_size = 0;
+	Size		extent = 0;
+	int			gc_count = 0;
 	HASH_SEQ_STATUS hash_seq;
 	pgspEntry  *entry;
 
@@ -1189,7 +1317,63 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 
 	MemoryContextSwitchTo(oldcontext);
 
+	/*
+	 * We'd like to load the plan text file (if needed) while not holding any
+	 * lock on shared_state->lock.  In the worst case we'll have to do this
+	 * again after we have the lock, but it's unlikely enough to make this a
+	 * win despite occasional duplicated work.  We need to reload if anybody
+	 * writes to the file (either a retail ptext_store(), or a garbage
+	 * collection) between this point and where we've gotten shared lock.  If a
+	 * ptext_store is actually in progress when we look, we might as well skip
+	 * the speculative load entirely.
+	 */
+
+	/* Take the mutex so we can examine variables */
+	{
+		volatile pgspSharedState *s = (volatile pgspSharedState *) shared_state;
+
+		SpinLockAcquire(&s->mutex);
+		extent = s->extent;
+		n_writers = s->n_writers;
+		gc_count = s->gc_count;
+		SpinLockRelease(&s->mutex);
+	}
+
+	/* No point in loading file now if there are active writers */
+	if (n_writers == 0)
+		pbuffer = ptext_load_file(&pbuffer_size);
+
+	/*
+	 * Get shared lock, load or reload the plan text file if we must, and
+	 * iterate over the hashtable entries.
+	 *
+	 * With a large hash table, we might be holding the lock rather longer
+	 * than one could wish.  However, this only blocks creation of new hash
+	 * table entries, and the larger the hash table the less likely that is to
+	 * be needed.  So we can hope this is okay.  Perhaps someday we'll decide
+	 * we need to partition the hash table to limit the time spent holding any
+	 * one lock.
+	 */
 	LWLockAcquire(shared_state->lock, LW_SHARED);
+
+	/*
+	 * Here it is safe to examine extent and gc_count without taking the mutex.
+	 * Note that although other processes might change shared_state->extent
+	 * just after we look at it, the strings they then write into the file
+	 * cannot yet be referenced in the hashtable, so we don't care whether we
+	 * see them or not.
+	 *
+	 * If ptext_load_file fails, we just press on; we'll return NULL for every
+	 * plan text.
+	 */
+	if (pbuffer == NULL ||
+		shared_state->extent != extent ||
+		shared_state->gc_count != gc_count)
+	{
+		if (pbuffer)
+			free(pbuffer);
+		pbuffer = ptext_load_file(&pbuffer_size);
+	}
 
 	hash_seq_init(&hash_seq, hash_table);
 	while ((entry = hash_seq_search(&hash_seq)) != NULL)
@@ -1224,39 +1408,44 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 
 		if (is_allowed_role || entry->key.userid == userid)
 		{
-			char	   *pstr = entry->plan;
-			char	   *estr;
+			char	   *pstr; /* Plan string */
+			char	   *mstr; /* Modified plan string */
+			char	   *estr; /* Encoded modified plan string */
 
+			pstr = ptext_fetch(entry->plan_offset, entry->plan_len,
+							   pbuffer, pbuffer_size);
 			switch (plan_format)
 			{
 				case PLAN_FORMAT_TEXT:
-					pstr = pgsp_json_textize(entry->plan);
+					mstr = pgsp_json_textize(pstr);
 					break;
 				case PLAN_FORMAT_JSON:
-					pstr = pgsp_json_inflate(entry->plan);
+					mstr = pgsp_json_inflate(pstr);
 					break;
 				case PLAN_FORMAT_YAML:
-					pstr = pgsp_json_yamlize(entry->plan);
+					mstr = pgsp_json_yamlize(pstr);
 					break;
 				case PLAN_FORMAT_XML:
-					pstr = pgsp_json_xmlize(entry->plan);
+					mstr = pgsp_json_xmlize(pstr);
 					break;
 				default:
 					break;
 			}
 
 			estr = (char *)
-				pg_do_encoding_conversion((unsigned char *) pstr,
-										  strlen(pstr),
+				pg_do_encoding_conversion((unsigned char *) mstr,
+										  strlen(mstr),
 										  entry->encoding,
 										  GetDatabaseEncoding());
 			values[i++] = CStringGetTextDatum(estr);
 
-			if (estr != pstr)
+			if (estr != mstr)
 				pfree(estr);
-			if (pstr != entry->plan)
-				pfree(pstr);
 
+			if (mstr != pstr)
+				pfree(mstr);
+
+			/* pstr is a pointer onto pbuffer */
 		}
 		else
 			values[i++] = CStringGetTextDatum("<insufficient privilege>");
@@ -1328,11 +1517,9 @@ static Size
 shared_mem_size(void)
 {
 	Size		size;
-	Size		entrysize;
 
 	size = MAXALIGN(sizeof(pgspSharedState));
-	entrysize = offsetof(pgspEntry, plan) + max_plan_len;
-	size = add_size(size, hash_estimate_size(store_size, entrysize));
+	size = add_size(size, hash_estimate_size(store_size, sizeof(pgspEntry)));
 
 	return size;
 }
@@ -1355,7 +1542,7 @@ shared_mem_size(void)
  * have made the entry while we waited to get exclusive lock.
  */
 static pgspEntry *
-entry_alloc(pgspHashKey *key, const char *plan, int plan_len, bool sticky)
+entry_alloc(pgspHashKey *key, Size plan_offset, int plan_len, bool sticky)
 {
 	pgspEntry  *entry;
 	bool		found;
@@ -1379,9 +1566,8 @@ entry_alloc(pgspHashKey *key, const char *plan, int plan_len, bool sticky)
 		SpinLockInit(&entry->mutex);
 		/* ... and don't forget the query text */
 		Assert(plan_len >= 0 && plan_len < shared_state->plan_size);
+		entry->plan_offset = plan_offset;
 		entry->plan_len = plan_len;
-		memcpy(entry->plan, plan, plan_len);
-		entry->plan[plan_len] = '\0';
 		entry->encoding = GetDatabaseEncoding();
 	}
 
@@ -1417,6 +1603,8 @@ entry_dealloc(void)
 	pgspEntry  *entry;
 	int			nvictims;
 	int			i;
+	Size		tottextlen;
+	int			nvalidtexts;
 
 	/*
 	 * Sort entries by usage and deallocate USAGE_DEALLOC_PERCENT of them.
@@ -1436,6 +1624,13 @@ entry_dealloc(void)
 			entry->counters.usage *= STICKY_DECREASE_FACTOR;
 		else
 			entry->counters.usage *= USAGE_DECREASE_FACTOR;
+
+		/* In the mean length computation, ignore dropped texts. */
+		if (entry->plan_len >= 0)
+		{
+			tottextlen += entry->plan_len + 1;
+			nvalidtexts++;
+		}
 	}
 
 	qsort(entries, i, sizeof(pgspEntry *), entry_cmp);
@@ -1443,6 +1638,11 @@ entry_dealloc(void)
 	/* Also, record the (approximate) median usage */
 	if (i > 0)
 		shared_state->cur_median_usage = entries[i / 2]->counters.usage;
+	/* Record the mean plan length */
+	if (nvalidtexts > 0)
+		shared_state->mean_plan_len = tottextlen / nvalidtexts;
+	else
+		shared_state->mean_plan_len = ASSUMED_LENGTH_INIT;
 
 	nvictims = Max(10, i * USAGE_DEALLOC_PERCENT / 100);
 	nvictims = Min(nvictims, i);
@@ -1456,6 +1656,423 @@ entry_dealloc(void)
 }
 
 /*
+ * Given a plan string (not necessarily null-terminated), allocate a new
+ * entry in the external plan text file and store the string there.
+ *
+ * If successful, returns true, and stores the new entry's offset in the file
+ * into *plan_offset.  Also, if gc_count isn't NULL, *gc_count is set to the
+ * number of garbage collections that have occurred so far.
+ *
+ * On failure, returns false.
+ *
+ * At least a shared lock on shared_state->lock must be held by the caller, so
+ * as to prevent a concurrent garbage collection.  Share-lock-holding callers
+ * should pass a gc_count pointer to obtain the number of garbage collections,
+ * so that they can recheck the count after obtaining exclusive lock to detect
+ * whether a garbage collection occurred (and removed this entry).
+ */
+static bool
+ptext_store(const char *plan, int plan_len, Size *plan_offset, int *gc_count)
+{
+	Size		off;
+	int			fd;
+
+	/*
+	 * We use a spinlock to protect extent/n_writers/gc_count, so that
+	 * multiple processes may execute this function concurrently.
+	 */
+	{
+		volatile pgspSharedState *s = (volatile pgspSharedState *) shared_state;
+
+		SpinLockAcquire(&s->mutex);
+		off = s->extent;
+		s->extent += plan_len + 1;
+		s->n_writers++;
+		if (gc_count)
+			*gc_count = s->gc_count;
+		SpinLockRelease(&s->mutex);
+	}
+
+	*plan_offset = off;
+
+	/* Now write the data into the successfully-reserved part of the file */
+	fd = OpenTransientFile(PGSP_TEXT_FILE, O_RDWR | O_CREAT | PG_BINARY);
+	if (fd < 0)
+		goto error;
+
+	if (pg_pwrite(fd, plan, plan_len, off) != plan_len)
+		goto error;
+	if (pg_pwrite(fd, "\0", 1, off + plan_len) != 1)
+		goto error;
+
+	CloseTransientFile(fd);
+
+	/* Mark our write complete */
+	{
+		volatile pgspSharedState *s = (volatile pgspSharedState *) shared_state;
+
+		SpinLockAcquire(&s->mutex);
+		s->n_writers--;
+		SpinLockRelease(&s->mutex);
+	}
+
+	return true;
+
+error:
+	ereport(LOG,
+			(errcode_for_file_access(),
+			 errmsg("could not write file \"%s\": %m",
+					PGSP_TEXT_FILE)));
+
+	if (fd >= 0)
+		CloseTransientFile(fd);
+
+	/* Mark our write complete */
+	{
+		volatile pgspSharedState *s = (volatile pgspSharedState *) shared_state;
+
+		SpinLockAcquire(&s->mutex);
+		s->n_writers--;
+		SpinLockRelease(&s->mutex);
+	}
+
+	return false;
+}
+
+/*
+ * Read the external plan text file into a malloc'd buffer.
+ *
+ * Returns NULL (without throwing an error) if unable to read, eg
+ * file not there or insufficient memory.
+ *
+ * On success, the buffer size is also returned into *buffer_size.
+ *
+ * This can be called without any lock on shared_state->lock, but in that case
+ * the caller is responsible for verifying that the result is sane.
+ */
+static char *
+ptext_load_file(Size *buffer_size)
+{
+	char	   *buf;
+	int			fd;
+	struct stat stat;
+	Size		nread;
+
+	fd = OpenTransientFile(PGSP_TEXT_FILE, O_RDONLY | PG_BINARY);
+	if (fd < 0)
+	{
+		if (errno != ENOENT)
+			ereport(LOG,
+					(errcode_for_file_access(),
+					 errmsg("could not read file \"%s\": %m",
+							PGSP_TEXT_FILE)));
+		return NULL;
+	}
+
+	/* Get file length */
+	if (fstat(fd, &stat))
+	{
+		ereport(LOG,
+				(errcode_for_file_access(),
+				 errmsg("could not stat file \"%s\": %m",
+						PGSP_TEXT_FILE)));
+		CloseTransientFile(fd);
+		return NULL;
+	}
+
+	/* Allocate buffer; beware that off_t might be wider than size_t */
+	if (stat.st_size <= MaxAllocHugeSize)
+		buf = (char *) malloc(stat.st_size);
+	else
+		buf = NULL;
+	if (buf == NULL)
+	{
+		ereport(LOG,
+				(errcode(ERRCODE_OUT_OF_MEMORY),
+				 errmsg("out of memory"),
+				 errdetail("Could not allocate enough memory to read file \"%s\".",
+						   PGSP_TEXT_FILE)));
+		CloseTransientFile(fd);
+		return NULL;
+	}
+
+	/*
+	 * OK, slurp in the file.  Windows fails if we try to read more than
+	 * INT_MAX bytes at once, and other platforms might not like that either,
+	 * so read a very large file in 1GB segments.
+	 */
+	nread = 0;
+	while (nread < stat.st_size)
+	{
+		int			toread = Min(1024 * 1024 * 1024, stat.st_size - nread);
+
+		/*
+		 * If we get a short read and errno doesn't get set, the reason is
+		 * probably that garbage collection truncated the file since we did
+		 * the fstat(), so we don't log a complaint --- but we don't return
+		 * the data, either, since it's most likely corrupt due to concurrent
+		 * writes from garbage collection.
+		 */
+		errno = 0;
+		if (read(fd, buf + nread, toread) != toread)
+		{
+			if (errno)
+				ereport(LOG,
+						(errcode_for_file_access(),
+						 errmsg("could not read file \"%s\": %m",
+								PGSP_TEXT_FILE)));
+			free(buf);
+			CloseTransientFile(fd);
+			return NULL;
+		}
+		nread += toread;
+	}
+
+	if (CloseTransientFile(fd) != 0)
+		ereport(LOG,
+				(errcode_for_file_access(),
+				 errmsg("could not close file \"%s\": %m", PGSP_TEXT_FILE)));
+
+	*buffer_size = nread;
+	return buf;
+}
+
+/*
+ * Locate a plan text in the file image previously read by ptext_load_file().
+ *
+ * We validate the given offset/length, and return NULL if bogus.  Otherwise,
+ * the result points to a null-terminated string within the buffer.
+ */
+static char *
+ptext_fetch(Size plan_offset, int plan_len,
+			char *buffer, Size buffer_size)
+{
+	/* File read failed? */
+	if (buffer == NULL)
+		return NULL;
+	/* Bogus offset/length? */
+	if (plan_len < 0 ||
+		plan_offset + plan_len >= buffer_size)
+		return NULL;
+	/* As a further sanity check, make sure there's a trailing null */
+	if (buffer[plan_offset + plan_len] != '\0')
+		return NULL;
+	/* Looks OK */
+	return buffer + plan_offset;
+}
+
+/*
+ * Do we need to garbage-collect the external plan text file?
+ *
+ * Caller should hold at least a shared lock on shared_state->lock.
+ */
+static bool
+need_gc_ptexts(void)
+{
+	Size		extent;
+
+	/* Read shared extent pointer */
+	{
+		volatile pgspSharedState *s = (volatile pgspSharedState *) shared_state;
+
+		SpinLockAcquire(&s->mutex);
+		extent = s->extent;
+		SpinLockRelease(&s->mutex);
+	}
+
+	/* Don't proceed if file does not exceed 512 bytes per possible entry */
+	if (extent < 512 * store_size)
+		return false;
+
+	/*
+	 * Don't proceed if file is less than about 50% bloat.  Nothing can or
+	 * should be done in the event of unusually large query texts accounting
+	 * for file's large size.  We go to the trouble of maintaining the mean
+	 * query length in order to prevent garbage collection from thrashing
+	 * uselessly.
+	 */
+	if (extent < shared_state->mean_plan_len * store_size * 2)
+		return false;
+
+	return true;
+}
+
+/*
+ * Garbage-collect orphaned plan texts in external file.
+ *
+ * This won't be called often in the typical case, since it's likely that
+ * there won't be too much churn, and besides, a similar compaction process
+ * occurs when serializing to disk at shutdown or as part of resetting.
+ * Despite this, it seems prudent to plan for the edge case where the file
+ * becomes unreasonably large, with no other method of compaction likely to
+ * occur in the foreseeable future.
+ *
+ * The caller must hold an exclusive lock on shared_state->lock.
+ *
+ * At the first sign of trouble we unlink the query text file to get a clean
+ * slate (although existing statistics are retained), rather than risk
+ * thrashing by allowing the same problem case to recur indefinitely.
+ */
+static void
+gc_ptexts(void)
+{
+	char	   *pbuffer;
+	Size		pbuffer_size;
+	FILE	   *pfile = NULL;
+	HASH_SEQ_STATUS hash_seq;
+	pgspEntry  *entry;
+	Size		extent;
+	int			nentries;
+
+	/*
+	 * When called from store_entry, some other session might have proceeded
+	 * with garbage collection in the no-lock-held interim of lock strength
+	 * escalation.  Check once more that this is actually necessary.
+	 */
+	if (!need_gc_ptexts())
+		return;
+
+	/*
+	 * Load the old texts file.  If we fail (out of memory, for instance),
+	 * invalidate query texts.  Hopefully this is rare.  It might seem better
+	 * to leave things alone on an OOM failure, but the problem is that the
+	 * file is only going to get bigger; hoping for a future non-OOM result is
+	 * risky and can easily lead to complete denial of service.
+	 */
+	pbuffer = ptext_load_file(&pbuffer_size);
+	if (pbuffer == NULL)
+		goto gc_fail;
+
+	/*
+	 * We overwrite the plan texts file in place, so as to reduce the risk of
+	 * an out-of-disk-space failure.  Since the file is guaranteed not to get
+	 * larger, this should always work on traditional filesystems; though we
+	 * could still lose on copy-on-write filesystems.
+	 */
+	pfile = AllocateFile(PGSP_TEXT_FILE, PG_BINARY_W);
+	if (pfile == NULL)
+	{
+		ereport(LOG,
+				(errcode_for_file_access(),
+				 errmsg("could not write file \"%s\": %m",
+						PGSP_TEXT_FILE)));
+		goto gc_fail;
+	}
+
+	extent = 0;
+	nentries = 0;
+
+	hash_seq_init(&hash_seq, hash_table);
+	while ((entry = hash_seq_search(&hash_seq)) != NULL)
+	{
+		int			plan_len = entry->plan_len;
+		char	   *plan = ptext_fetch(entry->plan_offset,
+									   plan_len,
+									   pbuffer,
+									   pbuffer_size);
+
+		if (plan == NULL)
+		{
+			/* Trouble ... drop the text */
+			entry->plan_offset = 0;
+			entry->plan_len = -1;
+			/* entry will not be counted in mean plan length computation */
+			continue;
+		}
+
+		if (fwrite(plan, 1, plan_len + 1, pfile) != plan_len + 1)
+		{
+			ereport(LOG,
+					(errcode_for_file_access(),
+					 errmsg("could not write file \"%s\": %m",
+							PGSP_TEXT_FILE)));
+			hash_seq_term(&hash_seq);
+			goto gc_fail;
+		}
+
+		entry->plan_offset = extent;
+		extent += plan_len + 1;
+		nentries++;
+	}
+
+	/*
+	 * Truncate away any now-unused space.  If this fails for some odd reason,
+	 * we log it, but there's no need to fail.
+	 */
+	if (ftruncate(fileno(pfile), extent) != 0)
+		ereport(LOG,
+				(errcode_for_file_access(),
+				 errmsg("could not truncate file \"%s\": %m",
+						PGSP_TEXT_FILE)));
+
+	if (FreeFile(pfile))
+	{
+		ereport(LOG,
+				(errcode_for_file_access(),
+				 errmsg("could not write file \"%s\": %m",
+						PGSP_TEXT_FILE)));
+		pfile = NULL;
+		goto gc_fail;
+	}
+
+	elog(DEBUG1, "pgsp gc of queries file shrunk size from %zu to %zu",
+		 shared_state->extent, extent);
+
+	/* Reset the shared extent pointer */
+	shared_state->extent = extent;
+
+	/*
+	 * Also update the mean plan length, to be sure that need_gc_ptexts()
+	 * won't still think we have a problem.
+	 */
+	if (nentries > 0)
+		shared_state->mean_plan_len = extent / nentries;
+	else
+		shared_state->mean_plan_len = ASSUMED_LENGTH_INIT;
+
+	free(pbuffer);
+
+	return;
+
+gc_fail:
+	/* clean up resources */
+	if (pfile)
+		FreeFile(pfile);
+	if (pbuffer)
+		free(pbuffer);
+
+	/*
+	 * Since the contents of the external file are now uncertain, mark all
+	 * hashtable entries as having invalid texts.
+	 */
+	hash_seq_init(&hash_seq, hash_table);
+	while ((entry = hash_seq_search(&hash_seq)) != NULL)
+	{
+		entry->plan_offset = 0;
+		entry->plan_len = -1;
+	}
+
+	/*
+	 * Destroy the query text file and create a new, empty one
+	 */
+	(void) unlink(PGSP_TEXT_FILE);
+	pfile = AllocateFile(PGSP_TEXT_FILE, PG_BINARY_W);
+	if (pfile == NULL)
+		ereport(LOG,
+				(errcode_for_file_access(),
+				 errmsg("could not recreate file \"%s\": %m",
+						PGSP_TEXT_FILE)));
+	else
+		FreeFile(pfile);
+
+	/* Reset the shared extent pointer */
+	shared_state->extent = 0;
+
+	/* Reset mean_plan_len to match the new state */
+	shared_state->mean_plan_len = ASSUMED_LENGTH_INIT;
+}
+
+/*
  * Release all entries.
  */
 static void
@@ -1463,6 +2080,12 @@ entry_reset(void)
 {
 	HASH_SEQ_STATUS hash_seq;
 	pgspEntry  *entry;
+	FILE	   *pfile;
+
+	if (!shared_state || !hash_table)
+		ereport(ERROR,
+				(errcode(ERRCODE_OBJECT_NOT_IN_PREREQUISITE_STATE),
+				 errmsg("pg_store_plans must be loaded via shared_preload_libraries")));
 
 	LWLockAcquire(shared_state->lock, LW_EXCLUSIVE);
 
@@ -1472,6 +2095,31 @@ entry_reset(void)
 		hash_search(hash_table, &entry->key, HASH_REMOVE, NULL);
 	}
 
+	/*
+	 * Write new empty plan file, perhaps even creating a new one to recover
+	 * if the file was missing.
+	 */
+	pfile = AllocateFile(PGSP_TEXT_FILE, PG_BINARY_W);
+	if (pfile == NULL)
+	{
+		ereport(LOG,
+				(errcode_for_file_access(),
+				 errmsg("could not create file \"%s\": %m",
+						PGSP_TEXT_FILE)));
+		goto done;
+	}
+
+	/* If ftruncate fails, log it, but it's not a fatal problem */
+	if (ftruncate(fileno(pfile), 0) != 0)
+		ereport(LOG,
+				(errcode_for_file_access(),
+				 errmsg("could not truncate file \"%s\": %m",
+						PGSP_TEXT_FILE)));
+
+	FreeFile(pfile);
+
+done:
+	shared_state->extent = 0;
 	LWLockRelease(shared_state->lock);
 }
 
