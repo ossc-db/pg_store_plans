@@ -148,6 +148,15 @@ typedef struct Counters
 } Counters;
 
 /*
+ * Global statistics for pg_store_plans
+ */
+typedef struct pgspGlobalStats
+{
+	int64		dealloc;		/* # of times entries were deallocated */
+	TimestampTz stats_reset;	/* timestamp with all stats reset */
+} pgspGlobalStats;
+
+/*
  * Statistics per plan
  *
  * NB: see the file read/write code before changing field order here.
@@ -175,6 +184,7 @@ typedef struct pgspSharedState
 	Size		extent;			/* current extent of plan file */
 	int			n_writers;		/* number of active writers to query file */
 	int			gc_count;		/* plan file garbage collection cycle count */
+	pgspGlobalStats stats;		/* global statistics for pgsp */
 } pgspSharedState;
 
 /*---- Local variables ----*/
@@ -291,6 +301,7 @@ Datum		pg_store_plans_jsonplan(PG_FUNCTION_ARGS);
 Datum		pg_store_plans_yamlplan(PG_FUNCTION_ARGS);
 Datum		pg_store_plans_xmlplan(PG_FUNCTION_ARGS);
 Datum		pg_store_plans_textplan(PG_FUNCTION_ARGS);
+Datum		pg_store_plans_info(PG_FUNCTION_ARGS);
 
 PG_FUNCTION_INFO_V1(pg_store_plans_reset);
 PG_FUNCTION_INFO_V1(pg_store_plans_hash_query);
@@ -299,9 +310,10 @@ PG_FUNCTION_INFO_V1(pg_store_plans_1_6);
 PG_FUNCTION_INFO_V1(pg_store_plans_shorten);
 PG_FUNCTION_INFO_V1(pg_store_plans_normalize);
 PG_FUNCTION_INFO_V1(pg_store_plans_jsonplan);
-PG_FUNCTION_INFO_V1(pg_store_plans_textplan);
 PG_FUNCTION_INFO_V1(pg_store_plans_yamlplan);
 PG_FUNCTION_INFO_V1(pg_store_plans_xmlplan);
+PG_FUNCTION_INFO_V1(pg_store_plans_textplan);
+PG_FUNCTION_INFO_V1(pg_store_plans_info);
 
 #if PG_VERSION_NUM < 130000
 #define COMPTAG_TYPE char
@@ -604,6 +616,8 @@ pgsp_shmem_startup(void)
 		shared_state->extent = 0;
 		shared_state->n_writers = 0;
 		shared_state->gc_count = 0;
+		shared_state->stats.dealloc = 0;
+		shared_state->stats.stats_reset = GetCurrentTimestamp();
 	}
 
 	/* Be sure everyone agrees on the hash table entry size */
@@ -1576,6 +1590,47 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 	tuplestore_donestoring(tupstore);
 }
 
+/* Number of output arguments (columns) for pg_stat_statements_info */
+#define PG_STORE_PLANS_INFO_COLS	2
+
+/*
+ * Return statistics of pg_stat_statements.
+ */
+Datum
+pg_store_plans_info(PG_FUNCTION_ARGS)
+{
+	pgspGlobalStats stats;
+	TupleDesc	tupdesc;
+	Datum		values[PG_STORE_PLANS_INFO_COLS];
+	bool		nulls[PG_STORE_PLANS_INFO_COLS];
+
+	if (!shared_state || !hash_table)
+		ereport(ERROR,
+				(errcode(ERRCODE_OBJECT_NOT_IN_PREREQUISITE_STATE),
+				 errmsg("pg_store_plans must be loaded via shared_preload_libraries")));
+
+	/* Build a tuple descriptor for our result type */
+	if (get_call_result_type(fcinfo, NULL, &tupdesc) != TYPEFUNC_COMPOSITE)
+		elog(ERROR, "return type must be a row type");
+
+	MemSet(values, 0, sizeof(values));
+	MemSet(nulls, 0, sizeof(nulls));
+
+	/* Read global statistics for pg_stat_statements */
+	{
+		volatile pgspSharedState *s = (volatile pgspSharedState *) shared_state;
+
+		SpinLockAcquire(&s->mutex);
+		stats = s->stats;
+		SpinLockRelease(&s->mutex);
+	}
+
+	values[0] = Int64GetDatum(stats.dealloc);
+	values[1] = TimestampTzGetDatum(stats.stats_reset);
+
+	PG_RETURN_DATUM(HeapTupleGetDatum(heap_form_tuple(tupdesc, values, nulls)));
+}
+
 /*
  * Estimate shared memory space needed.
  */
@@ -1726,6 +1781,15 @@ entry_dealloc(void)
 	}
 
 	pfree(entries);
+
+	/* Increment the number of times entries are deallocated */
+	{
+		volatile pgspSharedState *s = (volatile pgspSharedState *) shared_state;
+
+		SpinLockAcquire(&s->mutex);
+		s->stats.dealloc += 1;
+		SpinLockRelease(&s->mutex);
+	}
 }
 
 /*
@@ -2176,6 +2240,19 @@ entry_reset(void)
 	while ((entry = hash_seq_search(&hash_seq)) != NULL)
 	{
 		hash_search(hash_table, &entry->key, HASH_REMOVE, NULL);
+	}
+
+	/*
+	 * Reset global statistics for pg_store_plans.
+	 */
+	{
+		volatile pgspSharedState *s = (volatile pgspSharedState *) shared_state;
+		TimestampTz stats_reset = GetCurrentTimestamp();
+
+		SpinLockAcquire(&s->mutex);
+		s->stats.dealloc = 0;
+		s->stats.stats_reset = stats_reset;
+		SpinLockRelease(&s->mutex);
 	}
 
 	/*

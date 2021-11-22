@@ -3,46 +3,60 @@
 -- complain if script is sourced in psql, rather than via CREATE EXTENSION
 \echo Use "CREATE EXTENSION pg_store_plans" to load this file. \quit
 
+--- Define pg_store_plans_info
+CREATE FUNCTION pg_store_plans_info(
+    OUT dealloc bigint,
+    OUT stats_reset timestamp with time zone
+)
+RETURNS record
+AS 'MODULE_PATHNAME'
+LANGUAGE C STRICT VOLATILE PARALLEL SAFE;
+
+CREATE VIEW pg_store_plans_info AS
+  SELECT * FROM pg_store_plans_info();
+
+GRANT SELECT ON pg_store_plans_info TO PUBLIC;
+
 -- Register functions.
 CREATE FUNCTION pg_store_plans_reset()
 RETURNS void
 AS 'MODULE_PATHNAME'
-LANGUAGE C;
+LANGUAGE C PARALLEL SAFE;
 CREATE FUNCTION pg_store_plans_shorten(text)
 RETURNS text
 AS 'MODULE_PATHNAME'
 LANGUAGE C
-RETURNS NULL ON NULL INPUT;
+RETURNS NULL ON NULL INPUT PARALLEL SAFE;
 CREATE FUNCTION pg_store_plans_normalize(text)
 RETURNS text
 AS 'MODULE_PATHNAME'
 LANGUAGE C
-RETURNS NULL ON NULL INPUT;
+RETURNS NULL ON NULL INPUT PARALLEL SAFE;
 CREATE FUNCTION pg_store_plans_jsonplan(text)
 RETURNS text
 AS 'MODULE_PATHNAME'
 LANGUAGE C
-RETURNS NULL ON NULL INPUT;
+RETURNS NULL ON NULL INPUT PARALLEL SAFE;
 CREATE FUNCTION pg_store_plans_textplan(text)
 RETURNS text
 AS 'MODULE_PATHNAME'
 LANGUAGE C
-RETURNS NULL ON NULL INPUT;
+RETURNS NULL ON NULL INPUT PARALLEL SAFE;
 CREATE FUNCTION pg_store_plans_yamlplan(text)
 RETURNS text
 AS 'MODULE_PATHNAME'
 LANGUAGE C
-RETURNS NULL ON NULL INPUT;
+RETURNS NULL ON NULL INPUT PARALLEL SAFE;
 CREATE FUNCTION pg_store_plans_xmlplan(text)
 RETURNS text
 AS 'MODULE_PATHNAME'
 LANGUAGE C
-RETURNS NULL ON NULL INPUT;
+RETURNS NULL ON NULL INPUT PARALLEL SAFE;
 CREATE FUNCTION pg_store_plans_hash_query(text)
 RETURNS oid
 AS 'MODULE_PATHNAME'
 LANGUAGE C
-RETURNS NULL ON NULL INPUT;
+RETURNS NULL ON NULL INPUT PARALLEL SAFE;
 CREATE FUNCTION pg_store_plans(
     OUT userid oid,
     OUT dbid oid,
@@ -73,7 +87,8 @@ CREATE FUNCTION pg_store_plans(
 )
 RETURNS SETOF record
 AS 'MODULE_PATHNAME', 'pg_store_plans_1_6'
-LANGUAGE C;
+LANGUAGE C
+VOLATILE PARALLEL SAFE;
 
 -- Register a view on the function for ease of use.
 CREATE VIEW pg_store_plans AS

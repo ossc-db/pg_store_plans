@@ -227,9 +227,40 @@ in <TT CLASS="structname">pg_stat_statements</TT> by joining using
    correspondent is found.
 </P>
 </DIV>
+
+<DIV CLASS="SECT2">
+<H2 CLASS="SECT2">2. The <TT CLASS="STRUCTNAME">pg_store_plans</TT>
+View</H2>
+
+<P>The statistics of <TT CLASS="STRUCTNAME">pg_store_plans</TT> module itself are tracked and made available via a view named <TT CLASS="STRUCTNAME">pg_store_plans_info</TT>.  This view contains only a single row. The columns of the view are shown in <A HREF="#PGSTOREPLANSINFO-COLUMNS">Table 2</A>.
+</P>
+
+<DIV CLASS="TABLE">
+<A NAME="PGSTOREPLANSINFO-COLUMNS"></A>
+<P><B>Table 2. <TT>pg_store_plans_info</TT> Columns</B>
+</P>
+<TABLE BORDER="1" CLASS="CALSTABLE" >
+<COL><COL><COL><COL>
+<THEAD><TR><TH>Name</TH><TH>Type</TH><TH>References</TH>
+       <TH>Description</TH></TR>
+</THEAD>
+<TBODY>
+<TR><TD><TT CLASS="STRUCTFIELD">dealloc</TT></TD>
+    <TD><TT CLASS="TYPE">bigint</TT></TD>
+    <TD></TD>
+    <TD>Total number of times pg_store_plans entries about the least-executed statements were deallocated because more distinct statements than pg_store_plans.max were observed.</TD></TR>
+<TR><TD><TT CLASS="STRUCTFIELD">stats_reset</TT></TD>
+    <TD><TT CLASS="TYPE">timestamp with time zone</TT></TD>
+    <TD></TD>
+    <TD>Time at which all statistics in the pg_store_plans view were last reset.</TD></TR>
+</TBODY>
+</TABLE>
+</DIV>
+
+
 <DIV CLASS="SECT2">
 <H2 CLASS="SECT2">
-<A NAME="Functions">2. Functions</A>
+<A NAME="Functions">3. Functions</A>
 </H2>
 <DIV CLASS="VARIABLELIST">
 <DL> <DT> <CODE CLASS="FUNCTION">pg_store_plans_reset() returns void</CODE>
@@ -251,6 +282,13 @@ record</CODE>
       terms of a function also
       named <CODE CLASS="FUNCTION">pg_store_plans</CODE >.
 </P>
+</DD>
+<DT> <CODE CLASS="FUNCTION">pg_store_plans_info() returns record</CODE>
+</DT>
+<DD>
+<P>
+ <CODE CLASS="FUNCTION">pg_store_plans_info</CODE> view is defined in terms of a function also named <CODE CLASS="FUNCTAION">pg_store_plans_info</CODE>.
+     </P>
 </DD>
 <DT>
 <CODE CLASS="FUNCTION">pg_store_hash_query(query text) returns oid</CODE>
@@ -316,7 +354,7 @@ record</CODE>
 </DIV>
 <DIV CLASS="SECT2">
 <H2 CLASS="SECT2">
-<ANAME="Config">3. Configuration Parameters</A>
+<ANAME="Config">4. Configuration Parameters</A>
 </H2>
 <P>
 </P>
@@ -371,8 +409,8 @@ at server start.
   to <TT CLASS="LITERAL">file</TT>, the plan texts are stored in a
   temporary file as pg_stat_statements
   does. <TT CLASS="LITERAL">shmem</TT> means to store plan texts
-  on-memory.  The default value is "file".  See the discussion below
-  for details.
+  on-memory.  The default value is "file".  See
+  the <A HREF="#MEMORY_SETTING">discussion below</A> for details.
   </P>
 </DD>
 <DT>
@@ -482,10 +520,10 @@ at server start.
 </DL>
 </DIV>
 
-<H2 CLASS="SECT3">
-<A NAME="memory setting">Discussion on plan_storage setting</A>
+<H2 CLASS="SECT2">
+<A NAME="MEMORY_SETTING">5. Discussion on plan_storage setting</A>
 </H2>
-<P><TT CLASS="LITERAL">pg_store_plans</TT> claims additional shared memory proportional to <TT CLASS="VARNAME">pg_store_plans.max</TT>. When <TT CLASS="VARNAME">pg_store_plans.plan_storage</TT> is set to "shmem", it claims further additional shared memory to store plan texts in an amount of the product of the maximum number of plans to store (pg_store_plans.max) and the maximum length of individual plan (pg_store_plans.max_plan_length).  If <TT CLASS="VARNAME">pg_store_plans.plan_storage</TT> is set to "file", plan texts are written to a temporary file as <TT CLASS="LITERAL">pg_stat_statements</TT> does. If <TT CLASS="VARNAME">pg_store_plans.max</TT> is not large enough to store all plans, <TT CLASS="LITERAL">pg_store_plans</TT> reclaims the space for new plans by evicting some portion of the entries.  After several rounds of that eviction, <TT CLASS="LITERAL">pg_store_plans</TT> runs garbage collection on the temporary file, which might be painful for certain workloads.</P>
+<P><TT CLASS="LITERAL">pg_store_plans</TT> claims additional shared memory proportional to <TT CLASS="VARNAME">pg_store_plans.max</TT>. When <TT CLASS="VARNAME">pg_store_plans.plan_storage</TT> is set to "shmem", it claims further additional shared memory to store plan texts in an amount of the product of the maximum number of plans to store (pg_store_plans.max) and the maximum length of individual plan (pg_store_plans.max_plan_length).  If <TT CLASS="VARNAME">pg_store_plans.plan_storage</TT> is set to "file", plan texts are written to a temporary file as <TT CLASS="LITERAL">pg_stat_statements</TT> does. If <TT CLASS="VARNAME">pg_store_plans.max</TT> is not large enough to store all plans, <TT CLASS="LITERAL">pg_store_plans</TT> reclaims the space for new plans by evicting some portion of the entries.  After several rounds of that eviction, <TT CLASS="LITERAL">pg_store_plans</TT> runs garbage collection on the temporary file, which might be painful for certain workloads. You can see how frequntly that eviction happens in <TT CLASS="STRUCTNAME">pg_store_plans_info.dealloc</TT>.</P>
 <P>If pg_store_plans.max is sufficiently large so that garbage collection doesn't happen, "file" is recommended as <TT CLASS="VARNAME">pg_store_plans.plan_storage</TT>. 
 </P>
 <P> These parameters must be set in
@@ -499,7 +537,7 @@ pg_store_plans.track = all</PRE>
 </DIV>
 <DIV CLASS="SECT2">
 <H2 CLASS="SECT2">
-<A NAME="Sample">4. Sample Output</A>
+<A NAME="Sample">6. Sample Output</A>
 </H2>
 <PRE CLASS="SCREEN">(postgresql.conf has following settings)
 shared_preload_libraries = 'pg_store_plans,pg_stat_statements'
