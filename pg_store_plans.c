@@ -149,7 +149,7 @@ typedef struct StatEntry
  */
 typedef struct SharedState
 {
-	LWLockId	lock;			/* protects hashtable search/modification */
+	LWLock	   *lock;			/* protects hashtable search/modification */
 	int			plan_size;		/* max query length in bytes */
 	double		cur_median_usage;	/* current median usage in hashtable */
 } SharedState;
