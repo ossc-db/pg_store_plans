@@ -63,7 +63,7 @@ PG_MODULE_MAGIC;
 
 /* This constant defines the magic number in the stats file header */
 static const uint32 PGSP_FILE_HEADER = 0x20180613;
-static const uint32 store_plan_size = 5000;
+static int max_plan_len = 5000;
 
 /* XXX: Should USAGE_EXEC reflect execution time and/or buffer usage? */
 #define USAGE_EXEC(duration)	(1.0)
@@ -317,6 +317,19 @@ _PG_init(void)
 							NULL,
 							NULL);
 
+	DefineCustomIntVariable("pg_store_plans.max_plan_length",
+	  "Sets the maximum length of plans stored by pg_store_plans.",
+							NULL,
+							&max_plan_len,
+							5000,
+							100,
+							INT32_MAX,
+							PGC_POSTMASTER,
+							0,
+							NULL,
+							NULL,
+							NULL);
+
 	DefineCustomEnumVariable("pg_store_plans.track",
 			   "Selects which plans are tracked by pg_store_plans.",
 							 NULL,
@@ -499,7 +512,7 @@ pgsp_shmem_startup(void)
 	{
 		/* First time through ... */
 		shared_state->lock = &(GetNamedLWLockTranche("pg_store_plans"))->lock;
-		shared_state->plan_size = store_plan_size;
+		shared_state->plan_size = max_plan_len;
 		shared_state->cur_median_usage = ASSUMED_MEDIAN_INIT;
 	}
 
@@ -1234,7 +1247,7 @@ shared_mem_size(void)
 	Size		entrysize;
 
 	size = MAXALIGN(sizeof(pgspSharedState));
-	entrysize = offsetof(pgspEntry, plan) +  store_plan_size;
+	entrysize = offsetof(pgspEntry, plan) + max_plan_len;
 	size = add_size(size, hash_estimate_size(store_size, entrysize));
 
 	return size;

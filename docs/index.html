@@ -379,6 +379,17 @@ parameter can only be set at server start.
       this setting.
      </P>
 </DD>
+<TT CLASS="VARNAME">pg_store_plans.max_plan_length</TT>
+  (<TT CLASS="TYPE">integer</TT>)</DT>
+<DD>
+<P> <TT CLASS="VARNAME">pg_store_plans.max_plan_length</TT> is the
+maximum byte length of plans in the raw (shortened JSON) format to
+store.  The plan text is truncated at the length if it is longer than
+that value. The default value is 5000.  This parameter can only be set
+at server start.
+</P>
+</DD>
+<DT>
 <DT>
 <TT CLASS="VARNAME">pg_store_plans.plan_format</TT>
  (<TT CLASS="TYPE">enum</TT>)
