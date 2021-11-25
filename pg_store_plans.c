@@ -419,7 +419,7 @@ _PG_init(void)
 							 &plan_storage,
 							 PLAN_STORAGE_FILE,
 							 plan_storage_options,
-							 PGC_USERSET,
+							 PGC_POSTMASTER,
 							 0,
 							 NULL,
 							 NULL,
