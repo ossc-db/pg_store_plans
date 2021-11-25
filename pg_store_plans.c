@@ -231,6 +231,20 @@ static const struct config_enum_entry plan_formats[] =
 	{NULL, 0, false}
 };
 
+/* options for plan storage */
+typedef enum
+{
+	PLAN_STORAGE_SHMEM,		/* plan is stored as a part of hash entry */
+	PLAN_STORAGE_FILE		/* plan is stored in a separate file */
+}  pgspPlanStorage;
+
+static const struct config_enum_entry plan_storage_options[] =
+{
+	{"shmem", PLAN_STORAGE_SHMEM, false},
+	{"file", PLAN_STORAGE_FILE, false},
+	{NULL, 0, false}
+};
+
 static int	store_size;			/* max # statements to track */
 static int	track_level;		/* tracking level */
 static int	min_duration;		/* min duration to record */
@@ -240,8 +254,9 @@ static bool log_verbose;		/* Similar to EXPLAIN (VERBOSE *) */
 static bool log_buffers;		/* Similar to EXPLAIN (BUFFERS *) */
 static bool log_timing;			/* Similar to EXPLAIN (TIMING *) */
 static bool log_triggers;		/* whether to log trigger statistics  */
-static int  plan_format;	/* Plan representation style in
+static int  plan_format;		/* Plan representation style in
 								 * pg_store_plans.plan  */
+static int  plan_storage;		/* Plan storage type */
 
 #if PG_VERSION_NUM >= 140000
 /*
@@ -259,6 +274,8 @@ static int  plan_format;	/* Plan representation style in
 	(track_level == TRACK_LEVEL_ALL || \
 	(track_level == TRACK_LEVEL_TOP && nested_level == 0))
 #endif
+
+#define SHMEM_PLAN_PTR(ent) (((char *) ent) + sizeof(pgspEntry))
 
 /*---- Function declarations ----*/
 
@@ -383,6 +400,18 @@ _PG_init(void)
 							NULL,
 							NULL,
 							NULL);
+
+	DefineCustomEnumVariable("pg_store_plans.plan_storage",
+			   "Selects where to store plan texts.",
+							 NULL,
+							 &plan_storage,
+							 PLAN_STORAGE_FILE,
+							 plan_storage_options,
+							 PGC_USERSET,
+							 0,
+							 NULL,
+							 NULL,
+							 NULL);
 
 	DefineCustomEnumVariable("pg_store_plans.track",
 			   "Selects which plans are tracked by pg_store_plans.",
@@ -583,6 +612,8 @@ pgsp_shmem_startup(void)
 	memset(&info, 0, sizeof(info));
 	info.keysize = sizeof(pgspHashKey);
 	info.entrysize = sizeof(pgspEntry);
+	if (plan_storage == PLAN_STORAGE_SHMEM)
+		info.entrysize += max_plan_len;
 	hash_table = ShmemInitHash("pg_store_plans hash",
 							  store_size, store_size,
 							  &info, HASH_ELEM |
@@ -611,10 +642,13 @@ pgsp_shmem_startup(void)
 	/* Unlink query text file possibly left over from crash */
 	unlink(PGSP_TEXT_FILE);
 
-	/* Allocate new query text temp file */
-	pfile = AllocateFile(PGSP_TEXT_FILE, PG_BINARY_W);
-	if (pfile == NULL)
-		goto write_error;
+	if (plan_storage == PLAN_STORAGE_FILE)
+	{
+		/* Allocate new query text temp file */
+		pfile = AllocateFile(PGSP_TEXT_FILE, PG_BINARY_W);
+		if (pfile == NULL)
+			goto write_error;
+	}
 
 	/*
 	 * If we were told not to load old statistics, we're done.  (Note we do
@@ -623,7 +657,8 @@ pgsp_shmem_startup(void)
 	 */
 	if (!dump_on_shutdown)
 	{
-		FreeFile(pfile);
+		if (pfile)
+			FreeFile(pfile);
 		return;
 	}
 
@@ -636,7 +671,6 @@ pgsp_shmem_startup(void)
 		if (errno == ENOENT)
 			return;				/* ignore not-found error */
 		/* No existing persisted stats file, so we're done */
-		FreeFile(pfile);
 		goto read_error;
 	}
 
@@ -656,7 +690,7 @@ pgsp_shmem_startup(void)
 	{
 		pgspEntry	temp;
 		pgspEntry  *entry;
-		Size		plan_offset;
+		Size		plan_offset = 0;
 
 		if (fread(&temp, sizeof(pgspEntry), 1, file) != 1)
 			goto read_error;
@@ -688,14 +722,21 @@ pgsp_shmem_startup(void)
 
 		buffer[temp.plan_len] = '\0';
 
-		/* Store the plan text */
-		plan_offset = shared_state->extent;
-		if (fwrite(buffer, 1, temp.plan_len + 1, pfile) != temp.plan_len + 1)
-			goto write_error;
-		shared_state->extent += temp.plan_len + 1;
+		if (plan_storage == PLAN_STORAGE_FILE)
+		{
+			/* Store the plan text */
+			plan_offset = shared_state->extent;
+			if (fwrite(buffer, 1, temp.plan_len + 1, pfile) !=
+				temp.plan_len + 1)
+				goto write_error;
+			shared_state->extent += temp.plan_len + 1;
+		}
 
 		/* make the hashtable entry (discards old entries if too many) */
 		entry = entry_alloc(&temp.key, plan_offset, temp.plan_len, false);
+
+		if (plan_storage == PLAN_STORAGE_SHMEM)
+			memcpy(SHMEM_PLAN_PTR(entry), buffer, temp.plan_len + 1);
 
 		/* copy in the actual stats */
 		entry->counters = temp.counters;
@@ -703,7 +744,9 @@ pgsp_shmem_startup(void)
 
 	pfree(buffer);
 	FreeFile(file);
-	FreeFile(pfile);
+
+	if (pfile)
+		FreeFile(pfile);
 
 	/*
 	 * Remove the file so it's not included in backups/replication slaves,
@@ -786,16 +829,24 @@ pgsp_shmem_shutdown(int code, Datum arg)
 	if (fwrite(&num_entries, sizeof(int32), 1, file) != 1)
 		goto error;
 
-	pbuffer = ptext_load_file(&pbuffer_size);
-	if (pbuffer == NULL)
-		goto error;
+	if (plan_storage == PLAN_STORAGE_FILE)
+	{
+		pbuffer = ptext_load_file(&pbuffer_size);
+		if (pbuffer == NULL)
+			goto error;
+	}
 
 	hash_seq_init(&hash_seq, hash_table);
 	while ((entry = hash_seq_search(&hash_seq)) != NULL)
 	{
 		int			len = entry->plan_len;
-		char	   *pstr = ptext_fetch(entry->plan_offset, len,
-									   pbuffer, pbuffer_size);
+		char	   *pstr;
+
+		if (plan_storage == PLAN_STORAGE_FILE)
+			pstr = ptext_fetch(entry->plan_offset, len,
+							   pbuffer, pbuffer_size);
+		else
+			pstr = SHMEM_PLAN_PTR(entry);
 
 		if (pstr == NULL)
 			continue;			/* Ignore any entries with bogus texts */
@@ -1081,6 +1132,8 @@ pgsp_store(char *plan, queryid_t queryId,
 	char	   *normalized_plan = NULL;
 	char	   *shorten_plan = NULL;
 	volatile pgspEntry *e;
+	Size		plan_offset = 0;
+	bool		do_gc = false;
 
 	Assert(plan != NULL && queryId != PGSP_NO_QUERYID);
 
@@ -1116,13 +1169,11 @@ pgsp_store(char *plan, queryid_t queryId,
 
 	entry = (pgspEntry *) hash_search(hash_table, &key, HASH_FIND, NULL);
 
-	/* Create new entry, if not present */
-	if (!entry)
+	/* Store the plan text, if the entry not present */
+	if (!entry && plan_storage == PLAN_STORAGE_FILE)
 	{
-		Size	plan_offset;
 		int		gc_count;
 		bool	stored;
-		bool	do_gc;
 
 		/* Append new plan text to file with only shared lock held */
 		stored = ptext_store(shorten_plan, plan_len, &plan_offset, &gc_count);
@@ -1152,7 +1203,17 @@ pgsp_store(char *plan, queryid_t queryId,
 		if (!stored)
 			goto done;
 
+	}
+
+	/* Create new entry, if not present */
+	if (!entry)
+	{
 		entry = entry_alloc(&key, plan_offset, plan_len, false);
+
+		/* shorten_plan is terminated by NUL */
+		if (plan_storage == PLAN_STORAGE_SHMEM)
+			memcpy(SHMEM_PLAN_PTR(entry), shorten_plan, plan_len + 1);
+			
 
 		/* If needed, perform garbage collection while exclusive lock held */
 		if (do_gc)
@@ -1340,7 +1401,7 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 	}
 
 	/* No point in loading file now if there are active writers */
-	if (n_writers == 0)
+	if (n_writers == 0 && plan_storage == PLAN_STORAGE_FILE)
 		pbuffer = ptext_load_file(&pbuffer_size);
 
 	/*
@@ -1366,9 +1427,10 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 	 * If ptext_load_file fails, we just press on; we'll return NULL for every
 	 * plan text.
 	 */
-	if (pbuffer == NULL ||
-		shared_state->extent != extent ||
-		shared_state->gc_count != gc_count)
+	if (plan_storage == PLAN_STORAGE_FILE &&
+		(pbuffer == NULL ||
+		 shared_state->extent != extent ||
+		 shared_state->gc_count != gc_count))
 	{
 		if (pbuffer)
 			free(pbuffer);
@@ -1412,8 +1474,12 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 			char	   *mstr; /* Modified plan string */
 			char	   *estr; /* Encoded modified plan string */
 
-			pstr = ptext_fetch(entry->plan_offset, entry->plan_len,
-							   pbuffer, pbuffer_size);
+			if (plan_storage == PLAN_STORAGE_FILE)
+				pstr = ptext_fetch(entry->plan_offset, entry->plan_len,
+								   pbuffer, pbuffer_size);
+			else
+				pstr = SHMEM_PLAN_PTR(entry);
+
 			switch (plan_format)
 			{
 				case PLAN_FORMAT_TEXT:
@@ -1517,9 +1583,16 @@ static Size
 shared_mem_size(void)
 {
 	Size		size;
+	int			entry_size;
 
 	size = MAXALIGN(sizeof(pgspSharedState));
-	size = add_size(size, hash_estimate_size(store_size, sizeof(pgspEntry)));
+	entry_size = sizeof(pgspEntry);
+
+	/* plan text is apppended to the struct body */
+	if (plan_storage == PLAN_STORAGE_SHMEM)
+		entry_size += max_plan_len;
+
+	size = add_size(size, hash_estimate_size(store_size, entry_size));
 
 	return size;
 }
@@ -1677,6 +1750,8 @@ ptext_store(const char *plan, int plan_len, Size *plan_offset, int *gc_count)
 	Size		off;
 	int			fd;
 
+	Assert (plan_storage == PLAN_STORAGE_FILE);
+
 	/*
 	 * We use a spinlock to protect extent/n_writers/gc_count, so that
 	 * multiple processes may execute this function concurrently.
@@ -1757,6 +1832,8 @@ ptext_load_file(Size *buffer_size)
 	int			fd;
 	struct stat stat;
 	Size		nread;
+
+	Assert (plan_storage == PLAN_STORAGE_FILE);
 
 	fd = OpenTransientFile(PGSP_TEXT_FILE, O_RDONLY | PG_BINARY);
 	if (fd < 0)
@@ -1847,6 +1924,8 @@ static char *
 ptext_fetch(Size plan_offset, int plan_len,
 			char *buffer, Size buffer_size)
 {
+	Assert (plan_storage == PLAN_STORAGE_FILE);
+
 	/* File read failed? */
 	if (buffer == NULL)
 		return NULL;
@@ -1870,6 +1949,8 @@ static bool
 need_gc_ptexts(void)
 {
 	Size		extent;
+
+	Assert (plan_storage == PLAN_STORAGE_FILE);
 
 	/* Read shared extent pointer */
 	{
@@ -1923,6 +2004,8 @@ gc_ptexts(void)
 	pgspEntry  *entry;
 	Size		extent;
 	int			nentries;
+
+	Assert (plan_storage == PLAN_STORAGE_FILE);
 
 	/*
 	 * When called from store_entry, some other session might have proceeded

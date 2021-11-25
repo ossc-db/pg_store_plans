@@ -363,6 +363,18 @@ at server start.
 </P>
 </DD>
 <DT>
+<TT CLASS="VARNAME">pg_store_plans.plan_storage</TT>
+  (<TT CLASS="TYPE">integer</TT>)</DT>
+<DD>
+  <P> <TT CLASS="VARNAME">pg_store_plans.plan_storage</TT> specifies
+  how plan texts are stored while server is running. If it is set
+  to <TT CLASS="LITERAL">file</TT>, the plan texts are stored in a
+  temporary file as pg_stat_statements
+  does. <TT CLASS="LITERAL">shmem</TT> means to store plan texts
+  on-memory.  The default value is "file".  See the discussion below
+  for details.
+  </P>
+</DD>
 <DT>
 <TT CLASS="VARNAME">pg_store_plans.plan_format</TT>
  (<TT CLASS="TYPE">enum</TT>)
@@ -469,14 +481,15 @@ at server start.
 </DD>
 </DL>
 </DIV>
-<P> The module requires additional shared memory proportional to
-   <TT CLASS="VARNAME">pg_store_plans.max</TT>.  Note that this memory
-   is consumed whenever the module is loaded, even if
-   <TT CLASS="VARNAME">pg_store_plans.track</TT> is set
-   to <TT CLASS="LITERAL">none</TT>.
+
+<H2 CLASS="SECT3">
+<A NAME="memory setting">Discussion on plan_storage setting</A>
+</H2>
+<P><TT CLASS="LITERAL">pg_store_plans</TT> claims additional shared memory proportional to <TT CLASS="VARNAME">pg_store_plans.max</TT>. When <TT CLASS="VARNAME">pg_store_plans.plan_storage</TT> is set to "shmem", it claims further additional shared memory to store plan texts in an amount of the product of the maximum number of plans to store (pg_store_plans.max) and the maximum length of individual plan (pg_store_plans.max_plan_length).  If <TT CLASS="VARNAME">pg_store_plans.plan_storage</TT> is set to "file", plan texts are written to a temporary file as <TT CLASS="LITERAL">pg_stat_statements</TT> does. If <TT CLASS="VARNAME">pg_store_plans.max</TT> is not large enough to store all plans, <TT CLASS="LITERAL">pg_store_plans</TT> reclaims the space for new plans by evicting some portion of the entries.  After several rounds of that eviction, <TT CLASS="LITERAL">pg_store_plans</TT> runs garbage collection on the temporary file, which might be painful for certain workloads.</P>
+<P>If pg_store_plans.max is sufficiently large so that garbage collection doesn't happen, "file" is recommended as <TT CLASS="VARNAME">pg_store_plans.plan_storage</TT>. 
 </P>
 <P> These parameters must be set in
- <TT CLASS="FILENAME">postgresql.conf</TT>.  Typical usage might be:
+ <TT CLASS="FILENAME">postgresql.conf</TT>.  An example setting follows:
 </P><PRE CLASS="PROGRAMLISTING"># postgresql.conf
 shared_preload_libraries = 'pg_store_plans, pg_stat_statements'
 pg_store_plans.max = 10000
