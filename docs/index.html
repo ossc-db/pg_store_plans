@@ -377,18 +377,22 @@ parameter can only be set at server start.
  (<TT CLASS="TYPE">enum</TT>)
 </DT>
 <DD>
-<P> Similar to <TT CLASS="STRUCTNAME">pg_stat_statements</TT>,
-      <TT CLASS="VARNAME">pg_store_plans.track</TT> controls which
-      statements are counted by the module.
-      Specify <TT CLASS="LITERAL">top</TT> to track top-level
-      statements (those issued directly by
-      clients), <TT CLASS="LITERAL">all</TT> to also track nested
-      statements (such as statements invoked within functions),
-      or <TT CLASS="LITERAL">none</TT> to disable statement
-      statistics collection.  The default value
-      is <TT CLASS="LITERAL">top</TT>.  Only superusers can change
-      this setting.
-     </P>
+<P> Similarly to <TT CLASS="STRUCTNAME">pg_stat_statements</TT>,
+   <TT CLASS="VARNAME">pg_store_plans.track</TT> controls which
+   statements are counted by the module.
+   Specify <TT CLASS="LITERAL">top</TT> to track top-level statements
+   (those issued directly by clients), <TT CLASS="LITERAL">all</TT> to
+   also track nested statements (such as statements invoked within
+   functions except for some commands, see below),
+   or <TT CLASS="LITERAL">none</TT> to disable statement statistics
+   collection.  The default value is <TT CLASS="LITERAL">top</TT>.
+   When <TT CLASS="LITERAL">all</TT> is specified, the commands
+   executed under <TT CLASS="LITERAL">CREATE EXTENSION</TT>
+   and <TT CLASS="LITERAL">ALTER EXTENSION</TT> commands are still
+   ignored.  Specify <TT CLASS="LITERAL">verbose</TT> to track all
+   commands including ones excluded by <TT CLASS="LITERAL">all</TT>.
+   Only superusers can change this setting.
+</P>
 </DD>
 <TT CLASS="VARNAME">pg_store_plans.max_plan_length</TT>
   (<TT CLASS="TYPE">integer</TT>)</DT>
