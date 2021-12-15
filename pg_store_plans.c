@@ -40,6 +40,7 @@
 #include "catalog/pg_authid.h"
 #include "commands/explain.h"
 #include "access/hash.h"
+#include "access/htup_details.h"
 #include "executor/instrument.h"
 #include "funcapi.h"
 #include "mb/pg_wchar.h"
