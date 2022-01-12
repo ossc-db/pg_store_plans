@@ -1471,15 +1471,19 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 		{
 			values[i++] = Int64GetDatumFast(queryid);
 			values[i++] = Int64GetDatumFast(planid);
+
+			/* fill queryid_stat_statements with the same value with queryid */
 			if (api_version == PGSP_V1_5)
-				values[i++] = ObjectIdGetDatum(queryid);
+				values[i++] = Int64GetDatumFast(queryid);
 		}
 		else
 		{
-			values[i++] = Int64GetDatumFast(0);
-			values[i++] = Int64GetDatumFast(0);
+			nulls[i++] = true;	/* queryid */
+			nulls[i++] = true;	/* planid */
+
+			/* queryid_stat_statemetns*/
 			if (api_version == PGSP_V1_5)
-				values[i++] = Int64GetDatumFast(0);
+				nulls[i++] = true;
 		}
 
 		if (is_allowed_role || entry->key.userid == userid)
