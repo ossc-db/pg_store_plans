@@ -83,8 +83,7 @@ static int max_plan_len = 5000;
 #define STICKY_DECREASE_FACTOR	(0.50)	/* factor for sticky entries */
 #define USAGE_DEALLOC_PERCENT	5		/* free this % of entries at once */
 
-/* In PostgreSQL 11, queryid becomes a uint64 internally.
- */
+/* In PostgreSQL 11, queryid becomes a uint64 internally. */
 #if PG_VERSION_NUM >= 110000
 typedef uint64 queryid_t;
 #define PGSP_NO_QUERYID		UINT64CONST(0)
