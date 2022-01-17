@@ -85,7 +85,7 @@ rm -rf %{buildroot}
 
 # History of pg_store_plans.
 %changelog
-* Wed Nov xx 2021 Tatsuro Yamada, Julien Rouhaud, Kyotaro Horiguchi
+* Mon Jan 17 2022 Tatsuro Yamada, Julien Rouhaud, Kyotaro Horiguchi
 - Version 1.6. Supports PostgreSQL 14
 * Wed Jan 27 2021 Kyotaro Horiguchi
 - Version 1.5. Supports PostgreSQL 13
