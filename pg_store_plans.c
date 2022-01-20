@@ -688,10 +688,13 @@ pgsp_shmem_startup(void)
 	file = AllocateFile(PGSP_DUMP_FILE, PG_BINARY_R);
 	if (file == NULL)
 	{
-		if (errno == ENOENT)
-			return;				/* ignore not-found error */
+		if (errno != ENOENT)
+			goto read_error;
+		/* ignore not-found error */
+		if (pfile)
+			FreeFile(pfile);
+		return;
 		/* No existing persisted stats file, so we're done */
-		goto read_error;
 	}
 
 	buffer_size = plan_size;
