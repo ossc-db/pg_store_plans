@@ -16,7 +16,7 @@
 ## Set general information for pg_store_plans.
 Summary:    Record executed plans on PostgreSQL 14
 Name:       pg_store_plans14
-Version:    1.6
+Version:    1.6.1
 Release:    1%{?dist}
 License:    BSD
 Group:      Applications/Databases
@@ -39,7 +39,7 @@ Note that this package is available for only PostgreSQL 14.
 
 %package llvmjit
 Requires: postgresql14-server, postgresql14-llvmjit
-Requires: pg_store_plans14 = 1.6
+Requires: pg_store_plans14 = 1.6.1
 Summary:  Just-in-time compilation support for pg_store_plans14
 
 %description llvmjit
@@ -76,6 +76,7 @@ rm -rf %{buildroot}
 %{_libdir}/pg_store_plans.so
 %defattr(0644,root,root)
 %{_datadir}/extension/pg_store_plans--1.6.sql
+%{_datadir}/extension/pg_store_plans--1.6--1.6.1.sql
 %{_datadir}/extension/pg_store_plans.control
 
 %files llvmjit
@@ -85,6 +86,8 @@ rm -rf %{buildroot}
 
 # History of pg_store_plans.
 %changelog
+* Mon Feb 03 2022 Kyotaro Horiguchi
+- Version 1.6.1.
 * Mon Jan 17 2022 Tatsuro Yamada, Julien Rouhaud, Kyotaro Horiguchi
 - Version 1.6. Supports PostgreSQL 14
 * Wed Jan 27 2021 Kyotaro Horiguchi
