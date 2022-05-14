@@ -192,6 +192,9 @@ typedef struct pgspSharedState
 static int	nested_level = 0;
 
 /* Saved hook values in case of unload */
+#if PG_VERSION_NUM >= 150000
+static shmem_request_hook_type prev_shmem_request_hook = NULL;
+#endif
 static shmem_startup_hook_type prev_shmem_startup_hook = NULL;
 static ExecutorStart_hook_type prev_ExecutorStart = NULL;
 static ExecutorRun_hook_type prev_ExecutorRun = NULL;
@@ -330,6 +333,9 @@ PG_FUNCTION_INFO_V1(pg_store_plans_info);
 #define ROLE_PG_READ_ALL_STATS		DEFAULT_ROLE_READ_ALL_STATS
 #endif
 
+#if PG_VERSION_NUM >= 150000
+static void pgsp_shmem_request(void);
+#endif
 static void pgsp_shmem_startup(void);
 static void pgsp_shmem_shutdown(int code, Datum arg);
 static void pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags);
@@ -535,17 +541,25 @@ _PG_init(void)
 
 	EmitWarningsOnPlaceholders("pg_store_plans");
 
+#if PG_VERSION_NUM < 150000
 	/*
 	 * Request additional shared resources.  (These are no-ops if we're not in
 	 * the postmaster process.)  We'll allocate or attach to the shared
 	 * resources in pgsp_shmem_startup().
+	 * If you change code here, don't forget to also report the modifications
+	 * in pgsp_shmem_request() for pg15 and later.
 	 */
 	RequestAddinShmemSpace(shared_mem_size());
 	RequestNamedLWLockTranche("pg_store_plans", 1);
+#endif
 
 	/*
 	 * Install hooks.
 	 */
+#if PG_VERSION_NUM >= 150000
+	prev_shmem_request_hook = shmem_request_hook;
+	shmem_request_hook = pgsp_shmem_request;
+#endif
 	prev_shmem_startup_hook = shmem_startup_hook;
 	shmem_startup_hook = pgsp_shmem_startup;
 	prev_ExecutorStart = ExecutorStart_hook;
@@ -559,6 +573,24 @@ _PG_init(void)
 	prev_ProcessUtility = ProcessUtility_hook;
 	ProcessUtility_hook = pgsp_ProcessUtility;
 }
+
+#if PG_VERSION_NUM >= 150000
+/*
+ * shmem_request hook: request additional shared memory resources.
+ *
+ * If you change code here, don't forget to also report the modifications in
+ * _PG_init() for pg14 and below.
+ */
+static void
+pgsp_shmem_request(void)
+{
+	if (prev_shmem_request_hook)
+		prev_shmem_request_hook();
+
+	RequestAddinShmemSpace(shared_mem_size());
+	RequestNamedLWLockTranche("pg_store_plans", 1);
+}
+#endif
 
 /*
  * shmem_startup hook: allocate or attach to shared memory,
