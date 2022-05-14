@@ -296,7 +296,6 @@ static bool force_disabled = false;
 /*---- Function declarations ----*/
 
 void		_PG_init(void);
-void		_PG_fini(void);
 
 Datum		pg_store_plans_reset(PG_FUNCTION_ARGS);
 Datum		pg_store_plans_hash_query(PG_FUNCTION_ARGS);
@@ -559,21 +558,6 @@ _PG_init(void)
 	ExecutorEnd_hook = pgsp_ExecutorEnd;
 	prev_ProcessUtility = ProcessUtility_hook;
 	ProcessUtility_hook = pgsp_ProcessUtility;
-}
-
-/*
- * Module unload callback
- */
-void
-_PG_fini(void)
-{
-	/* Uninstall hooks. */
-	shmem_startup_hook = prev_shmem_startup_hook;
-	ExecutorStart_hook = prev_ExecutorStart;
-	ExecutorRun_hook = prev_ExecutorRun;
-	ExecutorFinish_hook = prev_ExecutorFinish;
-	ExecutorEnd_hook = prev_ExecutorEnd;
-	ProcessUtility_hook = prev_ProcessUtility;
 }
 
 /*
