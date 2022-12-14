@@ -2,7 +2,7 @@
  *
  * pgsp_json.c: Plan handler for JSON/XML/YAML style plans
  *
- * Copyright (c) 2012-2021, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+ * Copyright (c) 2012-2022, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
  *
  * IDENTIFICATION
  *	  pg_store_plans/pgsp_json.c
