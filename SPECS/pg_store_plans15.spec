@@ -1,7 +1,7 @@
 # SPEC file for pg_store_plans
-# Copyright(c) 2021, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+# Copyright(c) 2022, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
 
-%define _pgdir   /usr/pgsql-14
+%define _pgdir   /usr/pgsql-15
 %define _bindir  %{_pgdir}/bin
 %define _libdir  %{_pgdir}/lib
 %define _datadir %{_pgdir}/share
@@ -14,9 +14,9 @@
 %endif
 
 ## Set general information for pg_store_plans.
-Summary:    Record executed plans on PostgreSQL 14
-Name:       pg_store_plans14
-Version:    1.6.1
+Summary:    Record executed plans on PostgreSQL 15
+Name:       pg_store_plans15
+Version:    1.7
 Release:    1%{?dist}
 License:    BSD
 Group:      Applications/Databases
@@ -26,8 +26,8 @@ BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u} -n)
 Vendor:     NIPPON TELEGRAPH AND TELEPHONE CORPORATION
 
 ## We use postgresql-devel package
-BuildRequires:  postgresql14-devel
-Requires:  postgresql14-libs
+BuildRequires:  postgresql15-devel
+Requires:  postgresql15-libs
 
 ## Description for "pg_store_plans"
 %description
@@ -35,19 +35,19 @@ Requires:  postgresql14-libs
 pg_store_plans provides capability to record statistics for every plan
 executed on PostgreSQL.
 
-Note that this package is available for only PostgreSQL 14.
+Note that this package is available for only PostgreSQL 15.
 
 %package llvmjit
-Requires: postgresql14-server, postgresql14-llvmjit
-Requires: pg_store_plans14 = 1.6.1
-Summary:  Just-in-time compilation support for pg_store_plans14
+Requires: postgresql15-server, postgresql15-llvmjit
+Requires: pg_store_plans15 = 1.7
+Summary:  Just-in-time compilation support for pg_store_plans15
 
 %description llvmjit
-Just-in-time compilation support for pg_store_plans14
+Just-in-time compilation support for pg_store_plans15
 
 ## pre work for build pg_store_plans
 %prep
-PATH=/usr/pgsql-14/bin:$PATH
+PATH=/usr/pgsql-15/bin:$PATH
 if [ "${MAKE_ROOT}" != "" ]; then
   pushd ${MAKE_ROOT}
   make clean %{name}-%{version}.tar.gz
@@ -58,14 +58,14 @@ if [ ! -d %{_rpmdir} ]; then mkdir -p %{_rpmdir}; fi
 
 ## Set variables for build environment
 %build
-PATH=/usr/pgsql-14/bin:$PATH
+PATH=/usr/pgsql-15/bin:$PATH
 pg_config
 make USE_PGXS=1 %{?_smp_mflags}
 
 ## Set variables for install
 %install
 rm -rf %{buildroot}
-PATH=/usr/pgsql-14/bin:$PATH
+PATH=/usr/pgsql-15/bin:$PATH
 make install DESTDIR=%{buildroot}
 
 %clean
@@ -75,8 +75,7 @@ rm -rf %{buildroot}
 %defattr(0755,root,root)
 %{_libdir}/pg_store_plans.so
 %defattr(0644,root,root)
-%{_datadir}/extension/pg_store_plans--1.6.sql
-%{_datadir}/extension/pg_store_plans--1.6--1.6.1.sql
+%{_datadir}/extension/pg_store_plans--1.7.sql
 %{_datadir}/extension/pg_store_plans.control
 
 %files llvmjit
@@ -86,6 +85,8 @@ rm -rf %{buildroot}
 
 # History of pg_store_plans.
 %changelog
+* Wed Dec 14 2022 Kyotaro Horiguchi
+- Version 1.7. Support PostgreSQL 15.
 * Thu Feb 03 2022 Kyotaro Horiguchi
 - Version 1.6.1.
 * Mon Jan 17 2022 Tatsuro Yamada, Julien Rouhaud, Kyotaro Horiguchi
