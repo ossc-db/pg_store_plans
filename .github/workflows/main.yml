@@ -1,0 +1,91 @@
+#
+# Copyright (c) 2023, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+# 
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      # Target version of PostgreSQL
+      matrix:
+        version: [13, 14, 15, 16]
+    env:
+      PGVERSION: ${{ matrix.version }}
+      PGHOME: /home/runner/work/pg_store_plans/pg_store_plans/postgres-dev/${{ matrix.version }}
+      PGDATA: /home/runner/work/pg_store_plans/pg_store_plans/postgres-dev/${{ matrix.version }}/pg_data
+         
+    steps:
+      - name: Get system info
+        run: |
+          hostname
+          whoami
+          lscpu
+          free
+          df -h
+          uname -a
+          gcc --version
+          pwd
+
+      - name: Build PostgreSQL and pg_stat_statements 
+        run: |
+          psql --version
+          sudo service postgresql stop
+          sudo apt-get -y --purge remove postgresql libpq-dev libpq5 postgresql-client-common postgresql-common
+          sudo apt-get -y install bc libpam-dev libedit-dev
+          
+          echo "### ${PGVERSION} ###"
+          echo "### $PATH ###"
+          git clone https://github.com/postgres/postgres.git postgres-dev
+          cd postgres-dev
+          git checkout -b REL_${PGVERSION}_STABLE origin/REL_${PGVERSION}_STABLE
+          
+          ./configure -q --prefix=${PGHOME}
+          make -s -j 2
+          make -s install
+          make -s -C contrib/pg_stat_statements
+          make -s -C contrib/pg_stat_statements install
+
+          export PATH=$PATH:${PGHOME}/bin
+          echo "### $PATH ###"
+          mkdir -p ${PGDATA}
+          initdb --no-locale --encoding=UTF8 -D ${PGDATA}
+          pg_ctl -V
+          pg_ctl -D ${PGDATA} start
+
+          psql -l
+          psql -c "select 1;" postgres
+
+      - name: Build pg_store_plans
+        run: |
+          echo "### $PGVERSION ###"
+          export PATH=$PATH:${PGHOME}/bin
+          pwd
+          git clone https://github.com/ossc-db/pg_store_plans.git
+          cd pg_store_plans
+          pwd
+          make -s USE_PGXS=1 all install
+
+      - name: Startup PostgreSQL
+        run: |
+          echo "### $PGVERSION ###"
+          export PATH=$PATH:${PGHOME}/bin
+          echo "shared_preload_libraries = 'pg_store_plans, pg_stat_statements'" >> $PGDATA/postgresql.conf
+          pg_ctl -V
+          pg_ctl -D $PGDATA restart
+
+      - name: Regression test
+        run: |
+          echo "### $PGVERSION ###"
+          export PATH=$PATH:${PGHOME}/bin
+          psql --version
+          cd pg_store_plans
+          make installcheck USE_PGXS=1
