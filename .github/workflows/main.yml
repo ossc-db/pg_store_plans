@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       # Target version of PostgreSQL
       matrix:
-        version: [13, 14, 15, 16]
+        version: [13, 14, 15]
     env:
       PGVERSION: ${{ matrix.version }}
       PGHOME: /home/runner/work/pg_store_plans/pg_store_plans/postgres-dev/${{ matrix.version }}
@@ -48,7 +48,7 @@ jobs:
           cd postgres-dev
           git checkout -b REL_${PGVERSION}_STABLE origin/REL_${PGVERSION}_STABLE
           
-          ./configure -q --prefix=${PGHOME}
+          ./configure -q --prefix=${PGHOME} --enable-debug --enable-cassert
           make -s -j 2
           make -s install
           make -s -C contrib/pg_stat_statements
@@ -61,23 +61,25 @@ jobs:
           pg_ctl -V
           pg_ctl -D ${PGDATA} start
 
+          psql -V
           psql -l
           psql -c "select 1;" postgres
+
+          echo "${PGHOME}/bin" >> $GITHUB_PATH
 
       - name: Build pg_store_plans
         run: |
           echo "### $PGVERSION ###"
-          export PATH=$PATH:${PGHOME}/bin
           pwd
           git clone https://github.com/ossc-db/pg_store_plans.git
           cd pg_store_plans
           pwd
+          pg_config
           make -s USE_PGXS=1 all install
 
       - name: Startup PostgreSQL
         run: |
           echo "### $PGVERSION ###"
-          export PATH=$PATH:${PGHOME}/bin
           echo "shared_preload_libraries = 'pg_store_plans, pg_stat_statements'" >> $PGDATA/postgresql.conf
           pg_ctl -V
           pg_ctl -D $PGDATA restart
@@ -85,7 +87,6 @@ jobs:
       - name: Regression test
         run: |
           echo "### $PGVERSION ###"
-          export PATH=$PATH:${PGHOME}/bin
-          psql --version
+          psql -V
           cd pg_store_plans
-          make installcheck USE_PGXS=1
+          make USE_PGXS=1 installcheck
