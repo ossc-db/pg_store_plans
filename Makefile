@@ -15,14 +15,30 @@ DATA = pg_store_plans--1.7.sql
 REGRESS = convert store
 REGRESS_OPTS = --temp-config=regress.conf
 ifdef USE_PGXS
-PG_CONFIG = pg_config
-PGXS := $(shell $(PG_CONFIG) --pgxs)
-include $(PGXS)
+    PG_CONFIG = pg_config
+    PG_MAJOR_VERSION := $(shell pg_config --version | awk '{print $$2}' | cut -d '.' -f1)
+    ifeq ($(PG_MAJOR_VERSION),16)
+        ifeq ($(USE_PGXS),1)
+            ifndef PATH_TO_SOURCE_CODE
+                $(error PATH_TO_SOURCE_CODE is not set for PostgreSQL 16. Aborting build.)
+            endif
+            ifeq ($(wildcard $(PATH_TO_SOURCE_CODE)/parser/gram.h),)
+                $(error FILE NOT FOUND: $(PATH_TO_SOURCE_CODE)/parser/gram.h. You need to give the path to src/backend/)
+            endif
+            PG_CPPFLAGS += -I$(PATH_TO_SOURCE_CODE)
+        endif
+    endif
+    PGXS := $(shell $(PG_CONFIG) --pgxs)
+    include $(PGXS)
 else
-subdir = contrib/pg_store_plans
-top_builddir = ../..
-include $(top_builddir)/src/Makefile.global
-include $(top_srcdir)/contrib/contrib-global.mk
+    subdir = contrib/pg_store_plans
+    top_builddir = ../..
+    PG_MAJOR_VERSION := $(shell ../../configure --version | grep 'PostgreSQL configure' | awk '{print $$3}' | cut -d '.' -f1)
+    ifeq ($(PG_MAJOR_VERSION),16)
+        PG_CPPFLAGS += -I"../../src/backend"
+    endif
+    include $(top_builddir)/src/Makefile.global
+    include $(top_srcdir)/contrib/contrib-global.mk
 endif
 
 STARBALL15 = pg_store_plans15-$(STOREPLANSVER).tar.gz

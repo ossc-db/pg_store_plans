@@ -28,7 +28,7 @@
 #include "pgsp_json_int.h"
 
 #if PG_VERSION_NUM >= 160000
-#include "backend/gram.h"
+#include "parser/gram.h"
 #define JSON_FUNCTION_RETURN_TYPE JsonParseErrorType
 #define JSON_FUNCTION_RETURN_VALUE JSON_SUCCESS
 #else
