@@ -53,8 +53,11 @@
 #include "tcop/utility.h"
 #include "utils/acl.h"
 #include "utils/builtins.h"
-#if PG_VERSION_NUM >= 140000
+#if PG_VERSION_NUM >= 140000 && PG_VERSION_NUM < 160000 
 #include "utils/queryjumble.h"
+#endif
+#if PG_VERSION_NUM >= 160000
+#include "nodes/queryjumble.h"
 #endif
 #include "utils/timestamp.h"
 
@@ -261,7 +264,7 @@ static const struct config_enum_entry plan_storage_options[] =
 };
 
 static int	store_size;			/* max # statements to track */
-static int	track_level;		/* tracking level */
+static int	track_level = 1;		/* tracking level */
 static int	min_duration;		/* min duration to record */
 static bool dump_on_shutdown;	/* whether to save stats across shutdown */
 static bool log_analyze;		/* Similar to EXPLAIN (ANALYZE *) */
@@ -269,9 +272,9 @@ static bool log_verbose;		/* Similar to EXPLAIN (VERBOSE *) */
 static bool log_buffers;		/* Similar to EXPLAIN (BUFFERS *) */
 static bool log_timing;			/* Similar to EXPLAIN (TIMING *) */
 static bool log_triggers;		/* whether to log trigger statistics  */
-static int  plan_format;		/* Plan representation style in
+static int  plan_format = 1;		/* Plan representation style in
 								 * pg_store_plans.plan  */
-static int  plan_storage;		/* Plan storage type */
+static int  plan_storage = 1;		/* Plan storage type */
 
 
 /* disables tracking overriding track_level */
@@ -1356,11 +1359,8 @@ pgsp_store(char *plan, queryid_t queryId,
 
 	e->counters.blk_read_time += INSTR_TIME_GET_MILLISEC(bufusage->blk_read_time);
 	e->counters.blk_write_time += INSTR_TIME_GET_MILLISEC(bufusage->blk_write_time);
-
-#if PG_VERSION_NUM >= 150000
 	e->counters.temp_blk_read_time += INSTR_TIME_GET_MILLISEC(bufusage->temp_blk_read_time);
 	e->counters.temp_blk_write_time += INSTR_TIME_GET_MILLISEC(bufusage->temp_blk_write_time);
-#endif
 
 	e->counters.last_call = GetCurrentTimestamp();
 	e->counters.usage += USAGE_EXEC(total_time);
