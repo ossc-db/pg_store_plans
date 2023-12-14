@@ -21,7 +21,7 @@ Release:    1%{?dist}
 License:    BSD
 Group:      Applications/Databases
 Source0:    %{name}-%{version}.tar.gz
-#URL:        http://example.com/pg_store_plans/
+URL:        https://github.com/ossc-db/pg_store_plans/
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u} -n)
 Vendor:     NIPPON TELEGRAPH AND TELEPHONE CORPORATION
 
