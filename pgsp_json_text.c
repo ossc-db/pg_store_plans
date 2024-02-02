@@ -26,6 +26,13 @@
 #include "pgsp_json_text.h"
 #include "pgsp_json_int.h"
 
+#if PG_VERSION_NUM < 160000
+#define JsonParseErrorType void
+#define JSONACTION_RETURN_SUCCESS()
+#else
+#define JSONACTION_RETURN_SUCCESS() return JSON_SUCCESS
+#endif
+
 static void clear_nodeval(node_vals *vals);
 static void print_current_node(pgspParserContext *ctx);
 static void print_current_trig_node(pgspParserContext *ctx);
@@ -35,13 +42,16 @@ static void print_prop_if_exists(StringInfo s, char *prepstr,
 								 const char *prop, int leve, int exind);
 static void print_prop_if_nz(StringInfo s, char *prepstr,
 							 const char *prop, int leve, int exind);
-static void json_text_objstart(void *state);
-static void json_text_objend(void *state);
-static void json_text_arrstart(void *state);
-static void json_text_arrend(void *state);
-static void json_text_ofstart(void *state, char *fname, bool isnull);
-static void json_text_ofend(void *state, char *fname, bool isnull);
-static void json_text_scalar(void *state, char *token, JsonTokenType tokentype);
+static JsonParseErrorType json_text_objstart(void *state);
+static JsonParseErrorType json_text_objend(void *state);
+static JsonParseErrorType json_text_arrstart(void *state);
+static JsonParseErrorType json_text_arrend(void *state);
+static JsonParseErrorType json_text_ofstart(void *state, char *fname,
+											bool isnull);
+static JsonParseErrorType json_text_ofend(void *state, char *fname,
+										  bool isnull);
+static JsonParseErrorType json_text_scalar(void *state, char *token,
+										   JsonTokenType tokentype);
 
 /* Parser callbacks for plan textization */
 
@@ -746,7 +756,7 @@ clear_nodeval(node_vals *vals)
 	memset(vals, 0, sizeof(node_vals));
 }
 
-static void
+static JsonParseErrorType
 json_text_objstart(void *state)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
@@ -768,9 +778,11 @@ json_text_objstart(void *state)
 		resetStringInfo(v->group_key);
 		resetStringInfo(v->hash_key);
 	}
+
+	JSONACTION_RETURN_SUCCESS();
 }
 
-static void
+static JsonParseErrorType
 json_text_objend(void *state)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
@@ -821,9 +833,11 @@ json_text_objend(void *state)
 
 	ctx->last_elem_is_object = true;
 	ctx->level--;
+
+	JSONACTION_RETURN_SUCCESS();
 }
 
-static void
+static JsonParseErrorType
 json_text_arrstart(void *state)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
@@ -832,9 +846,11 @@ json_text_arrstart(void *state)
 	{
 		ctx->wlist_level++;
 	}
+
+	JSONACTION_RETURN_SUCCESS();
 }
 
-static void
+static JsonParseErrorType
 json_text_arrend(void *state)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
@@ -878,9 +894,11 @@ json_text_arrend(void *state)
 		}
 		ctx->wlist_level--;
 	}
+
+	JSONACTION_RETURN_SUCCESS();
 }
 
-static void
+static JsonParseErrorType
 json_text_ofstart(void *state, char *fname, bool isnull)
 {
 	word_table *p;
@@ -951,9 +969,11 @@ json_text_ofstart(void *state, char *fname, bool isnull)
 			ctx->section = p->tag;
 		ctx->setter = p->setter;
 	}
+
+	JSONACTION_RETURN_SUCCESS();
 }
 
-static void
+static JsonParseErrorType
 json_text_ofend(void *state, char *fname, bool isnull)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
@@ -992,15 +1012,19 @@ json_text_ofend(void *state, char *fname, bool isnull)
 		}
 		clear_nodeval(v);
 	}
+
+	JSONACTION_RETURN_SUCCESS();
 }
 
-static void
+static JsonParseErrorType
 json_text_scalar(void *state, char *token, JsonTokenType tokentype)
 {
 	pgspParserContext *ctx = (pgspParserContext *)state;
 
 	if (ctx->setter)
 		ctx->setter(ctx->nodevals, token);
+
+	JSONACTION_RETURN_SUCCESS();
 }
 
 char *

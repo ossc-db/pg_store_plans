@@ -53,7 +53,9 @@
 #include "tcop/utility.h"
 #include "utils/acl.h"
 #include "utils/builtins.h"
-#if PG_VERSION_NUM >= 140000
+#if PG_VERSION_NUM >= 160000
+#include "nodes/queryjumble.h"
+#elif PG_VERSION_NUM >= 140000
 #include "utils/queryjumble.h"
 #endif
 #include "utils/timestamp.h"
@@ -261,7 +263,7 @@ static const struct config_enum_entry plan_storage_options[] =
 };
 
 static int	store_size;			/* max # statements to track */
-static int	track_level;		/* tracking level */
+static int	track_level = TRACK_LEVEL_TOP;		/* tracking level */
 static int	min_duration;		/* min duration to record */
 static bool dump_on_shutdown;	/* whether to save stats across shutdown */
 static bool log_analyze;		/* Similar to EXPLAIN (ANALYZE *) */
@@ -269,9 +271,9 @@ static bool log_verbose;		/* Similar to EXPLAIN (VERBOSE *) */
 static bool log_buffers;		/* Similar to EXPLAIN (BUFFERS *) */
 static bool log_timing;			/* Similar to EXPLAIN (TIMING *) */
 static bool log_triggers;		/* whether to log trigger statistics  */
-static int  plan_format;		/* Plan representation style in
+static int  plan_format= PLAN_FORMAT_TEXT;		/* Plan representation style in
 								 * pg_store_plans.plan  */
-static int  plan_storage;		/* Plan storage type */
+static int  plan_storage = PLAN_STORAGE_FILE;	/* Plan storage type */
 
 
 /* disables tracking overriding track_level */
