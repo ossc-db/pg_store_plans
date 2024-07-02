@@ -1579,6 +1579,12 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 			else
 				pstr = SHMEM_PLAN_PTR(entry);
 
+			if (pstr == NULL)
+			{
+				values[i++] = CStringGetTextDatum("<invalid plan>");
+				goto outofblock01;
+			}
+
 			switch (plan_format)
 			{
 				case PLAN_FORMAT_TEXT:
@@ -1612,9 +1618,12 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 				pfree(mstr);
 
 			/* pstr is a pointer onto pbuffer */
+
 		}
 		else
 			values[i++] = CStringGetTextDatum("<insufficient privilege>");
+
+		outofblock01:
 
 		/* copy counters to a local variable to keep locking time short */
 		{
