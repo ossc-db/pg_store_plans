@@ -1120,8 +1120,13 @@ pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
 					DestReceiver *dest, COMPTAG_TYPE *completionTag)
 {
 	int			tag = nodeTag(pstmt->utilityStmt);
-	queryid_t	saved_queryId = pstmt->queryId;
 	bool		reset_force_disabled = false;
+#if PG_VERSION_NUM >= 140000
+	queryid_t	saved_queryId = pstmt->queryId;
+#else
+	int			saved_queryId = 0;
+	(void) saved_queryId; /* mute compiler warning about unused variable */
+#endif
 
 	if (pgsp_enabled(saved_queryId) &&
 		(tag == T_CreateExtensionStmt || tag == T_AlterExtensionStmt) &&
