@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2023, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
-# 
+#
 name: CI
 
 on:
@@ -12,81 +12,48 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+
+    defaults:
+      run:
+        shell: sh
+
     strategy:
       fail-fast: false
-      # Target version of PostgreSQL
       matrix:
-        version: [13, 14, 15]
+        version:
+          - 16
+          - 15
+          - 14
+          - 13
+          - 12
+
     env:
       PGVERSION: ${{ matrix.version }}
-      PGHOME: /home/runner/work/pg_store_plans/pg_store_plans/postgres-dev/${{ matrix.version }}
-      PGDATA: /home/runner/work/pg_store_plans/pg_store_plans/postgres-dev/${{ matrix.version }}/pg_data
-         
+
     steps:
-      - name: Get system info
-        run: |
-          hostname
-          whoami
-          lscpu
-          free
-          df -h
-          uname -a
-          gcc --version
-          pwd
+    - name: checkout
+      uses: actions/checkout@v4
 
-      - name: Build PostgreSQL and pg_stat_statements 
-        run: |
-          psql --version
-          sudo service postgresql stop
-          sudo apt-get -y --purge remove postgresql libpq-dev libpq5 postgresql-client-common postgresql-common
-          sudo apt-get -y install bc libpam-dev libedit-dev
-          
-          echo "### ${PGVERSION} ###"
-          echo "### $PATH ###"
-          git clone https://github.com/postgres/postgres.git postgres-dev
-          cd postgres-dev
-          git checkout -b REL_${PGVERSION}_STABLE origin/REL_${PGVERSION}_STABLE
-          
-          ./configure -q --prefix=${PGHOME} --enable-debug --enable-cassert
-          make -s -j 2
-          make -s install
-          make -s -C contrib/pg_stat_statements
-          make -s -C contrib/pg_stat_statements install
+    - name: install pg
+      run: |
+        sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -v $PGVERSION -p -i
+        sudo -u postgres createuser -s "$USER"
 
-          export PATH=$PATH:${PGHOME}/bin
-          echo "### $PATH ###"
-          mkdir -p ${PGDATA}
-          initdb --no-locale --encoding=UTF8 -D ${PGDATA}
-          pg_ctl -V
-          pg_ctl -D ${PGDATA} start
+    - name: build
+      run: |
+        make PROFILE="-Werror" USE_PGXS=1
+        sudo -E make install USE_PGXS=1
 
-          psql -V
-          psql -l
-          psql -c "select 1;" postgres
+    - name: configure shared_preload_libraries
+      run: |
+        psql -c 'alter system set shared_preload_libraries = pg_stat_statements, pg_store_plans' postgres
+        sudo service postgresql restart
 
-          echo "${PGHOME}/bin" >> $GITHUB_PATH
+    - name: test
+      run: |
+        make installcheck USE_PGXS=1
 
-      - name: Build pg_store_plans
-        run: |
-          echo "### $PGVERSION ###"
-          pwd
-          git clone https://github.com/ossc-db/pg_store_plans.git
-          cd pg_store_plans
-          pwd
-          pg_config
-          make -s USE_PGXS=1 all install
-
-      - name: Startup PostgreSQL
-        run: |
-          echo "### $PGVERSION ###"
-          echo "shared_preload_libraries = 'pg_store_plans, pg_stat_statements'" >> $PGDATA/postgresql.conf
-          pg_ctl -V
-          pg_ctl -D $PGDATA restart
-
-      - name: Regression test
-        run: |
-          echo "### $PGVERSION ###"
-          psql -V
-          cd pg_store_plans
-          make USE_PGXS=1 installcheck
+    - name: show regression diffs
+      if: ${{ failure() }}
+      run: |
+        cat regression.diffs
