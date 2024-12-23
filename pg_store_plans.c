@@ -548,7 +548,7 @@ _PG_init(void)
 
 	EmitWarningsOnPlaceholders("pg_store_plans");
 
-#if PG_VERSION_NUM < 150000	
+#if PG_VERSION_NUM < 150000
 	pgsp_shmem_request();
 #endif
 
@@ -1216,6 +1216,8 @@ pgsp_store(char *plan, queryid_t queryId,
 
 	Assert(plan != NULL && queryId != PGSP_NO_QUERYID);
 
+	memset(&key, 0, sizeof(pgspHashKey));
+
 	/* Safety check... */
 	if (!shared_state || !hash_table)
 		return;
@@ -1292,7 +1294,7 @@ pgsp_store(char *plan, queryid_t queryId,
 		/* shorten_plan is terminated by NUL */
 		if (plan_storage == PLAN_STORAGE_SHMEM)
 			memcpy(SHMEM_PLAN_PTR(entry), shorten_plan, plan_len + 1);
-			
+
 
 		/* If needed, perform garbage collection while exclusive lock held */
 		if (do_gc)
