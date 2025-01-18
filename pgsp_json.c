@@ -29,7 +29,7 @@
 #if PG_VERSION_NUM < 160000
 #include "parser/gram.h"
 #define JsonParseErrorType void
-#define JSONACTION_RETURN_SUCCESS()
+#define JSONACTION_RETURN_SUCCESS() return
 #else
 /* In PG16, include/scan.h was gone. Define required symbols manually.. */
 /* must be in sync with src/backend/parser/gram.h */
