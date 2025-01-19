@@ -1120,10 +1120,9 @@ pgsp_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
 					DestReceiver *dest, COMPTAG_TYPE *completionTag)
 {
 	int			tag = nodeTag(pstmt->utilityStmt);
-	queryid_t	saved_queryId = pstmt->queryId;
 	bool		reset_force_disabled = false;
 
-	if (pgsp_enabled(saved_queryId) &&
+	if (pgsp_enabled(pstmt->queryId) &&
 		(tag == T_CreateExtensionStmt || tag == T_AlterExtensionStmt) &&
 		!force_disabled && track_level < TRACK_LEVEL_VERBOSE)
 	{
