@@ -172,7 +172,7 @@ INSERT INTO plans (VALUES
   "Worker Number": 0,
   "Async Capable": 0
 }'),(-3, '###### Plan -3: expression tokens 1/1',
- '{"Output": ["~NULL!1.2@''abc''#0b111^0xfff&123|CURRENT_CATALOG`CURRENT_DATE?CURRENT_ROLE+CURRENT_SCHEMA-CURRENT_TIME*CURRENT_TIMESTAMP/CURRENT_USER%LOCALTIME<LOCALTIMESTAMP>true=false"]}
+ '{"Output": ["~NULL!1.2@''abc''^123|CURRENT_CATALOG`CURRENT_DATE?CURRENT_ROLE+CURRENT_SCHEMA-CURRENT_TIME*CURRENT_TIMESTAMP/CURRENT_USER%LOCALTIME<LOCALTIMESTAMP>true=false"]}
 }'),(-4, '###### Plan -4: some properties plus unknown key',
  '{
   "Plan": 0,
