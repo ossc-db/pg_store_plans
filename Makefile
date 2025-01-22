@@ -1,7 +1,7 @@
 # pg_stat_plan/Makefile
 
 MODULES = pg_store_plans
-STOREPLANSVER = 1.8
+STOREPLANSVER = 1.9
 
 MODULE_big = pg_store_plans
 OBJS = pg_store_plans.o pgsp_json.o pgsp_json_text.o pgsp_explain.o
@@ -10,7 +10,7 @@ EXTENSION = pg_store_plans
 
 PG_VERSION := $(shell pg_config --version | sed "s/^PostgreSQL //" | sed "s/\.[0-9]*$$//")
 
-DATA = pg_store_plans--1.8.sql
+DATA = pg_store_plans--1.9.sql
 
 REGRESS = convert store
 REGRESS_OPTS = --temp-config=regress.conf
@@ -25,8 +25,8 @@ include $(top_builddir)/src/Makefile.global
 include $(top_srcdir)/contrib/contrib-global.mk
 endif
 
-STARBALL16 = pg_store_plans16-$(STOREPLANSVER).tar.gz
-STARBALLS = $(STARBALL16)
+STARBALL17 = pg_store_plans17-$(STOREPLANSVER).tar.gz
+STARBALLS = $(STARBALL17)
 
 TARSOURCES = Makefile *.c  *.h \
 	pg_store_plans--*.sql \
@@ -40,7 +40,7 @@ endif
 ## These entries need running server
 DBNAME = postgres
 
-rpms: rpm16
+rpms: rpm17
 
 $(STARBALLS): $(TARSOURCES)
 	if [ -h $(subst .tar.gz,,$@) ]; then rm $(subst .tar.gz,,$@); fi
@@ -52,8 +52,8 @@ $(STARBALLS): $(TARSOURCES)
 	tar -chzf $@ $(addprefix $(subst .tar.gz,,$@)/, $^)
 	rm $(subst .tar.gz,,$@)
 
-rpm16: $(STARBALL16)
-	MAKE_ROOT=`pwd` rpmbuild -bb SPECS/pg_store_plans16.spec
+rpm17: $(STARBALL17)
+	MAKE_ROOT=`pwd` rpmbuild -bb SPECS/pg_store_plans17.spec
 
 testfiles: convert.out convert.sql
 

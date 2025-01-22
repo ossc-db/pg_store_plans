@@ -1,4 +1,4 @@
-/* pg_store_plans/pg_store_plans--1.8.sql */
+/* pg_store_plans/pg_store_plans--1.9.sql */
 
 -- complain if script is sourced in psql, rather than via CREATE EXTENSION
 \echo Use "CREATE EXTENSION pg_store_plans" to load this file. \quit
@@ -80,15 +80,17 @@ CREATE FUNCTION pg_store_plans(
     OUT local_blks_written int8,
     OUT temp_blks_read int8,
     OUT temp_blks_written int8,
-    OUT blk_read_time float8,
-    OUT blk_write_time float8,
+    OUT shared_blk_read_time float8,
+    OUT shared_blk_write_time float8,
+    OUT local_blk_read_time float8,
+    OUT local_blk_write_time float8,
     OUT temp_blk_read_time float8,
     OUT temp_blk_write_time float8,
     OUT first_call timestamptz,
     OUT last_call timestamptz
 )
 RETURNS SETOF record
-AS 'MODULE_PATHNAME', 'pg_store_plans_1_7'
+AS 'MODULE_PATHNAME', 'pg_store_plans_1_9'
 LANGUAGE C
 VOLATILE PARALLEL SAFE;
 

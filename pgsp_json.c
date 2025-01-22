@@ -23,6 +23,9 @@
 #else
 #include "common/jsonapi.h"
 #endif
+#if PG_VERSION_NUM >= 170000
+#include "mb/pg_wchar.h"
+#endif
 #include "pgsp_json.h"
 #include "pgsp_json_int.h"
 
@@ -42,6 +45,20 @@ enum pgsptokentype
     XCONST = 264,                  /* XCONST  */
     Op = 265,                      /* Op  */
     ICONST = 266,                  /* ICONST  */
+#if PG_VERSION_NUM >= 170000
+    CURRENT_CATALOG = 359,         /* CURRENT_CATALOG  */
+    CURRENT_DATE = 360,            /* CURRENT_DATE  */
+    CURRENT_ROLE = 361,            /* CURRENT_ROLE  */
+    CURRENT_SCHEMA = 362,          /* CURRENT_SCHEMA  */
+    CURRENT_TIME = 363,            /* CURRENT_TIME  */
+    CURRENT_TIMESTAMP = 364,       /* CURRENT_TIMESTAMP  */
+    CURRENT_USER = 365,            /* CURRENT_USER  */
+    FALSE_P = 418,                 /* FALSE_P  */
+    LOCALTIME = 512,               /* LOCALTIME  */
+    LOCALTIMESTAMP = 513,          /* LOCALTIMESTAMP  */
+    NULL_P = 552,                  /* NULL_P  */
+    TRUE_P = 708,                  /* TRUE_P  */
+#else
     CURRENT_CATALOG = 358,         /* CURRENT_CATALOG  */
     CURRENT_DATE = 359,            /* CURRENT_DATE  */
     CURRENT_ROLE = 360,            /* CURRENT_ROLE  */
@@ -54,6 +71,7 @@ enum pgsptokentype
     LOCALTIMESTAMP = 503,          /* LOCALTIMESTAMP  */
     NULL_P = 540,                  /* NULL_P  */
     TRUE_P = 689,                  /* TRUE_P  */
+#endif
 };
 #define JSONACTION_RETURN_SUCCESS() return JSON_SUCCESS
 #endif
@@ -1344,10 +1362,15 @@ run_pg_parse_json(JsonLexContext *lex, JsonSemAction *sem)
 void
 init_json_lex_context(JsonLexContext *lex, char *json)
 {
+#if PG_VERSION_NUM >= 170000
+	makeJsonLexContextCstringLen(lex, json, strlen(json),
+								 GetDatabaseEncoding(), true);
+#else
 	lex->input = lex->token_terminator = lex->line_start = json;
 	lex->line_number = 1;
 	lex->input_length = strlen(json);
 	lex->strval = makeStringInfo();
+#endif
 }
 
 static void
