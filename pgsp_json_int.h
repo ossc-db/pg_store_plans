@@ -2,7 +2,7 @@
  *
  * pgsp_json_int.h: Definitions for internal use for pgsp_json.c
  *
- * Copyright (c) 2012-2024, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+ * Copyright (c) 2012-2025, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
  *
  * IDENTIFICATION
  *	  pg_store_plans/pgsp_json_int.h
