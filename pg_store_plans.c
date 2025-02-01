@@ -40,6 +40,9 @@
 #include "catalog/pg_authid.h"
 #include "commands/explain.h"
 #include "access/hash.h"
+#if PG_VERSION_NUM >= 90500
+#include "access/parallel.h"
+#endif
 #include "executor/instrument.h"
 #include "funcapi.h"
 #include "mb/pg_wchar.h"
@@ -68,6 +71,10 @@ PG_MODULE_MAGIC;
 /* Location of stats file */
 #define PGSP_DUMP_FILE	"global/pg_store_plans.stat"
 #define PGSP_TEXT_FILE	PG_STAT_TMP_DIR "/pgsp_plan_texts.stat"
+
+#if PG_VERSION_NUM < 90500
+#define		IsParallelWorker()		(false)
+#endif
 
 /* PostgreSQL major version number, changes in which invalidate all entries */
 static const uint32 PGSP_PG_MAJOR_VERSION = PG_VERSION_NUM / 100;
@@ -949,7 +956,7 @@ error:
 static void
 pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
 {
-	if (log_analyze &&
+	if (!IsParallelWorker() && log_analyze &&
 		(eflags & EXEC_FLAG_EXPLAIN_ONLY) == 0)
 	{
 		queryDesc->instrument_options |=
@@ -967,7 +974,7 @@ pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
 	 * Set up to track total elapsed time in ExecutorRun. Allocate in per-query
 	 * context so as to be free at ExecutorEnd.
 	 */
-	if (queryDesc->totaltime == NULL &&
+	if (!IsParallelWorker() && queryDesc->totaltime == NULL &&
 			pgsp_enabled(queryDesc->plannedstmt->queryId))
 	{
 		MemoryContext oldcxt;
@@ -1036,7 +1043,7 @@ pgsp_ExecutorFinish(QueryDesc *queryDesc)
 static void
 pgsp_ExecutorEnd(QueryDesc *queryDesc)
 {
-	if (queryDesc->totaltime)
+	if (!IsParallelWorker() && queryDesc->totaltime)
 	{
 		/*
 		 * Make sure stats accumulation is done.  (Note: it's okay if several
