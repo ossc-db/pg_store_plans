@@ -11,6 +11,9 @@
  */
 
 #include "postgres.h"
+#if PG_VERSION_NUM >= 130000
+#include "mb/pg_wchar.h"
+#endif
 #include "miscadmin.h"
 #include "nodes/nodes.h"
 #include "nodes/parsenodes.h"
@@ -1347,6 +1350,9 @@ init_json_lex_context(JsonLexContext *lex, char *json)
 	lex->input = lex->token_terminator = lex->line_start = json;
 	lex->line_number = 1;
 	lex->input_length = strlen(json);
+#if PG_VERSION_NUM >= 130000
+	lex->input_encoding = GetDatabaseEncoding();
+#endif
 	lex->strval = makeStringInfo();
 }
 
