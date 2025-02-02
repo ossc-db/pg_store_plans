@@ -36,28 +36,7 @@
 #else
 /* In PG16, include/scan.h was gone. Define required symbols manually.. */
 /* must be in sync with src/backend/parser/gram.h */
-enum pgsptokentype
-{
-    IDENT = 258,                   /* IDENT  */
-    FCONST = 260,                  /* FCONST  */
-    SCONST = 261,                  /* SCONST  */
-    BCONST = 263,                  /* BCONST  */
-    XCONST = 264,                  /* XCONST  */
-    Op = 265,                      /* Op  */
-    ICONST = 266,                  /* ICONST  */
-    CURRENT_CATALOG = 358,         /* CURRENT_CATALOG  */
-    CURRENT_DATE = 359,            /* CURRENT_DATE  */
-    CURRENT_ROLE = 360,            /* CURRENT_ROLE  */
-    CURRENT_SCHEMA = 361,          /* CURRENT_SCHEMA  */
-    CURRENT_TIME = 362,            /* CURRENT_TIME  */
-    CURRENT_TIMESTAMP = 363,       /* CURRENT_TIMESTAMP  */
-    CURRENT_USER = 364,            /* CURRENT_USER  */
-    FALSE_P = 415,                 /* FALSE_P  */
-    LOCALTIME = 502,               /* LOCALTIME  */
-    LOCALTIMESTAMP = 503,          /* LOCALTIMESTAMP  */
-    NULL_P = 540,                  /* NULL_P  */
-    TRUE_P = 689,                  /* TRUE_P  */
-};
+#include "pgsp_token_types.h"
 #define JSONACTION_RETURN_SUCCESS() return JSON_SUCCESS
 #endif
 
@@ -1347,13 +1326,19 @@ run_pg_parse_json(JsonLexContext *lex, JsonSemAction *sem)
 void
 init_json_lex_context(JsonLexContext *lex, char *json)
 {
+#if PG_VERSION_NUM < 170000
+	memset(lex, 0, sizeof(JsonLexContext));
 	lex->input = lex->token_terminator = lex->line_start = json;
 	lex->line_number = 1;
 	lex->input_length = strlen(json);
 #if PG_VERSION_NUM >= 130000
 	lex->input_encoding = GetDatabaseEncoding();
-#endif
+#endif							/* PG13+ */
 	lex->strval = makeStringInfo();
+#else							/* PG17- */
+	makeJsonLexContextCstringLen(lex, json, strlen(json),
+								 GetDatabaseEncoding(), true);
+#endif							/* PG17+ */
 }
 
 static void
