@@ -416,7 +416,7 @@ _PG_init(void)
 	  "Sets the maximum number of plans tracked by pg_store_plans.",
 							NULL,
 							&store_size,
-							1000,
+							5000,
 							100,
 							INT_MAX,
 							PGC_POSTMASTER,
@@ -478,7 +478,7 @@ _PG_init(void)
 					"Minimum duration to record plan in milliseconds.",
 							NULL,
 							&min_duration,
-							0,
+							10,
 							0,
 							INT_MAX,
 							PGC_SUSET,
@@ -524,7 +524,7 @@ _PG_init(void)
 							 "Log timings.",
 							 NULL,
 							 &log_timing,
-							 true,
+							 false,
 							 PGC_SUSET,
 							 0,
 							 NULL,
@@ -1589,6 +1589,9 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 								   pbuffer, pbuffer_size);
 			else
 				pstr = SHMEM_PLAN_PTR(entry);
+
+			if (pstr == NULL)
+				continue;			/* Ignore any entries with bogus texts */
 
 			switch (plan_format)
 			{
