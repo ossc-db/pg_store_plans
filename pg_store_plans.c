@@ -738,6 +738,15 @@ pgsp_shmem_startup(void)
 		pgver != PGSP_PG_MAJOR_VERSION)
 		goto data_error;
 
+	/* check if num is out of range */
+	if (num < 0 || num > store_size)
+	{
+	    ereport(LOG,
+		    (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+		     errmsg("Invalid number of entries in file: %d", num)));
+	    goto data_error;
+	}
+
 	for (i = 0; i < num; i++)
 	{
 		pgspEntry	temp;
@@ -930,6 +939,10 @@ pgsp_shmem_shutdown(int code, Datum arg)
 	/* Unlink query-texts file; it's not needed while shutdown */
 	unlink(PGSP_TEXT_FILE);
 
+	if (pbuffer){
+		free(pbuffer);  // or free(pbuffer)
+		pbuffer = NULL;
+	}
 	return;
 
 error:
@@ -940,6 +953,10 @@ error:
 	if (file)
 		FreeFile(file);
 	unlink(PGSP_DUMP_FILE ".tmp");
+	if (pbuffer){
+		free(pbuffer);  // or free(pbuffer)
+		pbuffer = NULL;
+	}
 }
 
 
@@ -1685,6 +1702,11 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 
 	/* clean up and return the tuplestore */
 	tuplestore_donestoring(tupstore);
+
+	if (pbuffer){
+		free(pbuffer);  // or free(pbuffer)
+		pbuffer = NULL;
+	}
 }
 
 /* Number of output arguments (columns) for pg_stat_statements_info */
