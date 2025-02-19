@@ -108,7 +108,9 @@ typedef enum pgspVersion
 {
 	PGSP_V1_5 = 0,
 	PGSP_V1_6,
-	PGSP_V1_7
+	PGSP_V1_7,
+	/* PGSP_V1_7 interface is used for v1.8 */
+	PGSP_V1_9
 } pgspVersion;
 
 /*
@@ -151,6 +153,10 @@ typedef struct Counters
 	int64		temp_blks_written;	/* # of temp blocks written */
 	double		shared_blk_read_time;/* time spent reading, in msec */
 	double		shared_blk_write_time;/* time spent writing, in msec */
+#if PG_VERSION_NUM >= 170000
+	double		local_blk_read_time;/* time spent reading local blocks,in msec*/
+	double		local_blk_write_time;/* time spent writing local blocks,in ms */
+#endif
 	double		temp_blk_read_time;	/* time spent reading temp blocks,
 									   in msec */
 	double		temp_blk_write_time;/* time spent writing temp blocks,
@@ -328,6 +334,7 @@ PG_FUNCTION_INFO_V1(pg_store_plans_hash_query);
 PG_FUNCTION_INFO_V1(pg_store_plans);
 PG_FUNCTION_INFO_V1(pg_store_plans_1_6);
 PG_FUNCTION_INFO_V1(pg_store_plans_1_7);
+PG_FUNCTION_INFO_V1(pg_store_plans_1_9);
 PG_FUNCTION_INFO_V1(pg_store_plans_shorten);
 PG_FUNCTION_INFO_V1(pg_store_plans_normalize);
 PG_FUNCTION_INFO_V1(pg_store_plans_jsonplan);
@@ -1363,8 +1370,14 @@ pgsp_store(char *plan, queryid_t queryId,
 	e->counters.temp_blks_written += bufusage->temp_blks_written;
 
 #if PG_VERSION_NUM >= 170000
-	e->counters.shared_blk_read_time += INSTR_TIME_GET_MILLISEC(bufusage->shared_blk_read_time);
-	e->counters.shared_blk_write_time += INSTR_TIME_GET_MILLISEC(bufusage->shared_blk_write_time);
+	e->counters.shared_blk_read_time +=
+		INSTR_TIME_GET_MILLISEC(bufusage->shared_blk_read_time);
+	e->counters.shared_blk_write_time +=
+		INSTR_TIME_GET_MILLISEC(bufusage->shared_blk_write_time);
+	e->counters.local_blk_read_time +=
+		INSTR_TIME_GET_MILLISEC(bufusage->local_blk_read_time);
+	e->counters.local_blk_write_time +=
+		INSTR_TIME_GET_MILLISEC(bufusage->local_blk_write_time);
 #else
 	e->counters.shared_blk_read_time += INSTR_TIME_GET_MILLISEC(bufusage->blk_read_time);
 	e->counters.shared_blk_write_time += INSTR_TIME_GET_MILLISEC(bufusage->blk_write_time);
@@ -1406,11 +1419,20 @@ pg_store_plans_reset(PG_FUNCTION_ARGS)
 #define PG_STORE_PLANS_COLS_V1_5	27
 #define PG_STORE_PLANS_COLS_V1_6	26
 #define PG_STORE_PLANS_COLS_V1_7	28
-#define PG_STORE_PLANS_COLS			28	/* maximum of above */
+#define PG_STORE_PLANS_COLS_V1_9	30
+#define PG_STORE_PLANS_COLS			30	/* maximum of above */
 
 /*
  * Retrieve statement statistics.
  */
+Datum
+pg_store_plans_1_9(PG_FUNCTION_ARGS)
+{
+	pg_store_plans_internal(fcinfo, PGSP_V1_9);
+
+	return (Datum) 0;
+}
+
 Datum
 pg_store_plans_1_7(PG_FUNCTION_ARGS)
 {
@@ -1672,6 +1694,16 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 		values[i++] = Float8GetDatumFast(tmp.shared_blk_read_time);
 		values[i++] = Float8GetDatumFast(tmp.shared_blk_write_time);
 
+		if (api_version >= PGSP_V1_9)
+		{
+#if PG_VERSION_NUM >= 170000
+			values[i++] = Float8GetDatumFast(tmp.local_blk_read_time);
+			values[i++] = Float8GetDatumFast(tmp.local_blk_write_time);
+#else
+			values[i++] = Float8GetDatumFast(0.0);
+			values[i++] = Float8GetDatumFast(0.0);
+#endif
+		}
 		if (api_version >= PGSP_V1_7)
 		{
 			values[i++] = Float8GetDatumFast(tmp.temp_blk_read_time);
@@ -1684,6 +1716,7 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 		Assert(i == (api_version == PGSP_V1_5 ? PG_STORE_PLANS_COLS_V1_5 :
 					 api_version == PGSP_V1_6 ? PG_STORE_PLANS_COLS_V1_6 :
 					 api_version == PGSP_V1_7 ? PG_STORE_PLANS_COLS_V1_7 :
+					 api_version == PGSP_V1_9 ? PG_STORE_PLANS_COLS_V1_9 :
 					 -1 /* fail if you forget to update this assert */ ));
 
 		tuplestore_putvalues(tupstore, tupdesc, values, nulls);

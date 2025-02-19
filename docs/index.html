@@ -156,17 +156,29 @@ View</H2>
     <TD>Total number of temp blocks written by the statement using the
     plan</TD>
     </TR>
-<TR><TD><TT CLASS="STRUCTFIELD">blk_read_time</TT></TD>
+<TR><TD><TT CLASS="STRUCTFIELD">shared_blk_read_time</TT></TD>
     <TD><TT CLASS="TYPE">double precision</TT></TD>
     <TD>&nbsp;</TD>
 
-    <TD>Total time the statement using the plan spent reading blocks, in milliseconds (if <A HREF="http://www.postgresql.org/docs/current/static/runtime-config-statistics.html#GUC-TRACK-IO-TIMING">track_io_timing</A> is enabled, otherwise zero)</TD>
+    <TD>Total time the statement using the plan spent reading shared blocks, in milliseconds (if <A HREF="http://www.postgresql.org/docs/current/static/runtime-config-statistics.html#GUC-TRACK-IO-TIMING">track_io_timing</A> is enabled, otherwise zero)</TD>
     </TR>
-<TR><TD><TT CLASS="STRUCTFIELD">blk_write_time</TT></TD>
+<TR><TD><TT CLASS="STRUCTFIELD">shared_blk_write_time</TT></TD>
     <TD><TT CLASS="TYPE">double precision</TT></TD>
     <TD>&nbsp;</TD>
 
-    <TD>Total time the statement using the plan spent writing blocks, in milliseconds (if <A HREF="http://www.postgresql.org/docs/current/static/runtime-config-statistics.html#GUC-TRACK-IO-TIMING">track_io_timing</A> is enabled, otherwise zero)</TD>
+    <TD>Total time the statement using the plan spent writing shared blocks, in milliseconds (if <A HREF="http://www.postgresql.org/docs/current/static/runtime-config-statistics.html#GUC-TRACK-IO-TIMING">track_io_timing</A> is enabled, otherwise zero)</TD>
+    </TR>
+<TR><TD><TT CLASS="STRUCTFIELD">local_blk_read_time</TT></TD>
+    <TD><TT CLASS="TYPE">double precision</TT></TD>
+    <TD>&nbsp;</TD>
+
+    <TD>Total time the statement using the plan spent reading local blocks, in milliseconds (if <A HREF="http://www.postgresql.org/docs/current/static/runtime-config-statistics.html#GUC-TRACK-IO-TIMING">track_io_timing</A> is enabled, otherwise zero)</TD>
+    </TR>
+<TR><TD><TT CLASS="STRUCTFIELD">local_blk_write_time</TT></TD>
+    <TD><TT CLASS="TYPE">double precision</TT></TD>
+    <TD>&nbsp;</TD>
+
+    <TD>Total time the statement using the plan spent writing local blocks, in milliseconds (if <A HREF="http://www.postgresql.org/docs/current/static/runtime-config-statistics.html#GUC-TRACK-IO-TIMING">track_io_timing</A> is enabled, otherwise zero)</TD>
     </TR>
 <TR><TD><TT CLASS="STRUCTFIELD">temp_blk_read_time</TT></TD>
     <TD><TT CLASS="TYPE">double precision</TT></TD>
