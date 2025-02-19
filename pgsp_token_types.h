@@ -2,6 +2,7 @@
  *
  * pgsp_json.c: Plan handler for JSON/XML/YAML style plans
  *
+ * Copyright (c) 2008-2025, PostgreSQL Global Development Group
  * Copyright (c) 2012-2024, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
  *
  * IDENTIFICATION
