@@ -23,7 +23,7 @@
  * way to pg_stat_statements.
  *
  * Copyright (c) 2008-2025, PostgreSQL Global Development Group
- * Copyright (c) 2012-2024, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
+ * Copyright (c) 2012-2025, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
  *
  * IDENTIFICATION
  *	  pg_store_plans/pg_store_plans.c
