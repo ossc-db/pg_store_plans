@@ -423,7 +423,7 @@ _PG_init(void)
 	  "Sets the maximum number of plans tracked by pg_store_plans.",
 							NULL,
 							&store_size,
-							1000,
+							5000,
 							100,
 							INT_MAX,
 							PGC_POSTMASTER,
@@ -485,7 +485,7 @@ _PG_init(void)
 					"Minimum duration to record plan in milliseconds.",
 							NULL,
 							&min_duration,
-							0,
+							10,
 							0,
 							INT_MAX,
 							PGC_SUSET,
@@ -531,7 +531,7 @@ _PG_init(void)
 							 "Log timings.",
 							 NULL,
 							 &log_timing,
-							 true,
+							 false,
 							 PGC_SUSET,
 							 0,
 							 NULL,
@@ -752,6 +752,15 @@ pgsp_shmem_startup(void)
 		pgver != PGSP_PG_MAJOR_VERSION)
 		goto data_error;
 
+	/* check if num is out of range */
+	if (num < 0 || num > store_size)
+	{
+	    ereport(LOG,
+		    (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+		     errmsg("Invalid number of entries in file: %d", num)));
+	    goto data_error;
+	}
+
 	for (i = 0; i < num; i++)
 	{
 		pgspEntry	temp;
@@ -944,6 +953,10 @@ pgsp_shmem_shutdown(int code, Datum arg)
 	/* Unlink query-texts file; it's not needed while shutdown */
 	unlink(PGSP_TEXT_FILE);
 
+	if (pbuffer){
+		free(pbuffer);  // or free(pbuffer)
+		pbuffer = NULL;
+	}
 	return;
 
 error:
@@ -954,6 +967,10 @@ error:
 	if (file)
 		FreeFile(file);
 	unlink(PGSP_DUMP_FILE ".tmp");
+	if (pbuffer){
+		free(pbuffer);  // or free(pbuffer)
+		pbuffer = NULL;
+	}
 }
 
 
@@ -1234,6 +1251,7 @@ pgsp_store(char *plan, queryid_t queryId,
 		return;
 
 	/* Set up key for hashtable search */
+	memset(&key, 0, sizeof(key));
 	key.userid = GetUserId();
 	key.dbid = MyDatabaseId;
 	key.queryid = queryId;
@@ -1612,6 +1630,9 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 			else
 				pstr = SHMEM_PLAN_PTR(entry);
 
+			if (pstr == NULL)
+				continue;			/* Ignore any entries with bogus texts */
+
 			switch (plan_format)
 			{
 				case PLAN_FORMAT_TEXT:
@@ -1691,21 +1712,38 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 		values[i++] = Int64GetDatumFast(tmp.local_blks_written);
 		values[i++] = Int64GetDatumFast(tmp.temp_blks_read);
 		values[i++] = Int64GetDatumFast(tmp.temp_blks_written);
-		values[i++] = Float8GetDatumFast(tmp.shared_blk_read_time);
-		values[i++] = Float8GetDatumFast(tmp.shared_blk_write_time);
 
 		if (api_version >= PGSP_V1_9)
 		{
 #if PG_VERSION_NUM >= 170000
+			values[i++] = Float8GetDatumFast(tmp.shared_blk_read_time);
+			values[i++] = Float8GetDatumFast(tmp.shared_blk_write_time);
 			values[i++] = Float8GetDatumFast(tmp.local_blk_read_time);
 			values[i++] = Float8GetDatumFast(tmp.local_blk_write_time);
 #else
+			values[i++] = Float8GetDatumFast(0.0);
+			values[i++] = Float8GetDatumFast(0.0);
 			values[i++] = Float8GetDatumFast(0.0);
 			values[i++] = Float8GetDatumFast(0.0);
 #endif
 		}
 		if (api_version >= PGSP_V1_7)
 		{
+#if PG_VERSION_NUM >= 170000
+			if (api_version < PGSP_V1_9)
+			{
+				values[i++] = Float8GetDatumFast(tmp.shared_blk_read_time+
+												 tmp.local_blk_read_time);
+				values[i++] = Float8GetDatumFast(tmp.shared_blk_write_time+
+												 tmp.local_blk_write_time);
+			}
+#else
+			if (api_version < PGSP_V1_9)
+			{
+				values[i++] = Float8GetDatumFast(tmp.blk_read_time);
+				values[i++] = Float8GetDatumFast(tmp.blk_write_time);
+			}
+#endif
 			values[i++] = Float8GetDatumFast(tmp.temp_blk_read_time);
 			values[i++] = Float8GetDatumFast(tmp.temp_blk_write_time);
 		}
@@ -1723,6 +1761,11 @@ pg_store_plans_internal(FunctionCallInfo fcinfo,
 	}
 
 	LWLockRelease(shared_state->lock);
+
+	if (pbuffer){
+		free(pbuffer);  // or free(pbuffer)
+		pbuffer = NULL;
+	}
 }
 
 /* Number of output arguments (columns) for pg_stat_statements_info */
