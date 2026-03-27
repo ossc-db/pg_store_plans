@@ -34,7 +34,7 @@ TARSOURCES = Makefile *.c  *.h \
 	pg_store_plans.control \
 	docs/* expected/*.out sql/*.sql \
 
-ifneq ($(shell uname), SunOS)
+ifeq ($(filter solaris% darwin%,$(host_os)),)
 LDFLAGS+=-Wl,--build-id
 endif
 
