@@ -63,6 +63,30 @@ enum pgsptokentype
     NULL_P = 552,                  /* NULL_P  */
     TRUE_P = 708,                  /* TRUE_P  */
 };
+#elif PG_VERSION_NUM < 200000
+/* Values verified against a bison-generated gram.h for PG 19beta1. */
+enum pgsptokentype
+{
+    IDENT = 258,                   /* IDENT  */
+    FCONST = 260,                  /* FCONST  */
+    SCONST = 261,                  /* SCONST  */
+    BCONST = 263,                  /* BCONST  */
+    XCONST = 264,                  /* XCONST  */
+    Op = 265,                      /* Op  */
+    ICONST = 266,                  /* ICONST  */
+    CURRENT_CATALOG = 359,         /* CURRENT_CATALOG  */
+    CURRENT_DATE = 360,            /* CURRENT_DATE  */
+    CURRENT_ROLE = 361,            /* CURRENT_ROLE  */
+    CURRENT_SCHEMA = 362,          /* CURRENT_SCHEMA  */
+    CURRENT_TIME = 363,            /* CURRENT_TIME  */
+    CURRENT_TIMESTAMP = 364,       /* CURRENT_TIMESTAMP  */
+    CURRENT_USER = 365,            /* CURRENT_USER  */
+    FALSE_P = 421,                 /* FALSE_P  */
+    LOCALTIME = 518,               /* LOCALTIME  */
+    LOCALTIMESTAMP = 519,          /* LOCALTIMESTAMP  */
+    NULL_P = 560,                  /* NULL_P  */
+    TRUE_P = 725,                  /* TRUE_P  */
+};
 #else
 #error This version of PostgeSQL is not supported
 #endif

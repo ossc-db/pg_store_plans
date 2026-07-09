@@ -522,8 +522,12 @@ normalize_expr(char *expr, bool preserve_space)
 	/*
 	 * The warnings about nonstandard escape strings is already emitted in the
 	 * core. Just silence them here.
+	 *
+	 * The escape_string_warning field was removed from core_yy_extra_type in
+	 * PG19 as part of the scanner cleanup, so this is a no-op from that
+	 * version onward.
 	 */
-#if PG_VERSION_NUM >= 90500
+#if PG_VERSION_NUM >= 90500 && PG_VERSION_NUM < 190000
 	yyextra.escape_string_warning = false;
 #endif
 	lasttok = 0;

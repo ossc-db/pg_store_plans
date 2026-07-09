@@ -157,19 +157,36 @@ report_triggers(ResultRelInfo *rInfo, bool show_relname, ExplainState *es)
 	for (nt = 0; nt < rInfo->ri_TrigDesc->numtriggers; nt++)
 	{
 		Trigger    *trig = rInfo->ri_TrigDesc->triggers + nt;
+#if PG_VERSION_NUM >= 190000
+		/*
+		 * PG19 split trigger timing/firing counts out of the general
+		 * Instrumentation struct into a dedicated TriggerInstrumentation
+		 * struct (see commit "instrumentation: Separate trigger logic from
+		 * other uses"). ri_TrigInstrument is now an array of those.
+		 */
+		TriggerInstrumentation *tginstr = rInfo->ri_TrigInstrument + nt;
+#else
 		Instrumentation *instr = rInfo->ri_TrigInstrument + nt;
+#endif
 		char	   *relname;
 		char	   *conname = NULL;
 
+#if PG_VERSION_NUM < 190000
 		/* Must clean up instrumentation state */
 		InstrEndLoop(instr);
+#endif
 
 		/*
 		 * We ignore triggers that were never invoked; they likely aren't
 		 * relevant to the current query type.
 		 */
+#if PG_VERSION_NUM >= 190000
+		if (tginstr->firings == 0)
+			continue;
+#else
 		if (instr->ntuples == 0)
 			continue;
+#endif
 
 		pgspExplainOpenGroup("Trigger", NULL, true, es);
 
@@ -181,8 +198,15 @@ report_triggers(ResultRelInfo *rInfo, bool show_relname, ExplainState *es)
 		if (conname)
 			pgspExplainPropertyText("Constraint Name", conname, es);
 		pgspExplainPropertyText("Relation", relname, es);
+#if PG_VERSION_NUM >= 190000
+		pgspExplainPropertyFloat("Time",
+								  1000.0 * INSTR_TIME_GET_DOUBLE(tginstr->instr.total),
+								  3, es);
+		pgspExplainPropertyFloat("Calls", (double) tginstr->firings, 0, es);
+#else
 		pgspExplainPropertyFloat("Time", 1000.0 * instr->total, 3, es);
 		pgspExplainPropertyFloat("Calls", instr->ntuples, 0, es);
+#endif
 
 		if (conname)
 			pfree(conname);

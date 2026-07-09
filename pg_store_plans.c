@@ -44,6 +44,7 @@
 #include "commands/explain_state.h"
 #endif
 #include "access/hash.h"
+#include "access/htup_details.h"
 #if PG_VERSION_NUM >= 90500
 #include "access/parallel.h"
 #endif
@@ -60,6 +61,7 @@
 #include "tcop/utility.h"
 #include "utils/acl.h"
 #include "utils/builtins.h"
+#include "utils/tuplestore.h"
 #if PG_VERSION_NUM >= 160000
 #include "nodes/queryjumble.h"
 #elif PG_VERSION_NUM >= 140000
@@ -688,10 +690,23 @@ pgsp_shmem_startup(void)
 	info.entrysize = sizeof(pgspEntry);
 	if (plan_storage == PLAN_STORAGE_SHMEM)
 		info.entrysize += max_plan_len;
+	/*
+	 * ShmemInitHash() dropped its separate init_size/max_size arguments in
+	 * favor of a single nelems argument in PG19 (the hash table is always
+	 * created at its final size up front, same as store_size was used for
+	 * both arguments here already).
+	 */
+#if PG_VERSION_NUM >= 190000
+	hash_table = ShmemInitHash("pg_store_plans hash",
+								store_size,
+								&info, HASH_ELEM |
+								HASH_BLOBS);
+#else
 	hash_table = ShmemInitHash("pg_store_plans hash",
 							  store_size, store_size,
 							  &info, HASH_ELEM |
 							  HASH_BLOBS);
+#endif
 
 	LWLockRelease(AddinShmemInitLock);
 
@@ -984,11 +999,23 @@ pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
 			(log_buffers ? INSTRUMENT_BUFFERS : 0);
 	}
 
+#if PG_VERSION_NUM >= 190000
+	/*
+	 * As of PG19, top-of-query instrumentation ("totaltime") is requested
+	 * via query_instr_options before the executor starts, and the core
+	 * executor allocates/manages queryDesc->query_instr on its own; there's
+	 * no more InstrAlloc() call for callers to make here.
+	 */
+	if (!IsParallelWorker() && pgsp_enabled(queryDesc->plannedstmt->queryId))
+		queryDesc->query_instr_options |= INSTRUMENT_ALL;
+#endif
+
 	if (prev_ExecutorStart)
 		prev_ExecutorStart(queryDesc, eflags);
 	else
 		standard_ExecutorStart(queryDesc, eflags);
 
+#if PG_VERSION_NUM < 190000
 	/*
 	 * Set up to track total elapsed time in ExecutorRun. Allocate in per-query
 	 * context so as to be free at ExecutorEnd.
@@ -1006,6 +1033,7 @@ pgsp_ExecutorStart(QueryDesc *queryDesc, int eflags)
 										 );
 		MemoryContextSwitchTo(oldcxt);
 	}
+#endif
 
 }
 
@@ -1083,6 +1111,53 @@ pgsp_ExecutorFinish(QueryDesc *queryDesc)
 static void
 pgsp_ExecutorEnd(QueryDesc *queryDesc)
 {
+#if PG_VERSION_NUM >= 190000
+	if (!IsParallelWorker() && queryDesc->query_instr)
+	{
+		double		total_time = INSTR_TIME_GET_DOUBLE(queryDesc->query_instr->total);
+
+		if (pgsp_enabled(queryDesc->plannedstmt->queryId) &&
+			total_time >= (double) min_duration / 1000.0)
+		{
+			queryid_t	  queryid;
+			ExplainState *es;
+			StringInfo	  es_str;
+
+			es = NewExplainState();
+			es_str = es->str;
+
+			es->analyze = queryDesc->instrument_options;
+			es->verbose = log_verbose;
+			es->buffers = (es->analyze && log_buffers);
+			es->timing = (es->analyze && log_timing);
+			es->format = EXPLAIN_FORMAT_JSON;
+
+			ExplainBeginOutput(es);
+			ExplainPrintPlan(es, queryDesc);
+			if (log_triggers)
+				pgspExplainTriggers(es, queryDesc);
+			ExplainEndOutput(es);
+
+			/* Remove last line break */
+			if (es_str->len > 0 && es_str->data[es_str->len - 1] == '\n')
+				es_str->data[--es_str->len] = '\0';
+
+			/* JSON outmost braces. */
+			es_str->data[0] = '{';
+			es_str->data[es_str->len - 1] = '}';
+
+			queryid = queryDesc->plannedstmt->queryId;
+			Assert(queryid != PGSP_NO_QUERYID);
+
+			pgsp_store(es_str->data,
+						queryid,
+						total_time * 1000.0,	/* convert to msec */
+						queryDesc->estate->es_processed,
+						&queryDesc->query_instr->bufusage);
+			pfree(es_str->data);
+		}
+	}
+#else
 	if (!IsParallelWorker() && queryDesc->totaltime)
 	{
 		/*
@@ -1147,6 +1222,7 @@ pgsp_ExecutorEnd(QueryDesc *queryDesc)
 			pfree(es_str->data);
 		}
 	}
+#endif
 
 	if (prev_ExecutorEnd)
 		prev_ExecutorEnd(queryDesc);
