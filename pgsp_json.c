@@ -548,7 +548,7 @@ normalize_expr(char *expr, bool preserve_space)
 			if (lasttok == IDENT)
 			{
 				/* Identifiers are copied in case-sensitive manner. */
-				memcpy(wp, expr + i, i2 - i);
+				memmove(wp, expr + i, i2 - i);
 				wp += i2 - i;
 			}
 #if PG_VERSION_NUM >= 100000
