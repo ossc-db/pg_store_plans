@@ -1,0 +1,116 @@
+SET client_min_messages = 'error';
+CREATE EXTENSION IF NOT EXISTS pg_store_plans;
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+SELECT pg_stat_statements_reset() IS NOT NULL AS t;
+ t 
+---
+ t
+(1 row)
+
+SELECT pg_store_plans_reset();
+ pg_store_plans_reset 
+----------------------
+ 
+(1 row)
+
+DROP TABLE IF EXISTS t1;
+CREATE TABLE t1 (a int);
+CREATE INDEX ON t1 (a);
+INSERT INTO t1 (SELECT a FROM generate_series(0, 9999) a);
+RESET enable_seqscan;
+RESET enable_bitmapscan;
+SELECT count(*) FROM (SELECT * FROM t1) AS x;
+ count 
+-------
+ 10000
+(1 row)
+
+SET enable_seqscan TO false;
+SELECT count(*) FROM (SELECT * FROM t1) AS x;
+ count 
+-------
+ 10000
+(1 row)
+
+SELECT count(*) FROM (SELECT * FROM t1) AS x;
+ count 
+-------
+ 10000
+(1 row)
+
+SET enable_bitmapscan TO false;
+SELECT count(*) FROM (SELECT * FROM t1) AS x;
+ count 
+-------
+ 10000
+(1 row)
+
+SELECT count(*) FROM (SELECT * FROM t1) AS x;
+ count 
+-------
+ 10000
+(1 row)
+
+SELECT count(*) FROM (SELECT * FROM t1) AS x;
+ count 
+-------
+ 10000
+(1 row)
+
+RESET enable_seqscan;
+RESET enable_bitmapscan;
+CREATE OR REPLACE FUNCTION test_explain() RETURNS text AS
+$x$
+DECLARE
+    r record;
+    s text;
+    p text;
+    totalrows int;
+    totalcalls int;
+    first bool;
+BEGIN
+    s := '';
+    first = true;
+    SELECT calls, rows INTO totalcalls, totalrows
+    FROM pg_stat_statements
+    WHERE query = 'SELECT count(*) FROM (SELECT * FROM t1) AS x';
+
+    FOR r IN SELECT s.query as q, p.plan as p, p.calls as c, p.rows r
+             FROM pg_stat_statements s
+             JOIN pg_store_plans p USING (queryid)
+             WHERE s.query = 'SELECT count(*) FROM (SELECT * FROM t1) AS x'
+             ORDER BY p.calls
+    LOOP
+      IF first then
+        s = r.q || E'\n  totalcalls=' || totalcalls ||
+            ' , totalrows=' || totalrows || E'\n';
+        first := false;
+      END IF;
+      p := regexp_replace(r.p, '=[0-9.]+([^0-9.])', '=xxx\1', 'g');
+      s := s || p || E'\n  calls=' || r.c || ', rows=' || r.r || E'\n';
+    END LOOP;
+
+    RETURN s;
+END
+$x$
+LANGUAGE plpgsql;
+SELECT test_explain();
+                                test_explain                                 
+-----------------------------------------------------------------------------
+ SELECT count(*) FROM (SELECT * FROM t1) AS x                               +
+   totalcalls=6 , totalrows=6                                               +
+ Aggregate  (cost=xxx rows=xxx width=xxx)                                   +
+   ->  Seq Scan on t1  (cost=xxx rows=xxx width=xxx)                        +
+   calls=1, rows=1                                                          +
+ Aggregate  (cost=xxx rows=xxx width=xxx)                                   +
+   ->  Bitmap Heap Scan on t1  (cost=xxx rows=xxx width=xxx)                +
+         ->  Bitmap Index Scan using t1_a_idx  (cost=xxx rows=xxx width=xxx)+
+   calls=2, rows=2                                                          +
+ Aggregate  (cost=xxx rows=xxx width=xxx)                                   +
+   ->  Index Only Scan using t1_a_idx on t1  (cost=xxx rows=xxx width=xxx)  +
+   calls=3, rows=3                                                          +
+ 
+(1 row)
+
+DROP FUNCTION test_explain();
+DROP TABLE t1;

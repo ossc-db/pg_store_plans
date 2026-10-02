@@ -2289,7 +2289,7 @@ SELECT '### '||'normalize        '||title||E'\n'||
 
 =======
 ### normalize        ###### Plan -3: expression tokens 1/1
-{"o":["~NULL!?@?^?|?`???+?-?*?/?%?<LOCALTIMESTAMP>TRUE=FALSE"]}
+{"o":["~?!?@?^?|?`???+?-?*?/?%?<?>?=?"]}
 
 =======
 ### normalize        ###### Plan -2: all properties 2/2
@@ -2301,7 +2301,7 @@ SELECT '### '||'normalize        '||title||E'\n'||
 
 =======
 ### normalize        ###### Plan 1: Insert, Trigger
-{"p":{"t":"b","!":"i","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","l":[{"t":"o","h":"o","`":false,"ac":false,"f":"generate_series","s":"pg_catalog","a":"a","o":["a.a","NULL::INTEGER","NULL::TEXT"]}]}{},"r":[{"v":"tt1_trig_1","w":"tt1"}{"v":"tt1_trig_2","w":"tt1"}]}
+{"p":{"t":"b","!":"i","`":false,"ac":false,"n":"tt1","s":"public","a":"tt1","l":[{"t":"o","h":"o","`":false,"ac":false,"f":"generate_series","s":"pg_catalog","a":"a","o":["a.a","?::INTEGER","?::TEXT"]}]}{},"r":[{"v":"tt1_trig_1","w":"tt1"}{"v":"tt1_trig_2","w":"tt1"}]}
 
 =======
 ### normalize        ###### Plan 2: Update, Trigger

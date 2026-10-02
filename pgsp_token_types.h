@@ -40,7 +40,7 @@ enum pgsptokentype
     NULL_P = 540,                  /* NULL_P  */
     TRUE_P = 689,                  /* TRUE_P  */
 };
-#elif PG_VERSION_NUM < 190000
+#elif PG_VERSION_NUM < 180000
 enum pgsptokentype
 {
     IDENT = 258,                   /* IDENT  */
@@ -62,6 +62,29 @@ enum pgsptokentype
     LOCALTIMESTAMP = 513,          /* LOCALTIMESTAMP  */
     NULL_P = 552,                  /* NULL_P  */
     TRUE_P = 708,                  /* TRUE_P  */
+};
+#elif PG_VERSION_NUM < 190000
+enum pgsptokentype
+{
+    IDENT = 258,                   /* IDENT  */
+    FCONST = 260,                  /* FCONST  */
+    SCONST = 261,                  /* SCONST  */
+    BCONST = 263,                  /* BCONST  */
+    XCONST = 264,                  /* XCONST  */
+    Op = 265,                      /* Op  */
+    ICONST = 266,                  /* ICONST  */
+    CURRENT_CATALOG = 359,         /* CURRENT_CATALOG  */
+    CURRENT_DATE = 360,            /* CURRENT_DATE  */
+    CURRENT_ROLE = 361,            /* CURRENT_ROLE  */
+    CURRENT_SCHEMA = 362,          /* CURRENT_SCHEMA  */
+    CURRENT_TIME = 363,            /* CURRENT_TIME  */
+    CURRENT_TIMESTAMP = 364,       /* CURRENT_TIMESTAMP  */
+    CURRENT_USER = 365,            /* CURRENT_USER  */
+    FALSE_P = 419,                 /* FALSE_P  */
+    LOCALTIME = 513,               /* LOCALTIME  */
+    LOCALTIMESTAMP = 514,          /* LOCALTIMESTAMP  */
+    NULL_P = 553,                  /* NULL_P  */
+    TRUE_P = 710,                  /* TRUE_P  */
 };
 #else
 #error This version of PostgeSQL is not supported
